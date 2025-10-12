@@ -1,6 +1,6 @@
 """
 OAuth 2.0 authentication handler using google-auth library.
-Handles Google Drive authentication with persistent token storage.
+Handles Google Drive and Gmail authentication with persistent token storage.
 """
 
 from google_auth_oauthlib.flow import Flow
@@ -12,11 +12,17 @@ from typing import Optional
 class GoogleOAuthHandler:
     """Handle OAuth 2.0 authentication for Google services"""
     
-    # Google Drive scopes
+    # Google Drive and Gmail scopes
     SCOPES = [
+        # Google Drive scopes
         'https://www.googleapis.com/auth/drive.readonly',
         'https://www.googleapis.com/auth/drive.file',
-        'https://www.googleapis.com/auth/drive.metadata.readonly'
+        'https://www.googleapis.com/auth/drive.metadata.readonly',
+        # Gmail scopes
+        'https://www.googleapis.com/auth/gmail.readonly',
+        'https://www.googleapis.com/auth/gmail.modify',
+        'https://www.googleapis.com/auth/gmail.compose',
+        'https://www.googleapis.com/auth/gmail.labels'
     ]
     
     def __init__(self, client_id: str, client_secret: str, redirect_uri: str = "http://localhost:5001/api/oauth/callback"):
