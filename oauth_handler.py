@@ -14,10 +14,9 @@ class GoogleOAuthHandler:
     
     # Google Drive and Gmail scopes
     SCOPES = [
-        # Google Drive scopes
-        'https://www.googleapis.com/auth/drive.readonly',
-        'https://www.googleapis.com/auth/drive.file',
-        'https://www.googleapis.com/auth/drive.metadata.readonly',
+        # Google Drive scopes - need full drive scope to edit existing files
+        'https://www.googleapis.com/auth/drive',  # Full access to all files
+        'https://www.googleapis.com/auth/spreadsheets',  # Specific Google Sheets access
         # Gmail scopes
         'https://www.googleapis.com/auth/gmail.readonly',
         'https://www.googleapis.com/auth/gmail.modify',

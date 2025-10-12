@@ -159,6 +159,22 @@ Try these commands in the chat:
 
 ## Troubleshooting
 
+### Error: "Scope has changed" or Permission Issues
+
+**Problem**: Getting scope mismatch errors or permission denied when accessing files.
+
+**Solution**:
+1. **IMPORTANT**: Revoke app access from Google Account first
+   - Go to https://myaccount.google.com/permissions
+   - Find your MCP Chat App
+   - Click "Remove Access"
+2. Clear local token storage: `rm -rf .mcp_data/tokens.db`
+3. Restart the backend
+4. Reconnect with Google in the chat app
+5. Grant all requested permissions
+
+**Note**: When OAuth scopes change (like adding Sheets API), you MUST revoke the app from your Google account to get a fresh token with the new scopes. Simply disconnecting in the app is not enough.
+
 ### Error: "redirect_uri_mismatch"
 
 **Problem**: The redirect URI doesn't match what's configured in Google Cloud Console.
