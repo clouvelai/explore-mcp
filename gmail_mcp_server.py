@@ -261,8 +261,8 @@ def get_unread_count() -> str:
         return f"An unexpected error occurred: {error}"
 
 @mcp.tool()
-def send_message(to: str, subject: str, body: str) -> str:
-    """Send an email message.
+def create_draft(to: str, subject: str, body: str) -> str:
+    """Create an email draft (does not send).
     
     Args:
         to: Recipient email address
@@ -270,7 +270,7 @@ def send_message(to: str, subject: str, body: str) -> str:
         body: Email body text
         
     Returns:
-        Success message with sent message ID
+        Success message with draft ID
     """
     try:
         service = get_gmail_service()
@@ -283,13 +283,13 @@ def send_message(to: str, subject: str, body: str) -> str:
         # Encode message
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
         
-        # Send message
-        sent_message = service.users().messages().send(
+        # Create draft
+        draft = service.users().drafts().create(
             userId='me',
-            body={'raw': raw_message}
+            body={'message': {'raw': raw_message}}
         ).execute()
         
-        return f"✅ Message sent successfully!\nMessage ID: {sent_message['id']}\nTo: {to}\nSubject: {subject}"
+        return f"✅ Draft created successfully!\nDraft ID: {draft['id']}\nTo: {to}\nSubject: {subject}\n\nYou can review and send this draft from Gmail."
         
     except HttpError as error:
         return f"An error occurred: {error}"

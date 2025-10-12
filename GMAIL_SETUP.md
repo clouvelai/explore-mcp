@@ -47,7 +47,7 @@ If you already have OAuth credentials from Google Drive setup:
 5. Search for and add these Gmail scopes:
    - `https://www.googleapis.com/auth/gmail.readonly` - Read emails
    - `https://www.googleapis.com/auth/gmail.modify` - Mark as read/unread
-   - `https://www.googleapis.com/auth/gmail.send` - Send emails
+   - `https://www.googleapis.com/auth/gmail.compose` - Create drafts
    - `https://www.googleapis.com/auth/gmail.labels` - Manage labels
 6. Click **UPDATE** then **SAVE AND CONTINUE**
 
@@ -166,7 +166,8 @@ Browser should open at: http://localhost:3000
 4. **Sign in** with your Google account (if not already signed in)
 
 5. **Grant permissions** when prompted:
-   - Read, compose, send, and permanently delete all your email from Gmail
+   - View and modify your email messages and settings
+   - Create, read, update, and delete drafts
    - See, edit, create, and delete all your Google Drive files
    - (If you already granted Google Drive permissions, you might see additional Gmail permissions)
 
@@ -203,15 +204,16 @@ Try these commands in the chat:
 - "Mark message abc123 as read"
 - "Mark message abc123 as unread"
 
-### Send Email (use with caution!)
-- "Send an email to test@example.com with subject 'Hello' and body 'This is a test'"
+### Create Drafts
+- "Create a draft email to test@example.com with subject 'Hello' and body 'This is a test'"
+- "Draft a reply to john about the meeting"
 
 ### Labels
 - "List all my Gmail labels"
 
 ## Security Note
 
-**Be careful with the send_message tool!** The chat agent can send emails on your behalf. Always review what the agent plans to do before confirming actions.
+The `create_draft` tool creates email drafts but **does not send them**. You can review and edit drafts in Gmail before sending, giving you full control over outgoing emails.
 
 ## Troubleshooting
 
@@ -340,7 +342,7 @@ The Gmail MCP server is structured similarly to Google Drive but with email-spec
 - list_files, search_files, read_file, edit_file, create_text_file
 
 **Gmail Tools**:
-- list_messages, search_messages, read_message, send_message
+- list_messages, search_messages, read_message, create_draft
 - mark_as_read, mark_as_unread, get_unread_count, list_labels
 
 **Shared Infrastructure**:
