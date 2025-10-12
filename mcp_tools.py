@@ -12,7 +12,22 @@ def register_tools(mcp: FastMCP):
     """Register all tools with the given FastMCP instance."""
     
     @mcp.tool()
-    def sum(a: float, b: float) -> str:
+    def add(a: float, b: float) -> str:
+        """Add two numbers together.
+        
+        Args:
+            a: The first number
+            b: The second number
+            
+        Returns:
+            A message with the sum of the two numbers
+        """
+        result = a + b
+        return f"The sum of {a} and {b} is {result}"
+    
+    # Keep 'sum' as an alias for backwards compatibility
+    @mcp.tool(name="sum")
+    def sum_tool(a: float, b: float) -> str:
         """Add two numbers together.
         
         Args:
@@ -41,6 +56,7 @@ def register_tools(mcp: FastMCP):
         if len(numbers) == 1:
             return f"The sum is {numbers[0]}"
         
+        # Now we can safely use the built-in sum function
         result = sum(numbers)
         numbers_str = " + ".join(str(n) for n in numbers)
         return f"The sum of {numbers_str} is {result}"
