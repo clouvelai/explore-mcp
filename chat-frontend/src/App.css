@@ -53,6 +53,102 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
+.servers-panel {
+  background: #f8f9fa;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.servers-panel h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: #666;
+}
+
+.servers-list {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.server-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.server-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.server-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.server-status {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.server-status.connected {
+  background: #d4edda;
+  color: #155724;
+}
+
+.server-status.disconnected {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.server-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-connect,
+.btn-disconnect {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-connect {
+  background: #4285f4;
+  color: white;
+}
+
+.btn-connect:hover {
+  background: #357ae8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
+}
+
+.btn-disconnect {
+  background: #f1f3f4;
+  color: #5f6368;
+  border: 1px solid #dadce0;
+}
+
+.btn-disconnect:hover {
+  background: #e8eaed;
+}
+
 .tools-panel {
   background: #f8f9fa;
   padding: 12px 20px;
@@ -256,6 +352,15 @@
 .tool-call-result strong {
   color: #333;
   font-weight: 600;
+}
+
+.tool-call-args pre,
+.tool-call-result pre {
+  display: inline;
+  font-family: inherit;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
 }
 
 .typing-indicator {

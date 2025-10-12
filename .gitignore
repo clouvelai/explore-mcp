@@ -47,6 +47,10 @@ uv.lock
 .env
 .env.local
 
+# MCP token storage (contains OAuth tokens - DO NOT COMMIT)
+.mcp_data/
+*.db
+
 # React/Node
 chat-frontend/node_modules/
 chat-frontend/build/

@@ -6,14 +6,107 @@ function App() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [tools, setTools] = useState([]);
+  const [servers, setServers] = useState([]);
+  const [authWindow, setAuthWindow] = useState(null);
 
-  // Fetch available tools on mount
+  // Fetch servers and tools on mount
   useEffect(() => {
-    fetch('http://localhost:5001/api/tools')
-      .then(res => res.json())
-      .then(data => setTools(data.tools || []))
-      .catch(err => console.error('Error fetching tools:', err));
+    fetchServers();
+    fetchTools();
   }, []);
+
+  // Poll for server status changes (after auth)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchServers();
+      fetchTools();
+    }, 3000); // Check every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchServers = async () => {
+    try {
+      const res = await fetch('http://localhost:5001/api/servers');
+      const data = await res.json();
+      setServers(data.servers || []);
+    } catch (err) {
+      console.error('Error fetching servers:', err);
+    }
+  };
+
+  const fetchTools = async () => {
+    try {
+      const res = await fetch('http://localhost:5001/api/tools');
+      const data = await res.json();
+      setTools(data.tools || []);
+    } catch (err) {
+      console.error('Error fetching tools:', err);
+    }
+  };
+
+  const authenticateServer = async (serverKey) => {
+    try {
+      const res = await fetch(`http://localhost:5001/api/oauth/start/${serverKey}`);
+      const data = await res.json();
+      
+      if (data.error) {
+        alert(`Error: ${data.error}`);
+        return;
+      }
+
+      // Open auth window
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      
+      const popup = window.open(
+        data.auth_url,
+        'OAuth Authentication',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+      
+      setAuthWindow(popup);
+
+      // Poll to check if window closed
+      const pollTimer = setInterval(() => {
+        if (popup && popup.closed) {
+          clearInterval(pollTimer);
+          setAuthWindow(null);
+          // Refresh servers and tools
+          fetchServers();
+          fetchTools();
+        }
+      }, 500);
+
+    } catch (error) {
+      alert(`Error starting authentication: ${error.message}`);
+    }
+  };
+
+  const disconnectServer = async (serverKey) => {
+    if (!window.confirm('Are you sure you want to disconnect this server?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5001/api/oauth/disconnect/${serverKey}`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      
+      if (data.error) {
+        alert(`Error: ${data.error}`);
+      } else {
+        // Refresh servers and tools
+        fetchServers();
+        fetchTools();
+      }
+    } catch (error) {
+      alert(`Error disconnecting: ${error.message}`);
+    }
+  };
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -45,7 +138,7 @@ function App() {
         const assistantMessage = {
           role: 'assistant',
           content: data.response,
-          toolCalls: data.tool_calls || []  // Array of all tool calls
+          toolCalls: data.tool_calls || []
         };
         setMessages(prev => [...prev, assistantMessage]);
       }
@@ -74,21 +167,59 @@ function App() {
         {/* Header */}
         <div className="chat-header">
           <div className="header-content">
-            <h1>🧮 MCP Calculator Chat</h1>
-            <p>Chat with GPT-4 connected to your MCP server</p>
+            <h1>🤖 Multi-Server MCP Chat</h1>
+            <p>Chat with GPT-4 connected to multiple MCP servers</p>
           </div>
           <button onClick={clearChat} className="clear-btn">
             Clear Chat
           </button>
         </div>
 
+        {/* Servers Panel */}
+        {servers.length > 0 && (
+          <div className="servers-panel">
+            <h3>🖥️ Connected Servers:</h3>
+            <div className="servers-list">
+              {servers.map((server) => (
+                <div key={server.key} className="server-card">
+                  <div className="server-info">
+                    <span className="server-name">{server.name}</span>
+                    <span className={`server-status ${server.authenticated ? 'connected' : 'disconnected'}`}>
+                      {server.authenticated ? '✅ Connected' : '⚠️ Not Connected'}
+                    </span>
+                  </div>
+                  {server.requires_auth && (
+                    <div className="server-actions">
+                      {server.authenticated ? (
+                        <button 
+                          onClick={() => disconnectServer(server.key)}
+                          className="btn-disconnect"
+                        >
+                          Disconnect
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => authenticateServer(server.key)}
+                          className="btn-connect"
+                        >
+                          Connect with Google
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Tools Panel */}
         {tools.length > 0 && (
           <div className="tools-panel">
-            <h3>🔧 Available Tools:</h3>
+            <h3>🔧 Available Tools ({tools.length}):</h3>
             <div className="tools-list">
               {tools.map((tool, idx) => (
-                <div key={idx} className="tool-badge">
+                <div key={idx} className="tool-badge" title={tool.function.description}>
                   {tool.function.name}
                 </div>
               ))}
@@ -103,11 +234,16 @@ function App() {
               <h2>👋 Welcome!</h2>
               <p>Try asking me to:</p>
               <ul>
-                <li>"What's 25 + 17?"</li>
-                <li>"Add 42 and 8"</li>
-                <li>"Calculate the sum of 100 and 250"</li>
+                <li>"What's 25 + 17?" (Calculator)</li>
+                <li>"List my recent Google Drive files" (Google Drive)</li>
+                <li>"Search for 'report' in my Drive" (Google Drive)</li>
+                <li>"Add 42 and 8" (Calculator)</li>
               </ul>
-              <p className="hint">The AI will use the MCP server's <code>sum</code> tool automatically!</p>
+              {servers.some(s => s.requires_auth && !s.authenticated) && (
+                <p className="hint">
+                  ⚠️ Don't forget to connect servers that require authentication!
+                </p>
+              )}
             </div>
           )}
           
@@ -134,10 +270,10 @@ function App() {
                           <span className="tool-call-number">#{index + 1}</span>
                         </div>
                         <div className="tool-call-args">
-                          <strong>Input:</strong> {JSON.stringify(toolCall.args, null, 2)}
+                          <strong>Input:</strong> <pre>{JSON.stringify(toolCall.args, null, 2)}</pre>
                         </div>
                         <div className="tool-call-result">
-                          <strong>Output:</strong> {toolCall.result}
+                          <strong>Output:</strong> <pre>{toolCall.result}</pre>
                         </div>
                       </div>
                     ))}
@@ -167,7 +303,7 @@ function App() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask me to calculate something..."
+            placeholder="Ask me to calculate or search your Drive..."
             disabled={loading}
             className="message-input"
           />
@@ -185,4 +321,3 @@ function App() {
 }
 
 export default App;
-

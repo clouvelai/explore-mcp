@@ -1,5 +1,18 @@
-# Copy this file to .env and add your actual API key
+# Copy this file to .env and add your actual credentials
 # cp ENV_TEMPLATE .env
 
+# OpenAI API Key
 OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+
+# Flask Secret Key (generate a random string)
+FLASK_SECRET_KEY=your-random-secret-key-here
+
+# Google OAuth Credentials (for Google Drive MCP server)
+# Get these from: https://console.cloud.google.com/apis/credentials
+# 1. Create a new project or select existing
+# 2. Enable Google Drive API
+# 3. Create OAuth 2.0 Client ID (Web application)
+# 4. Add http://localhost:5001/api/oauth/callback to Authorized redirect URIs
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
 
