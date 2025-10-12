@@ -1,0 +1,5 @@
+# Copy this file to .env and add your actual API key
+# cp ENV_TEMPLATE .env
+
+OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+

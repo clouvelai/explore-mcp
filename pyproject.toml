@@ -1,0 +1,20 @@
+[project]
+name = "explore-mcp"
+version = "0.1.0"
+description = "Learning MCP by building a simple server"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0.0",
+    "fastmcp>=0.2.0",
+    "openai>=1.0.0",
+    "python-dotenv>=1.0.0",
+    "flask>=3.0.0",
+    "flask-cors>=4.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0",
+]
+
