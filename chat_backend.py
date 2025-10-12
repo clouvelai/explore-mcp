@@ -3,10 +3,10 @@ Chat backend that connects OpenAI to multiple MCP servers.
 
 This Flask backend:
 1. Receives chat messages from the frontend
-2. Connects to multiple MCP servers (calculator + Google Drive)
+2. Connects to multiple MCP servers (calculator, Google Drive, and Gmail)
 3. Calls OpenAI with tool definitions from all servers
 4. Executes MCP tools when OpenAI requests them
-5. Handles OAuth flow for Google Drive authentication
+5. Handles OAuth flow for Google Drive and Gmail authentication
 6. Returns responses to the frontend
 """
 
@@ -57,6 +57,13 @@ MCP_SERVERS = {
         "name": "Google Drive",
         "command": "python",
         "args": ["google_drive_mcp_server.py"],
+        "requires_auth": True,
+        "auth_type": "google_oauth"
+    },
+    "gmail": {
+        "name": "Gmail",
+        "command": "python",
+        "args": ["gmail_mcp_server.py"],
         "requires_auth": True,
         "auth_type": "google_oauth"
     }
