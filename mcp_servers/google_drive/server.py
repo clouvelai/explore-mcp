@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 """
-DEPRECATED: This is a backwards compatibility wrapper.
-Use mcp_servers/google_drive/server.py instead.
-
 Simple Google Drive MCP Server
 
 This server provides tools to interact with Google Drive using the Google Drive API.
 It requires OAuth authentication via environment variables.
 """
 
+from fastmcp import FastMCP
 import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-# Add the project root to Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from mcp_servers.google_drive.tools import register_tools
 
-# Import and run the new Google Drive server
-from mcp_servers.google_drive.server import mcp
+# Create the FastMCP server instance
+mcp = FastMCP("google-drive")
+
+# Register all tools
+register_tools(mcp)
 
 if __name__ == "__main__":
     # FastMCP handles all the stdio server setup automatically
