@@ -45,7 +45,7 @@ def get_drive_service():
         )
         
         # Refresh token if needed
-        if creds.expired:
+        if creds.expired and creds.refresh_token:
             creds.refresh(Request())
         
         # Build the service
@@ -342,14 +342,14 @@ def read_file(file_id: str) -> str:
         return f"An unexpected error occurred: {error}"
 
 @mcp.tool()
-def update_spreadsheet_cells(spreadsheet_id: str, range: str, values: List[List[str]]) -> str:
+def update_spreadsheet_cells(spreadsheet_id: str, cell_range: str, values: List[List[str]]) -> str:
     """Update cells in a Google Sheets spreadsheet.
     
     This tool ONLY works with Google Sheets spreadsheets, not other file types.
     
     Args:
         spreadsheet_id: The ID of the Google Sheets spreadsheet
-        range: A1 notation range (e.g., "Sheet1!A1:C3" or "A1:B2")
+        cell_range: A1 notation range (e.g., "Sheet1!A1:C3" or "A1:B2")
         values: 2D list of values to write (rows, then columns)
         
     Returns:
@@ -358,7 +358,7 @@ def update_spreadsheet_cells(spreadsheet_id: str, range: str, values: List[List[
     Example:
         update_spreadsheet_cells(
             spreadsheet_id="1abc123", 
-            range="Sheet1!A1:B2",
+            cell_range="Sheet1!A1:B2",
             values=[["Name", "Score"], ["Alice", "100"]]
         )
     """
@@ -380,7 +380,7 @@ def update_spreadsheet_cells(spreadsheet_id: str, range: str, values: List[List[
         )
         
         # Refresh token if needed
-        if creds.expired:
+        if creds.expired and creds.refresh_token:
             creds.refresh(Request())
         
         # Build the Sheets service
@@ -401,7 +401,7 @@ def update_spreadsheet_cells(spreadsheet_id: str, range: str, values: List[List[
         # Update the spreadsheet
         result = sheets_service.spreadsheets().values().update(
             spreadsheetId=spreadsheet_id,
-            range=range,
+            range=cell_range,
             valueInputOption='USER_ENTERED',  # Allows formulas and automatic parsing
             body=body
         ).execute()
@@ -409,7 +409,7 @@ def update_spreadsheet_cells(spreadsheet_id: str, range: str, values: List[List[
         updated_cells = result.get('updatedCells', 0)
         updated_rows = result.get('updatedRows', 0)
         updated_columns = result.get('updatedColumns', 0)
-        updated_range = result.get('updatedRange', range)
+        updated_range = result.get('updatedRange', cell_range)
         
         return f"✅ Successfully updated spreadsheet: {file_metadata.get('name')}\n" \
                f"Range updated: {updated_range}\n" \
@@ -423,20 +423,20 @@ def update_spreadsheet_cells(spreadsheet_id: str, range: str, values: List[List[
         elif error.resp.status == 403:
             return f"❌ Permission denied. You may not have edit access to this spreadsheet."
         elif error.resp.status == 400:
-            return f"❌ Invalid request. Check that the range '{range}' is valid and matches the size of your values."
+            return f"❌ Invalid request. Check that the range '{cell_range}' is valid and matches the size of your values."
         return f"❌ An error occurred: {error}"
     except Exception as error:
         return f"❌ An unexpected error occurred: {error}"
 
 @mcp.tool()
-def read_spreadsheet_cells(spreadsheet_id: str, range: str) -> str:
+def read_spreadsheet_cells(spreadsheet_id: str, cell_range: str) -> str:
     """Read cells from a Google Sheets spreadsheet.
     
     This tool ONLY works with Google Sheets spreadsheets, not other file types.
     
     Args:
         spreadsheet_id: The ID of the Google Sheets spreadsheet
-        range: A1 notation range (e.g., "Sheet1!A1:C10" or "A1:B2")
+        cell_range: A1 notation range (e.g., "Sheet1!A1:C10" or "A1:B2")
         
     Returns:
         The cell values in a formatted table
@@ -459,7 +459,7 @@ def read_spreadsheet_cells(spreadsheet_id: str, range: str) -> str:
         )
         
         # Refresh token if needed
-        if creds.expired:
+        if creds.expired and creds.refresh_token:
             creds.refresh(Request())
         
         # Build the Sheets service
@@ -475,17 +475,17 @@ def read_spreadsheet_cells(spreadsheet_id: str, range: str) -> str:
         # Read the spreadsheet
         result = sheets_service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range=range
+            range=cell_range
         ).execute()
         
         values = result.get('values', [])
         
         if not values:
-            return f"📊 Spreadsheet: {file_metadata.get('name')}\nRange: {range}\n\nNo data found in the specified range."
+            return f"📊 Spreadsheet: {file_metadata.get('name')}\nRange: {cell_range}\n\nNo data found in the specified range."
         
         # Format the output as a table
         output = f"📊 Spreadsheet: {file_metadata.get('name')}\n"
-        output += f"Range: {range}\n"
+        output += f"Range: {cell_range}\n"
         output += f"Data:\n{'='*50}\n"
         
         # Find the maximum width for each column for better formatting
@@ -516,7 +516,7 @@ def read_spreadsheet_cells(spreadsheet_id: str, range: str) -> str:
         elif error.resp.status == 403:
             return f"❌ Permission denied. You may not have access to this spreadsheet."
         elif error.resp.status == 400:
-            return f"❌ Invalid request. Check that the range '{range}' is valid."
+            return f"❌ Invalid request. Check that the range '{cell_range}' is valid."
         return f"❌ An error occurred: {error}"
     except Exception as error:
         return f"❌ An unexpected error occurred: {error}"
