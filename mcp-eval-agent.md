@@ -66,29 +66,31 @@ This system automatically generates evaluation suites and mock MCP servers from 
 **Example Generated Tool**:
 ```python
 @mcp.tool()
-def list_messages(max_results: Optional[int] = None, query: Optional[str] = None) -> str:
-    """List messages in Gmail inbox."""
-    log_request("list_messages", locals())
+def list_items(max_results: Optional[int] = None, query: Optional[str] = None) -> str:
+    """List items from the service."""
+    log_request("list_items", locals())
     
-    # Return realistic mock response
-    return "Mock messages: [ID:msg001] Subject: Meeting Tomorrow, [ID:msg002] Subject: Project Update, [ID:msg003] Subject: Weekly Report"
+    # Return realistic mock response based on tool name pattern
+    return "Mock list: item1, item2, item3, item4, item5"
 
 @mcp.tool()
-def list_files(max_results: Optional[int] = None) -> str:
-    """List files in Google Drive.""" 
-    log_request("list_files", locals())
+def search_data(query: str) -> str:
+    """Search for data in the system.""" 
+    log_request("search_data", locals())
     
-    # Return realistic mock response
-    return "Mock files: document1.pdf, spreadsheet2.xlsx, presentation3.pptx, image4.jpg, notes5.txt"
+    # Return realistic mock response based on tool name pattern
+    return "Mock search results: Found 3 items matching query - result1, result2, result3"
 ```
 
-**Smart Mock Response Generation**:
-- **File/folder lists**: Returns comma-separated realistic filenames
-- **Message lists**: Returns formatted message previews with IDs
-- **Search results**: Returns "Found X items matching query"  
-- **Read operations**: Returns formatted content (email body, file content, etc.)
-- **Math operations**: Returns calculation results
-- **Create/send operations**: Returns success with generated IDs
+**Smart Mock Response Generation** (based on tool name patterns):
+- **list_*** tools**: Returns comma-separated items (`"item1, item2, item3"`)
+- **search_*** tools**: Returns formatted search results (`"Found 3 items matching query"`)  
+- **read_*** tools**: Returns mock content appropriate to context (`"Mock content data"`)
+- **create_/add_*** tools**: Returns success with mock IDs (`"Successfully created with ID: mock_12345"`)
+- **Mathematical operations**: Returns realistic calculation results
+- **Generic tools**: Returns `"Mock: Operation completed successfully"`
+
+The system analyzes tool names for common patterns like `list_files`, `send_message`, `calculate_sum`, etc. and generates contextually appropriate responses without any hardcoded assumptions about specific domains.
 
 ### 3. generated/evaluations.json (Auto-Generated)
 **Purpose**: Test cases derived from tool schemas

@@ -204,37 +204,53 @@ def {tool_name}({params_str}) -> str:
         # Add mock response based on tool name and return type
         mock_code += "    # Return mock success response\n"
         
-        # Generate more realistic mock responses based on tool type
+        # Generate realistic mock responses based on tool name patterns
         if "list" in tool_name.lower() and "file" in tool_name.lower():
-            mock_code += '    return "Mock files: document1.pdf, spreadsheet2.xlsx, presentation3.pptx, image4.jpg, notes5.txt"\n'
+            mock_code += '    return "Mock files: item1.txt, item2.pdf, item3.doc, item4.xlsx, item5.jpg"\n'
         elif "list" in tool_name.lower() and "folder" in tool_name.lower():
-            mock_code += '    return "Mock folders: Projects/, Documents/, Archive/, Shared/, Temp/"\n'
-        elif "list" in tool_name.lower() and "message" in tool_name.lower():
-            mock_code += '    return "Mock messages: [ID:msg001] Subject: Meeting Tomorrow, [ID:msg002] Subject: Project Update, [ID:msg003] Subject: Weekly Report"\n'
+            mock_code += '    return "Mock folders: folder1/, folder2/, folder3/, folder4/, folder5/"\n'
+        elif "list" in tool_name.lower() and ("message" in tool_name.lower() or "mail" in tool_name.lower() or "email" in tool_name.lower()):
+            mock_code += '    return "Mock messages: [ID:001] Subject: First Message, [ID:002] Subject: Second Message, [ID:003] Subject: Third Message"\n'
         elif "list" in tool_name.lower() and "label" in tool_name.lower():
-            mock_code += '    return "Mock labels: INBOX, SENT, DRAFTS, IMPORTANT, STARRED, SPAM, TRASH, Work, Personal"\n'
+            mock_code += '    return "Mock labels: label1, label2, label3, label4, label5"\n'
+        elif "list" in tool_name.lower():
+            mock_code += '    return "Mock list: item1, item2, item3, item4, item5"\n'
         elif "search" in tool_name.lower():
             mock_code += '    return "Mock search results: Found 3 items matching query - result1, result2, result3"\n'
-        elif "read" in tool_name.lower() and "message" in tool_name.lower():
-            mock_code += '    return "Mock message content: From: sender@example.com\\nTo: recipient@example.com\\nSubject: Test Message\\nBody: This is the message body content."\n'
+        elif "read" in tool_name.lower() and ("message" in tool_name.lower() or "mail" in tool_name.lower() or "email" in tool_name.lower()):
+            mock_code += '    return "Mock message content: From: sender@example.com\\nTo: recipient@example.com\\nSubject: Mock Message\\nBody: This is mock message content."\n'
         elif "read" in tool_name.lower() and "file" in tool_name.lower():
-            mock_code += '    return "Mock file content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. File content here..."\n'
+            mock_code += '    return "Mock file content: This is the mock content of the file. Lorem ipsum dolor sit amet."\n'
         elif "read" in tool_name.lower() and "spreadsheet" in tool_name.lower():
-            mock_code += '    return "Mock spreadsheet data: [[A1, B1, C1], [A2, B2, C2], [A3, B3, C3]]"\n'
-        elif "count" in tool_name.lower():
+            mock_code += '    return "Mock spreadsheet data: [[Header1, Header2, Header3], [Row1Col1, Row1Col2, Row1Col3], [Row2Col1, Row2Col2, Row2Col3]]"\n'
+        elif "read" in tool_name.lower():
+            mock_code += '    return "Mock content: This is mock content data."\n'
+        elif "count" in tool_name.lower() or "get" in tool_name.lower() and "count" in tool_name.lower():
             mock_code += '    return "Mock count: 42"\n'
-        elif "create" in tool_name.lower() or "send" in tool_name.lower():
-            mock_code += '    return "Mock: Successfully created/sent with ID: mock_id_12345"\n'
-        elif "update" in tool_name.lower() or "mark" in tool_name.lower():
-            mock_code += '    return "Mock: Successfully updated/marked item"\n'
-        elif "add" in tool_name.lower() or "sum" in tool_name.lower():
-            mock_code += '    return "Mock result: The calculation result is 42"\n'
-        elif "multiply" in tool_name.lower():
-            mock_code += '    return "Mock result: The product is 84"\n'
-        elif "divide" in tool_name.lower():
-            mock_code += '    return "Mock result: The quotient is 21"\n'
-        elif "info" in tool_name.lower():
-            mock_code += '    return "Mock info: Name: Example Item, Type: Document, Size: 1.5MB, Modified: 2024-01-15"\n'
+        elif "create" in tool_name.lower() or "add" in tool_name.lower():
+            mock_code += '    return "Mock: Successfully created item with ID: mock_12345"\n'
+        elif "send" in tool_name.lower():
+            mock_code += '    return "Mock: Successfully sent with ID: mock_send_67890"\n'
+        elif "update" in tool_name.lower() or "edit" in tool_name.lower() or "modify" in tool_name.lower():
+            mock_code += '    return "Mock: Successfully updated item"\n'
+        elif "mark" in tool_name.lower():
+            mock_code += '    return "Mock: Successfully marked item"\n'
+        elif "delete" in tool_name.lower() or "remove" in tool_name.lower():
+            mock_code += '    return "Mock: Successfully deleted item"\n'
+        elif "calculate" in tool_name.lower() or "compute" in tool_name.lower():
+            mock_code += '    return "Mock calculation result: 42"\n'
+        elif "sum" in tool_name.lower():
+            mock_code += '    return "Mock sum result: 42"\n'
+        elif "multiply" in tool_name.lower() or "product" in tool_name.lower():
+            mock_code += '    return "Mock product result: 84"\n'
+        elif "divide" in tool_name.lower() or "quotient" in tool_name.lower():
+            mock_code += '    return "Mock division result: 21"\n'
+        elif "subtract" in tool_name.lower() or "minus" in tool_name.lower():
+            mock_code += '    return "Mock subtraction result: 8"\n'
+        elif "info" in tool_name.lower() or "detail" in tool_name.lower() or "describe" in tool_name.lower():
+            mock_code += '    return "Mock info: Name: Mock Item, Type: Mock Type, Size: 1.5MB, Modified: 2024-01-15"\n'
+        elif "status" in tool_name.lower() or "state" in tool_name.lower():
+            mock_code += '    return "Mock status: Active and operational"\n'
         else:
             mock_code += '    return "Mock: Operation completed successfully"\n'
     

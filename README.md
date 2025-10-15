@@ -11,10 +11,10 @@ Multi-server MCP implementation with chat interface demonstrating calculator, Gm
 │   Real MCP      │ ─────────────►  │  Eval Generator  │ ─────────────►  │  Generated      │
 │   Server        │   initialize()  │                  │                 │  Outputs        │
 │ ┌─────────────┐ │   list_tools()  │ ┌──────────────┐ │                 │ ┌─────────────┐ │
-│ │• list_files │ │                 │ │ Discovers    │ │                 │ │ Mock Server │ │
-│ │• send_email │ │◄────────────────│ │ Tools &      │ │────────────────►│ │ - Same APIs │ │
-│ │• read_msg   │ │                 │ │ Schemas      │ │                 │ │ - No Effects│ │
-│ │• calculate  │ │                 │ │              │ │                 │ │ - Realistic │ │
+│ │• tool_alpha │ │                 │ │ Discovers    │ │                 │ │ Mock Server │ │
+│ │• tool_beta  │ │◄────────────────│ │ Tools &      │ │────────────────►│ │ - Same APIs │ │
+│ │• tool_gamma │ │                 │ │ Schemas      │ │                 │ │ - No Effects│ │
+│ │• tool_delta │ │                 │ │              │ │                 │ │ - Realistic │ │
 │ └─────────────┘ │                 │ └──────────────┘ │                 │ │   Responses │ │
 └─────────────────┘                 │                  │                 │ └─────────────┘ │
                                     │ ┌──────────────┐ │                 │                 │
@@ -52,9 +52,10 @@ Multi-server MCP implementation with chat interface demonstrating calculator, Gm
 ```
 
 ### Key Benefits
+- **Fully Agnostic**: Works with any MCP server regardless of domain or purpose
 - **Zero Setup**: Point at any MCP server, get instant evaluation suite
-- **Safe Testing**: Mock servers have no side effects (no real emails sent, files created)
-- **Realistic**: Smart mock responses that match expected tool outputs
+- **Safe Testing**: Mock servers have no side effects or external dependencies
+- **Smart Responses**: Analyzes tool names to generate contextually appropriate mock data
 - **Isolated**: Each MCP server gets its own namespaced test environment
 - **Comprehensive**: Tests valid inputs, missing params, wrong types, edge cases
 
