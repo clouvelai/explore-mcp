@@ -2,7 +2,63 @@
 
 Multi-server MCP implementation with chat interface demonstrating calculator, Gmail, and Google Drive integration.
 
-## Architecture
+## MCP Evaluation Agent
+
+**Auto-generates evaluation suites and mock servers from any MCP implementation**
+
+```
+┌─────────────────┐    Discovery    ┌──────────────────┐    Generation    ┌─────────────────┐
+│   Real MCP      │ ─────────────►  │  Eval Generator  │ ─────────────►  │  Generated      │
+│   Server        │   initialize()  │                  │                 │  Outputs        │
+│ ┌─────────────┐ │   list_tools()  │ ┌──────────────┐ │                 │ ┌─────────────┐ │
+│ │• list_files │ │                 │ │ Discovers    │ │                 │ │ Mock Server │ │
+│ │• send_email │ │◄────────────────│ │ Tools &      │ │────────────────►│ │ - Same APIs │ │
+│ │• read_msg   │ │                 │ │ Schemas      │ │                 │ │ - No Effects│ │
+│ │• calculate  │ │                 │ │              │ │                 │ │ - Realistic │ │
+│ └─────────────┘ │                 │ └──────────────┘ │                 │ │   Responses │ │
+└─────────────────┘                 │                  │                 │ └─────────────┘ │
+                                    │ ┌──────────────┐ │                 │                 │
+                                    │ │ Generates    │ │                 │ ┌─────────────┐ │
+                                    │ │ Test Cases   │ │────────────────►│ │ Eval Suite  │ │
+                                    │ │ from Schemas │ │                 │ │ - Valid     │ │
+                                    │ └──────────────┘ │                 │ │ - Invalid   │ │
+                                    └──────────────────┘                 │ │ - Edge      │ │
+                                                                         │ │ - Missing   │ │
+                                                                         │ └─────────────┘ │
+                                                                         └─────────────────┘
+                                                ▼
+┌─────────────────┐    Executes    ┌──────────────────┐    Connects     ┌─────────────────┐
+│   Any LLM/      │ ─────────────► │  Eval Runner     │ ─────────────►  │  Mock Server    │
+│   Agent         │                │                  │                 │                 │
+│                 │◄───────────────│ ┌──────────────┐ │◄────────────────│ ┌─────────────┐ │
+│ ┌─────────────┐ │    Results     │ │ Loads Tests  │ │   Tool Calls    │ │ Returns     │ │
+│ │ GPT-4       │ │                │ │ Calls Tools  │ │                 │ │ Mock Data   │ │
+│ │ Claude      │ │                │ │ Verifies     │ │                 │ │ No Side     │ │
+│ │ Custom Bot  │ │                │ │ Responses    │ │                 │ │ Effects     │ │
+│ └─────────────┘ │                │ └──────────────┘ │                 │ └─────────────┘ │
+└─────────────────┘                └──────────────────┘                 └─────────────────┘
+                                                ▼
+                                   ┌──────────────────┐
+                                   │   Markdown       │
+                                   │   Report         │
+                                   │ ┌──────────────┐ │
+                                   │ │ Pass/Fail    │ │
+                                   │ │ Metrics      │ │
+                                   │ │ Error        │ │
+                                   │ │ Details      │ │
+                                   │ │ Suggestions  │ │
+                                   │ └──────────────┘ │
+                                   └──────────────────┘
+```
+
+### Key Benefits
+- **Zero Setup**: Point at any MCP server, get instant evaluation suite
+- **Safe Testing**: Mock servers have no side effects (no real emails sent, files created)
+- **Realistic**: Smart mock responses that match expected tool outputs
+- **Isolated**: Each MCP server gets its own namespaced test environment
+- **Comprehensive**: Tests valid inputs, missing params, wrong types, edge cases
+
+## Chat Interface Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
