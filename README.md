@@ -1,10 +1,10 @@
 # MCP Learning Project
 
-Multi-server MCP implementation with chat interface demonstrating calculator, Gmail, and Google Drive integration.
+Multi-server MCP implementation with chat interface and AI-powered evaluation system for testing any MCP server.
 
-## MCP Evaluation Agent
+## 🤖 MCP Evaluation Agent
 
-**Auto-generates evaluation suites and mock servers from any MCP implementation**
+**Auto-generates evaluation suites and mock servers from any MCP implementation using Claude AI**
 
 ```
 ┌─────────────────┐    Discovery    ┌──────────────────┐    Generation    ┌─────────────────┐
@@ -51,13 +51,24 @@ Multi-server MCP implementation with chat interface demonstrating calculator, Gm
                                    └──────────────────┘
 ```
 
+### Quick Start
+
+```bash
+# Generate evaluations for any MCP server
+uv run python mcp_eval_generator.py --server server.py --name calculator --use-agent
+
+# Run the generated evaluations
+uv run python run_evaluations.py --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/mock_server.py
+```
+
 ### Key Benefits
+- **AI-Powered**: Claude analyzes tool semantics for intelligent test generation (75+ tests vs 19 hardcoded)
 - **Fully Agnostic**: Works with any MCP server regardless of domain or purpose
 - **Zero Setup**: Point at any MCP server, get instant evaluation suite
 - **Safe Testing**: Mock servers have no side effects or external dependencies
-- **Smart Responses**: Analyzes tool names to generate contextually appropriate mock data
+- **Smart Responses**: AI generates realistic, contextual mock responses
 - **Isolated**: Each MCP server gets its own namespaced test environment
-- **Comprehensive**: Tests valid inputs, missing params, wrong types, edge cases
+- **Comprehensive**: Tests valid inputs, missing params, wrong types, mathematical edge cases
 
 ## Chat Interface Architecture
 
@@ -143,58 +154,115 @@ explore-mcp/
 └── README.md          # This file
 ```
 
-## Critical Commands
+## 🚀 Setup & Usage
 
-### Setup
+### Prerequisites
 ```bash
-# Install dependencies
-uv sync
-cd chat-frontend && npm install
+# Install Claude CLI (required for AI generation)
+pip install claude-cli
 
-# Configure environment
-cp ENV_TEMPLATE .env
-# Edit .env with OpenAI API key and Google OAuth credentials
+# Install Python dependencies
+uv sync
+
+# Install frontend dependencies (optional, for chat interface)
+cd chat-frontend && npm install
 ```
 
-### Run Full Application
+### Environment Setup
+```bash
+# Copy environment template
+cp ENV_TEMPLATE .env
+
+# Edit .env with your API keys:
+# - OPENAI_API_KEY (for chat interface)
+# - Google OAuth credentials (for Gmail/Drive servers)
+```
+
+### Generate MCP Evaluations
+
+#### AI-Enhanced Generation (Recommended)
+```bash
+# Generate with Claude AI (requires claude CLI)
+uv run python mcp_eval_generator.py --server server.py --name calculator --use-agent
+
+# For other servers
+uv run python mcp_eval_generator.py --server mcp_servers/gmail/server.py --name gmail --use-agent
+uv run python mcp_eval_generator.py --server mcp_servers/google_drive/server.py --name gdrive --use-agent
+```
+
+#### Hardcoded Generation (Fallback)
+```bash
+# Generate without AI (basic pattern matching)
+uv run python mcp_eval_generator.py --server server.py --name calculator
+```
+
+### Run Evaluations
+```bash
+# Execute generated test suite
+uv run python run_evaluations.py --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/mock_server.py
+
+# Results saved to generated/calculator/eval_results.md
+```
+
+### Generated File Structure
+```
+generated/
+├── calculator/
+│   ├── mock_server.py      # Mock MCP server with same API
+│   ├── evaluations.json    # Test cases (75+ with AI, 19 without)
+│   └── eval_results.md     # Evaluation report
+├── gmail/
+│   └── ...
+└── gdrive/
+    └── ...
+```
+
+### Run Chat Interface (Optional)
 ```bash
 # Terminal 1: Start backend
 ./start_backend.sh
 
-# Terminal 2: Start frontend
+# Terminal 2: Start frontend  
 ./start_frontend.sh
+
+# Access at http://localhost:3000
 ```
 
-### Test MCP Servers
+### Test Individual MCP Servers
 ```bash
 # Test calculator server directly
 uv run python client.py
 
-# Test all servers
-uv run python chat_backend.py
-```
-
-### Development
-```bash
-# Run tests
-./run_tests.sh
-
-# Individual server testing
+# Test individual servers
 uv run python mcp_servers/calculator/server.py
 uv run python mcp_servers/gmail/server.py
 uv run python mcp_servers/google_drive/server.py
 ```
 
+## 🔍 AI vs Hardcoded Comparison
+
+| Feature | AI-Enhanced | Hardcoded |
+|---------|-------------|-----------|
+| **Test Cases** | 75+ comprehensive tests | 19 basic tests |
+| **Mock Responses** | `"The sum of 42 and 17 is 59"` | `"Mock: Operation completed"` |
+| **Edge Cases** | Division by zero, infinity, precision | Basic type validation |
+| **Domain Awareness** | Understands calculator semantics | Pattern matching only |
+| **Setup** | Requires Claude CLI | No additional dependencies |
+
 ## Dependencies
+
+**Core**:
+- `uv` - Python package manager
+- `claude` CLI - For AI generation (optional but recommended)
 
 **Python** (managed by uv):
 - `mcp>=1.0.0` - Core MCP protocol
-- `fastmcp>=0.2.0` - High-level framework
-- `openai>=1.0.0` - OpenAI API
-- `flask>=3.0.0` - Backend server
-- `google-api-python-client>=2.0.0` - Google APIs
+- `fastmcp>=0.2.0` - High-level framework  
+- `openai>=1.0.0` - OpenAI API (chat interface)
+- `flask>=3.0.0` - Backend server (chat interface)
+- `google-api-python-client>=2.0.0` - Google APIs (Gmail/Drive)
 
-**Frontend**:
+**Frontend** (optional):
 - React 18.2.0
 - react-scripts 5.0.1
 

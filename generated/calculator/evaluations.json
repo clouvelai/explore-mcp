@@ -1,0 +1,305 @@
+{
+  "server_info": {
+    "source": "server.py",
+    "generated_at": "2025-10-15T11:53:44.550573",
+    "tools_count": 5
+  },
+  "evaluations": [
+    {
+      "tool": "add",
+      "description": "Add two numbers together.\n\nArgs:\n    a: The first number\n    b: The second number\n    \nReturns:\n    A message with the sum of the two numbers",
+      "test_cases": [
+        {
+          "id": "add_valid",
+          "type": "valid_params",
+          "description": "Valid parameters for add",
+          "params": {
+            "a": 42.0,
+            "b": 42.0
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "Mock",
+            "successfully"
+          ]
+        },
+        {
+          "id": "add_missing_a",
+          "type": "missing_required",
+          "description": "Missing required parameter: a",
+          "params": {
+            "b": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "Missing",
+            "a"
+          ]
+        },
+        {
+          "id": "add_missing_b",
+          "type": "missing_required",
+          "description": "Missing required parameter: b",
+          "params": {
+            "a": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "Missing",
+            "b"
+          ]
+        },
+        {
+          "id": "add_wrong_type",
+          "type": "invalid_type",
+          "description": "Wrong type for parameter: a",
+          "params": {
+            "a": "not_a_number",
+            "b": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "type"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "sum",
+      "description": "Add two numbers together.\n\nArgs:\n    a: The first number\n    b: The second number\n    \nReturns:\n    A message with the sum of the two numbers",
+      "test_cases": [
+        {
+          "id": "sum_valid",
+          "type": "valid_params",
+          "description": "Valid parameters for sum",
+          "params": {
+            "a": 42.0,
+            "b": 42.0
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "Mock",
+            "successfully"
+          ]
+        },
+        {
+          "id": "sum_missing_a",
+          "type": "missing_required",
+          "description": "Missing required parameter: a",
+          "params": {
+            "b": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "Missing",
+            "a"
+          ]
+        },
+        {
+          "id": "sum_missing_b",
+          "type": "missing_required",
+          "description": "Missing required parameter: b",
+          "params": {
+            "a": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "Missing",
+            "b"
+          ]
+        },
+        {
+          "id": "sum_wrong_type",
+          "type": "invalid_type",
+          "description": "Wrong type for parameter: a",
+          "params": {
+            "a": "not_a_number",
+            "b": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "type"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "sum_many",
+      "description": "Add multiple numbers together.\n\nArgs:\n    numbers: A list of numbers to add together\n    \nReturns:\n    A message with the sum of all numbers",
+      "test_cases": [
+        {
+          "id": "sum_many_valid",
+          "type": "valid_params",
+          "description": "Valid parameters for sum_many",
+          "params": {
+            "numbers": [
+              1,
+              2,
+              3
+            ]
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "Mock",
+            "successfully"
+          ]
+        },
+        {
+          "id": "sum_many_missing_numbers",
+          "type": "missing_required",
+          "description": "Missing required parameter: numbers",
+          "params": {},
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "Missing",
+            "numbers"
+          ]
+        },
+        {
+          "id": "sum_many_wrong_type",
+          "type": "invalid_type",
+          "description": "Wrong type for parameter: numbers",
+          "params": {
+            "numbers": "not_an_array"
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "type"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "multiply",
+      "description": "Multiply two numbers together.\n\nArgs:\n    a: The first number\n    b: The second number\n    \nReturns:\n    A message with the product of the two numbers",
+      "test_cases": [
+        {
+          "id": "multiply_valid",
+          "type": "valid_params",
+          "description": "Valid parameters for multiply",
+          "params": {
+            "a": 42.0,
+            "b": 42.0
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "Mock",
+            "successfully"
+          ]
+        },
+        {
+          "id": "multiply_missing_a",
+          "type": "missing_required",
+          "description": "Missing required parameter: a",
+          "params": {
+            "b": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "Missing",
+            "a"
+          ]
+        },
+        {
+          "id": "multiply_missing_b",
+          "type": "missing_required",
+          "description": "Missing required parameter: b",
+          "params": {
+            "a": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "Missing",
+            "b"
+          ]
+        },
+        {
+          "id": "multiply_wrong_type",
+          "type": "invalid_type",
+          "description": "Wrong type for parameter: a",
+          "params": {
+            "a": "not_a_number",
+            "b": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "type"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "divide",
+      "description": "Divide one number by another.\n\nArgs:\n    a: The dividend (number to be divided)\n    b: The divisor (number to divide by)\n    \nReturns:\n    A message with the quotient, or an error if dividing by zero",
+      "test_cases": [
+        {
+          "id": "divide_valid",
+          "type": "valid_params",
+          "description": "Valid parameters for divide",
+          "params": {
+            "a": 42.0,
+            "b": 42.0
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "Mock",
+            "successfully"
+          ]
+        },
+        {
+          "id": "divide_missing_a",
+          "type": "missing_required",
+          "description": "Missing required parameter: a",
+          "params": {
+            "b": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "Missing",
+            "a"
+          ]
+        },
+        {
+          "id": "divide_missing_b",
+          "type": "missing_required",
+          "description": "Missing required parameter: b",
+          "params": {
+            "a": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "Missing",
+            "b"
+          ]
+        },
+        {
+          "id": "divide_wrong_type",
+          "type": "invalid_type",
+          "description": "Wrong type for parameter: a",
+          "params": {
+            "a": "not_a_number",
+            "b": 42.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "Error",
+            "type"
+          ]
+        }
+      ]
+    }
+  ]
+}

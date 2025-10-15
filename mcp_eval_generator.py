@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from ai_generator import generate_ai_mock_responses, generate_ai_test_cases, test_claude_cli
 
 
 async def discover_mcp_server(server_path: str) -> Dict[str, Any]:
@@ -103,11 +104,20 @@ def get_mock_value(param_type: str, param_name: str) -> Any:
     return mock_values.get(param_type, f"mock_{param_name}")
 
 
-def generate_mock_server(discovery_data: Dict[str, Any], output_path: str):
+def generate_mock_server(discovery_data: Dict[str, Any], output_path: str, use_ai: bool = False):
     """Generate a mock MCP server with discovered tool signatures."""
     print(f"🔨 Generating mock server: {output_path}")
     
     tools = discovery_data["tools"]
+    
+    # Generate AI responses if requested
+    ai_responses = {}
+    if use_ai:
+        try:
+            ai_responses = generate_ai_mock_responses(tools)
+        except Exception as e:
+            print(f"⚠️  AI generation failed, falling back to hardcoded responses: {e}")
+            use_ai = False
     
     mock_code = '''#!/usr/bin/env python3
 """
@@ -201,58 +211,63 @@ def {tool_name}({params_str}) -> str:
                 mock_code += f'        return "Error: Missing required parameter: {req_param}"\n'
             mock_code += "\n"
         
-        # Add mock response based on tool name and return type
+        # Add mock response based on AI generation or hardcoded patterns
         mock_code += "    # Return mock success response\n"
         
-        # Generate realistic mock responses based on tool name patterns
-        if "list" in tool_name.lower() and "file" in tool_name.lower():
-            mock_code += '    return "Mock files: item1.txt, item2.pdf, item3.doc, item4.xlsx, item5.jpg"\n'
-        elif "list" in tool_name.lower() and "folder" in tool_name.lower():
-            mock_code += '    return "Mock folders: folder1/, folder2/, folder3/, folder4/, folder5/"\n'
-        elif "list" in tool_name.lower() and ("message" in tool_name.lower() or "mail" in tool_name.lower() or "email" in tool_name.lower()):
-            mock_code += '    return "Mock messages: [ID:001] Subject: First Message, [ID:002] Subject: Second Message, [ID:003] Subject: Third Message"\n'
-        elif "list" in tool_name.lower() and "label" in tool_name.lower():
-            mock_code += '    return "Mock labels: label1, label2, label3, label4, label5"\n'
-        elif "list" in tool_name.lower():
-            mock_code += '    return "Mock list: item1, item2, item3, item4, item5"\n'
-        elif "search" in tool_name.lower():
-            mock_code += '    return "Mock search results: Found 3 items matching query - result1, result2, result3"\n'
-        elif "read" in tool_name.lower() and ("message" in tool_name.lower() or "mail" in tool_name.lower() or "email" in tool_name.lower()):
-            mock_code += '    return "Mock message content: From: sender@example.com\\nTo: recipient@example.com\\nSubject: Mock Message\\nBody: This is mock message content."\n'
-        elif "read" in tool_name.lower() and "file" in tool_name.lower():
-            mock_code += '    return "Mock file content: This is the mock content of the file. Lorem ipsum dolor sit amet."\n'
-        elif "read" in tool_name.lower() and "spreadsheet" in tool_name.lower():
-            mock_code += '    return "Mock spreadsheet data: [[Header1, Header2, Header3], [Row1Col1, Row1Col2, Row1Col3], [Row2Col1, Row2Col2, Row2Col3]]"\n'
-        elif "read" in tool_name.lower():
-            mock_code += '    return "Mock content: This is mock content data."\n'
-        elif "count" in tool_name.lower() or "get" in tool_name.lower() and "count" in tool_name.lower():
-            mock_code += '    return "Mock count: 42"\n'
-        elif "create" in tool_name.lower() or "add" in tool_name.lower():
-            mock_code += '    return "Mock: Successfully created item with ID: mock_12345"\n'
-        elif "send" in tool_name.lower():
-            mock_code += '    return "Mock: Successfully sent with ID: mock_send_67890"\n'
-        elif "update" in tool_name.lower() or "edit" in tool_name.lower() or "modify" in tool_name.lower():
-            mock_code += '    return "Mock: Successfully updated item"\n'
-        elif "mark" in tool_name.lower():
-            mock_code += '    return "Mock: Successfully marked item"\n'
-        elif "delete" in tool_name.lower() or "remove" in tool_name.lower():
-            mock_code += '    return "Mock: Successfully deleted item"\n'
-        elif "calculate" in tool_name.lower() or "compute" in tool_name.lower():
-            mock_code += '    return "Mock calculation result: 42"\n'
-        elif "sum" in tool_name.lower():
-            mock_code += '    return "Mock sum result: 42"\n'
-        elif "multiply" in tool_name.lower() or "product" in tool_name.lower():
-            mock_code += '    return "Mock product result: 84"\n'
-        elif "divide" in tool_name.lower() or "quotient" in tool_name.lower():
-            mock_code += '    return "Mock division result: 21"\n'
-        elif "subtract" in tool_name.lower() or "minus" in tool_name.lower():
-            mock_code += '    return "Mock subtraction result: 8"\n'
-        elif "info" in tool_name.lower() or "detail" in tool_name.lower() or "describe" in tool_name.lower():
-            mock_code += '    return "Mock info: Name: Mock Item, Type: Mock Type, Size: 1.5MB, Modified: 2024-01-15"\n'
-        elif "status" in tool_name.lower() or "state" in tool_name.lower():
-            mock_code += '    return "Mock status: Active and operational"\n'
+        # Use AI response if available, otherwise fall back to hardcoded patterns
+        if use_ai and tool_name in ai_responses:
+            ai_response = ai_responses[tool_name].replace('"', '\\"')  # Escape quotes
+            mock_code += f'    return "{ai_response}"\n'
         else:
-            mock_code += '    return "Mock: Operation completed successfully"\n'
+            # Generate realistic mock responses based on tool name patterns (hardcoded fallback)
+            if "list" in tool_name.lower() and "file" in tool_name.lower():
+                mock_code += '    return "Mock files: item1.txt, item2.pdf, item3.doc, item4.xlsx, item5.jpg"\n'
+            elif "list" in tool_name.lower() and "folder" in tool_name.lower():
+                mock_code += '    return "Mock folders: folder1/, folder2/, folder3/, folder4/, folder5/"\n'
+            elif "list" in tool_name.lower() and ("message" in tool_name.lower() or "mail" in tool_name.lower() or "email" in tool_name.lower()):
+                mock_code += '    return "Mock messages: [ID:001] Subject: First Message, [ID:002] Subject: Second Message, [ID:003] Subject: Third Message"\n'
+            elif "list" in tool_name.lower() and "label" in tool_name.lower():
+                mock_code += '    return "Mock labels: label1, label2, label3, label4, label5"\n'
+            elif "list" in tool_name.lower():
+                mock_code += '    return "Mock list: item1, item2, item3, item4, item5"\n'
+            elif "search" in tool_name.lower():
+                mock_code += '    return "Mock search results: Found 3 items matching query - result1, result2, result3"\n'
+            elif "read" in tool_name.lower() and ("message" in tool_name.lower() or "mail" in tool_name.lower() or "email" in tool_name.lower()):
+                mock_code += '    return "Mock message content: From: sender@example.com\\nTo: recipient@example.com\\nSubject: Mock Message\\nBody: This is mock message content."\n'
+            elif "read" in tool_name.lower() and "file" in tool_name.lower():
+                mock_code += '    return "Mock file content: This is the mock content of the file. Lorem ipsum dolor sit amet."\n'
+            elif "read" in tool_name.lower() and "spreadsheet" in tool_name.lower():
+                mock_code += '    return "Mock spreadsheet data: [[Header1, Header2, Header3], [Row1Col1, Row1Col2, Row1Col3], [Row2Col1, Row2Col2, Row2Col3]]"\n'
+            elif "read" in tool_name.lower():
+                mock_code += '    return "Mock content: This is mock content data."\n'
+            elif "count" in tool_name.lower() or "get" in tool_name.lower() and "count" in tool_name.lower():
+                mock_code += '    return "Mock count: 42"\n'
+            elif "create" in tool_name.lower() or "add" in tool_name.lower():
+                mock_code += '    return "Mock: Successfully created item with ID: mock_12345"\n'
+            elif "send" in tool_name.lower():
+                mock_code += '    return "Mock: Successfully sent with ID: mock_send_67890"\n'
+            elif "update" in tool_name.lower() or "edit" in tool_name.lower() or "modify" in tool_name.lower():
+                mock_code += '    return "Mock: Successfully updated item"\n'
+            elif "mark" in tool_name.lower():
+                mock_code += '    return "Mock: Successfully marked item"\n'
+            elif "delete" in tool_name.lower() or "remove" in tool_name.lower():
+                mock_code += '    return "Mock: Successfully deleted item"\n'
+            elif "calculate" in tool_name.lower() or "compute" in tool_name.lower():
+                mock_code += '    return "Mock calculation result: 42"\n'
+            elif "sum" in tool_name.lower():
+                mock_code += '    return "Mock sum result: 42"\n'
+            elif "multiply" in tool_name.lower() or "product" in tool_name.lower():
+                mock_code += '    return "Mock product result: 84"\n'
+            elif "divide" in tool_name.lower() or "quotient" in tool_name.lower():
+                mock_code += '    return "Mock division result: 21"\n'
+            elif "subtract" in tool_name.lower() or "minus" in tool_name.lower():
+                mock_code += '    return "Mock subtraction result: 8"\n'
+            elif "info" in tool_name.lower() or "detail" in tool_name.lower() or "describe" in tool_name.lower():
+                mock_code += '    return "Mock info: Name: Mock Item, Type: Mock Type, Size: 1.5MB, Modified: 2024-01-15"\n'
+            elif "status" in tool_name.lower() or "state" in tool_name.lower():
+                mock_code += '    return "Mock status: Active and operational"\n'
+            else:
+                mock_code += '    return "Mock: Operation completed successfully"\n'
     
     # Add server runner
     tool_names = [t["name"] for t in tools]
@@ -277,7 +292,7 @@ if __name__ == "__main__":
     print(f"✅ Mock server generated with {len(tools)} tools")
 
 
-def generate_evaluations(discovery_data: Dict[str, Any], output_path: str):
+def generate_evaluations(discovery_data: Dict[str, Any], output_path: str, use_ai: bool = False):
     """Generate evaluation test cases from tool schemas."""
     print(f"📝 Generating evaluations: {output_path}")
     
@@ -290,6 +305,24 @@ def generate_evaluations(discovery_data: Dict[str, Any], output_path: str):
         },
         "evaluations": []
     }
+    
+    # Try AI generation first if requested
+    if use_ai:
+        try:
+            ai_test_cases = generate_ai_test_cases(tools)
+            if ai_test_cases:
+                evaluations["evaluations"] = ai_test_cases
+                
+                # Write to file
+                os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+                with open(output_path, "w") as f:
+                    json.dump(evaluations, f, indent=2)
+                
+                total_tests = sum(len(t.get("test_cases", [])) for t in evaluations["evaluations"])
+                print(f"✅ Generated {total_tests} AI test cases for {len(tools)} tools")
+                return
+        except Exception as e:
+            print(f"⚠️  AI test case generation failed, falling back to hardcoded approach: {e}")
     
     for tool in tools:
         tool_name = tool["name"]
@@ -437,8 +470,17 @@ async def main():
     parser.add_argument("--server", required=True, help="Path to MCP server to analyze")
     parser.add_argument("--output-dir", default="generated", help="Base output directory for generated files")
     parser.add_argument("--name", help="Name for the server (defaults to server filename without extension)")
+    parser.add_argument("--use-agent", action="store_true", help="Use Claude AI agent for intelligent generation (requires claude CLI)")
     
     args = parser.parse_args()
+    
+    # Check Claude CLI availability if AI generation requested
+    if args.use_agent:
+        if not test_claude_cli():
+            print("❌ Claude CLI not found or not working. Please install and configure Claude CLI.")
+            print("   Try: pip install claude-cli")
+            sys.exit(1)
+        print("✅ Claude CLI available - AI generation enabled")
     
     # Determine server name for namespacing
     if args.name:
@@ -460,11 +502,11 @@ async def main():
         
         # Generate mock server
         mock_path = output_dir / "mock_server.py"
-        generate_mock_server(discovery_data, str(mock_path))
+        generate_mock_server(discovery_data, str(mock_path), use_ai=args.use_agent)
         
         # Generate evaluations
         eval_path = output_dir / "evaluations.json"
-        generate_evaluations(discovery_data, str(eval_path))
+        generate_evaluations(discovery_data, str(eval_path), use_ai=args.use_agent)
         
         print(f"\n✨ Generation complete for '{server_name}'!")
         print(f"   Mock server: {mock_path}")
