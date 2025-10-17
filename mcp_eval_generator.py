@@ -17,7 +17,9 @@ from pathlib import Path
 from typing import Dict, Any, List
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
-from ai_generator import generate_ai_mock_responses, generate_ai_test_cases, test_claude_cli
+from mcp_mock_generator import generate_ai_mock_responses
+from mcp_test_generator import generate_ai_test_cases
+from ai_service import test_claude_cli
 
 
 async def discover_mcp_server(server_path: str) -> Dict[str, Any]:
