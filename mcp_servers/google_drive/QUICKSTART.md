@@ -30,7 +30,7 @@ cp ENV_TEMPLATE .env
 # Edit .env file and add:
 # - Your OpenAI API key
 # - A random secret key
-# - Google OAuth credentials (see GOOGLE_DRIVE_SETUP.md for getting these)
+# - Google OAuth credentials (see SETUP.md for getting these)
 ```
 
 **Quick .env example:**
@@ -98,14 +98,14 @@ Your chat app now has:
 
 ## Next Steps
 
-- See [GOOGLE_DRIVE_SETUP.md](./GOOGLE_DRIVE_SETUP.md) for detailed Google OAuth setup
+- See [SETUP.md](./SETUP.md) for detailed Google OAuth setup
 - See [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) for technical details
 - Add more MCP servers by editing `MCP_SERVERS` in `chat_backend.py`
 
 ## Troubleshooting
 
 **Can't get Google OAuth credentials?**
-→ See [GOOGLE_DRIVE_SETUP.md](./GOOGLE_DRIVE_SETUP.md) Step 1
+→ See [SETUP.md](./SETUP.md) Step 1
 
 **Imports not resolving?**
 → Run `uv sync` to install Python dependencies
@@ -119,6 +119,6 @@ Your chat app now has:
 ---
 
 **Need help?** Check the detailed guides:
-- [GOOGLE_DRIVE_SETUP.md](./GOOGLE_DRIVE_SETUP.md) - Complete setup guide
+- [SETUP.md](./SETUP.md) - Complete setup guide
 - [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) - Technical details
 

@@ -15,7 +15,7 @@ from typing import AsyncGenerator
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from fastmcp import FastMCP, Client
-from mcp_tools import register_tools, register_prompts
+from mcp_servers.calculator.tools import register_tools, register_prompts
 
 
 @pytest.fixture(scope="session")

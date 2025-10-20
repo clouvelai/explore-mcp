@@ -16,7 +16,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from fastmcp import FastMCP, Client
-from mcp_tools import register_tools, register_prompts
+from mcp_servers.calculator.tools import register_tools, register_prompts
 from mcp import ClientSession, StdioServerParameters
 from mcp.types import Tool, Prompt, TextContent
 
