@@ -1,302 +1,736 @@
 {
   "server_info": {
-    "source": "server.py",
-    "generated_at": "2025-10-15T11:53:44.550573",
+    "source": "mcp_servers/calculator/server.py",
+    "generated_at": "2025-10-20T09:36:36.694105",
     "tools_count": 5
   },
   "evaluations": [
     {
       "tool": "add",
-      "description": "Add two numbers together.\n\nArgs:\n    a: The first number\n    b: The second number\n    \nReturns:\n    A message with the sum of the two numbers",
+      "description": "Add two numbers together",
       "test_cases": [
         {
-          "id": "add_valid",
+          "id": "add_valid_positive",
           "type": "valid_params",
-          "description": "Valid parameters for add",
+          "description": "Add two positive numbers",
           "params": {
-            "a": 42.0,
-            "b": 42.0
+            "a": 5.0,
+            "b": 3.0
           },
           "expected_result": "success",
           "expected_contains": [
-            "Mock",
-            "successfully"
+            "8"
+          ]
+        },
+        {
+          "id": "add_valid_negative",
+          "type": "valid_params",
+          "description": "Add two negative numbers",
+          "params": {
+            "a": -7.5,
+            "b": -2.5
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "-10"
+          ]
+        },
+        {
+          "id": "add_valid_mixed",
+          "type": "valid_params",
+          "description": "Add positive and negative numbers",
+          "params": {
+            "a": 10.0,
+            "b": -6.0
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "4"
+          ]
+        },
+        {
+          "id": "add_valid_decimals",
+          "type": "valid_params",
+          "description": "Add decimal numbers",
+          "params": {
+            "a": 3.14159,
+            "b": 2.71828
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "5.85987"
+          ]
+        },
+        {
+          "id": "add_valid_zero",
+          "type": "valid_params",
+          "description": "Add with zero",
+          "params": {
+            "a": 42.0,
+            "b": 0.0
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "42"
           ]
         },
         {
           "id": "add_missing_a",
           "type": "missing_required",
-          "description": "Missing required parameter: a",
+          "description": "Missing first number parameter",
           "params": {
-            "b": 42.0
+            "b": 5.0
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "Missing",
+            "required",
             "a"
           ]
         },
         {
           "id": "add_missing_b",
           "type": "missing_required",
-          "description": "Missing required parameter: b",
+          "description": "Missing second number parameter",
           "params": {
-            "a": 42.0
+            "a": 3.0
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "Missing",
+            "required",
             "b"
           ]
         },
         {
-          "id": "add_wrong_type",
+          "id": "add_missing_both",
+          "type": "missing_required",
+          "description": "Missing both parameters",
+          "params": {},
+          "expected_result": "error",
+          "expected_contains": [
+            "required"
+          ]
+        },
+        {
+          "id": "add_invalid_type_a",
           "type": "invalid_type",
-          "description": "Wrong type for parameter: a",
+          "description": "Invalid type for first parameter",
           "params": {
-            "a": "not_a_number",
-            "b": 42.0
+            "a": "five",
+            "b": 3.0
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "type"
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "add_invalid_type_b",
+          "type": "invalid_type",
+          "description": "Invalid type for second parameter",
+          "params": {
+            "a": 5.0,
+            "b": "three"
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "add_large_numbers",
+          "type": "edge_case",
+          "description": "Add very large numbers",
+          "params": {
+            "a": 1e+308,
+            "b": 1e+308
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "2e+308"
+          ]
+        },
+        {
+          "id": "add_very_small_numbers",
+          "type": "edge_case",
+          "description": "Add very small numbers",
+          "params": {
+            "a": 1e-308,
+            "b": 1e-308
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "2e-308"
           ]
         }
       ]
     },
     {
       "tool": "sum",
-      "description": "Add two numbers together.\n\nArgs:\n    a: The first number\n    b: The second number\n    \nReturns:\n    A message with the sum of the two numbers",
+      "description": "Add two numbers together",
       "test_cases": [
         {
-          "id": "sum_valid",
+          "id": "sum_valid_integers",
           "type": "valid_params",
-          "description": "Valid parameters for sum",
+          "description": "Sum two integers",
           "params": {
-            "a": 42.0,
-            "b": 42.0
+            "a": 15,
+            "b": 25
           },
           "expected_result": "success",
           "expected_contains": [
-            "Mock",
-            "successfully"
+            "40"
+          ]
+        },
+        {
+          "id": "sum_valid_floats",
+          "type": "valid_params",
+          "description": "Sum two floating point numbers",
+          "params": {
+            "a": 12.5,
+            "b": 7.5
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "20"
+          ]
+        },
+        {
+          "id": "sum_valid_negative",
+          "type": "valid_params",
+          "description": "Sum with negative numbers",
+          "params": {
+            "a": -20,
+            "b": 15
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "-5"
           ]
         },
         {
           "id": "sum_missing_a",
           "type": "missing_required",
-          "description": "Missing required parameter: a",
+          "description": "Missing first parameter",
           "params": {
-            "b": 42.0
+            "b": 10
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "Missing",
+            "required",
             "a"
           ]
         },
         {
           "id": "sum_missing_b",
           "type": "missing_required",
-          "description": "Missing required parameter: b",
+          "description": "Missing second parameter",
           "params": {
-            "a": 42.0
+            "a": 20
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "Missing",
+            "required",
             "b"
           ]
         },
         {
-          "id": "sum_wrong_type",
+          "id": "sum_invalid_type_both",
           "type": "invalid_type",
-          "description": "Wrong type for parameter: a",
+          "description": "Invalid types for both parameters",
           "params": {
-            "a": "not_a_number",
-            "b": 42.0
+            "a": [
+              1,
+              2
+            ],
+            "b": {
+              "value": 3
+            }
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "type"
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "sum_zero_result",
+          "type": "edge_case",
+          "description": "Sum resulting in zero",
+          "params": {
+            "a": 100,
+            "b": -100
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "0"
           ]
         }
       ]
     },
     {
       "tool": "sum_many",
-      "description": "Add multiple numbers together.\n\nArgs:\n    numbers: A list of numbers to add together\n    \nReturns:\n    A message with the sum of all numbers",
+      "description": "Add multiple numbers together",
       "test_cases": [
         {
-          "id": "sum_many_valid",
+          "id": "sum_many_valid_multiple",
           "type": "valid_params",
-          "description": "Valid parameters for sum_many",
+          "description": "Sum multiple positive numbers",
           "params": {
             "numbers": [
               1,
               2,
-              3
+              3,
+              4,
+              5
             ]
           },
           "expected_result": "success",
           "expected_contains": [
-            "Mock",
-            "successfully"
+            "15"
+          ]
+        },
+        {
+          "id": "sum_many_valid_mixed",
+          "type": "valid_params",
+          "description": "Sum mixed positive and negative numbers",
+          "params": {
+            "numbers": [
+              10,
+              -5,
+              3,
+              -2,
+              8
+            ]
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "14"
+          ]
+        },
+        {
+          "id": "sum_many_valid_decimals",
+          "type": "valid_params",
+          "description": "Sum decimal numbers",
+          "params": {
+            "numbers": [
+              1.5,
+              2.5,
+              3.5,
+              4.5
+            ]
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "12"
+          ]
+        },
+        {
+          "id": "sum_many_valid_single",
+          "type": "valid_params",
+          "description": "Sum single number array",
+          "params": {
+            "numbers": [
+              42
+            ]
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "42"
           ]
         },
         {
           "id": "sum_many_missing_numbers",
           "type": "missing_required",
-          "description": "Missing required parameter: numbers",
+          "description": "Missing numbers parameter",
           "params": {},
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "Missing",
+            "required",
             "numbers"
           ]
         },
         {
-          "id": "sum_many_wrong_type",
+          "id": "sum_many_invalid_type",
           "type": "invalid_type",
-          "description": "Wrong type for parameter: numbers",
+          "description": "Invalid type for numbers parameter",
           "params": {
-            "numbers": "not_an_array"
+            "numbers": "1,2,3"
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "type"
+            "type",
+            "array"
+          ]
+        },
+        {
+          "id": "sum_many_invalid_array_items",
+          "type": "invalid_type",
+          "description": "Invalid types within array",
+          "params": {
+            "numbers": [
+              1,
+              "two",
+              3,
+              "four"
+            ]
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "sum_many_empty_array",
+          "type": "edge_case",
+          "description": "Sum empty array",
+          "params": {
+            "numbers": []
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "0"
+          ]
+        },
+        {
+          "id": "sum_many_large_array",
+          "type": "edge_case",
+          "description": "Sum large array of numbers",
+          "params": {
+            "numbers": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "20"
+          ]
+        },
+        {
+          "id": "sum_many_zeros",
+          "type": "edge_case",
+          "description": "Sum array of zeros",
+          "params": {
+            "numbers": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "0"
           ]
         }
       ]
     },
     {
       "tool": "multiply",
-      "description": "Multiply two numbers together.\n\nArgs:\n    a: The first number\n    b: The second number\n    \nReturns:\n    A message with the product of the two numbers",
+      "description": "Multiply two numbers together",
       "test_cases": [
         {
-          "id": "multiply_valid",
+          "id": "multiply_valid_positive",
           "type": "valid_params",
-          "description": "Valid parameters for multiply",
+          "description": "Multiply two positive numbers",
           "params": {
-            "a": 42.0,
-            "b": 42.0
+            "a": 6,
+            "b": 7
           },
           "expected_result": "success",
           "expected_contains": [
-            "Mock",
-            "successfully"
+            "42"
+          ]
+        },
+        {
+          "id": "multiply_valid_negative",
+          "type": "valid_params",
+          "description": "Multiply two negative numbers",
+          "params": {
+            "a": -4,
+            "b": -5
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "20"
+          ]
+        },
+        {
+          "id": "multiply_valid_mixed",
+          "type": "valid_params",
+          "description": "Multiply positive and negative",
+          "params": {
+            "a": 8,
+            "b": -3
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "-24"
+          ]
+        },
+        {
+          "id": "multiply_valid_decimals",
+          "type": "valid_params",
+          "description": "Multiply decimal numbers",
+          "params": {
+            "a": 2.5,
+            "b": 3.2
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "8"
           ]
         },
         {
           "id": "multiply_missing_a",
           "type": "missing_required",
-          "description": "Missing required parameter: a",
+          "description": "Missing first parameter",
           "params": {
-            "b": 42.0
+            "b": 5
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "Missing",
+            "required",
             "a"
           ]
         },
         {
           "id": "multiply_missing_b",
           "type": "missing_required",
-          "description": "Missing required parameter: b",
+          "description": "Missing second parameter",
           "params": {
-            "a": 42.0
+            "a": 10
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "Missing",
+            "required",
             "b"
           ]
         },
         {
-          "id": "multiply_wrong_type",
+          "id": "multiply_invalid_type_a",
           "type": "invalid_type",
-          "description": "Wrong type for parameter: a",
+          "description": "Invalid type for first parameter",
           "params": {
-            "a": "not_a_number",
-            "b": 42.0
+            "a": null,
+            "b": 5
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "type"
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "multiply_by_zero",
+          "type": "edge_case",
+          "description": "Multiply by zero",
+          "params": {
+            "a": 999999,
+            "b": 0
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "0"
+          ]
+        },
+        {
+          "id": "multiply_by_one",
+          "type": "edge_case",
+          "description": "Multiply by one (identity)",
+          "params": {
+            "a": 73.5,
+            "b": 1
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "73.5"
+          ]
+        },
+        {
+          "id": "multiply_large_numbers",
+          "type": "edge_case",
+          "description": "Multiply very large numbers",
+          "params": {
+            "a": 1e+150,
+            "b": 1e+150
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "1e+300"
           ]
         }
       ]
     },
     {
       "tool": "divide",
-      "description": "Divide one number by another.\n\nArgs:\n    a: The dividend (number to be divided)\n    b: The divisor (number to divide by)\n    \nReturns:\n    A message with the quotient, or an error if dividing by zero",
+      "description": "Divide one number by another",
       "test_cases": [
         {
-          "id": "divide_valid",
+          "id": "divide_valid_even",
           "type": "valid_params",
-          "description": "Valid parameters for divide",
+          "description": "Divide evenly",
           "params": {
-            "a": 42.0,
-            "b": 42.0
+            "a": 20,
+            "b": 4
           },
           "expected_result": "success",
           "expected_contains": [
-            "Mock",
-            "successfully"
+            "5"
+          ]
+        },
+        {
+          "id": "divide_valid_decimal_result",
+          "type": "valid_params",
+          "description": "Divide with decimal result",
+          "params": {
+            "a": 10,
+            "b": 3
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "3.33"
+          ]
+        },
+        {
+          "id": "divide_valid_negative",
+          "type": "valid_params",
+          "description": "Divide negative numbers",
+          "params": {
+            "a": -15,
+            "b": -3
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "5"
+          ]
+        },
+        {
+          "id": "divide_valid_mixed_sign",
+          "type": "valid_params",
+          "description": "Divide positive by negative",
+          "params": {
+            "a": 24,
+            "b": -6
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "-4"
           ]
         },
         {
           "id": "divide_missing_a",
           "type": "missing_required",
-          "description": "Missing required parameter: a",
+          "description": "Missing dividend parameter",
           "params": {
-            "b": 42.0
+            "b": 2
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "Missing",
+            "required",
             "a"
           ]
         },
         {
           "id": "divide_missing_b",
           "type": "missing_required",
-          "description": "Missing required parameter: b",
+          "description": "Missing divisor parameter",
           "params": {
-            "a": 42.0
+            "a": 10
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "Missing",
+            "required",
             "b"
           ]
         },
         {
-          "id": "divide_wrong_type",
+          "id": "divide_invalid_type_b",
           "type": "invalid_type",
-          "description": "Wrong type for parameter: a",
+          "description": "Invalid type for divisor",
           "params": {
-            "a": "not_a_number",
-            "b": 42.0
+            "a": 10,
+            "b": "two"
           },
           "expected_result": "error",
           "expected_contains": [
-            "Error",
-            "type"
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "divide_by_zero",
+          "type": "edge_case",
+          "description": "Division by zero",
+          "params": {
+            "a": 10,
+            "b": 0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "zero",
+            "division"
+          ]
+        },
+        {
+          "id": "divide_zero_by_number",
+          "type": "edge_case",
+          "description": "Divide zero by number",
+          "params": {
+            "a": 0,
+            "b": 5
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "0"
+          ]
+        },
+        {
+          "id": "divide_by_one",
+          "type": "edge_case",
+          "description": "Divide by one (identity)",
+          "params": {
+            "a": 99.9,
+            "b": 1
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "99.9"
+          ]
+        },
+        {
+          "id": "divide_very_small_divisor",
+          "type": "edge_case",
+          "description": "Divide by very small number",
+          "params": {
+            "a": 1,
+            "b": 1e-07
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "10000000"
           ]
         }
       ]
