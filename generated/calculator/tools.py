@@ -1,7 +1,7 @@
 """
 Auto-generated MCP Tools
 Generated from: mcp_servers/calculator/server.py
-Generated at: 2025-10-20T09:36:36.694105
+Generated at: 2025-10-20T10:18:08.301447
 """
 
 import json
@@ -47,7 +47,7 @@ Returns:
             return "Error: Missing required parameter: b"
 
         # Return mock response
-        return "The sum of 15 and 27 is 42"
+        return "The sum of 5 and 3 is 8"
 
     @mcp.tool()
     def sum(a: float, b: float) -> str:
@@ -71,7 +71,7 @@ Returns:
             return "Error: Missing required parameter: b"
 
         # Return mock response
-        return "The sum of 8 and 13 is 21"
+        return "The sum of 12 and 7 is 19"
 
     @mcp.tool()
     def sum_many(numbers: List[float]) -> str:
@@ -92,7 +92,7 @@ Returns:
             return "Error: Missing required parameter: numbers"
 
         # Return mock response
-        return "The sum of [3, 7, 11, 2, 5] is 28"
+        return "The sum of [2.5, 4.8, 1.2, 9.5] is 18.0"
 
     @mcp.tool()
     def multiply(a: float, b: float) -> str:
@@ -140,7 +140,7 @@ Returns:
             return "Error: Missing required parameter: b"
 
         # Return mock response
-        return "The quotient of 36 divided by 4 is 9"
+        return "The quotient of 15 divided by 3 is 5.0"
 
     @mcp.tool()
     def get_request_log() -> str:

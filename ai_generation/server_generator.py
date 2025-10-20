@@ -8,7 +8,7 @@ Creates a server.py and tools.py matching the structure of real MCP servers.
 import json
 from pathlib import Path
 from typing import Dict, Any, List
-from ai_service import AIService
+from .ai_service import AIService
 
 
 # Prompt template for generating mock responses
@@ -269,7 +269,7 @@ def generate_ai_mock_server(discovery_data: Dict[str, Any], output_dir: Path):
 if __name__ == "__main__":
     # Test with sample tools
     import sys
-    from ai_service import test_claude_cli
+    from .ai_service import test_claude_cli
     
     if not test_claude_cli():
         print("❌ Claude CLI not found or not working")

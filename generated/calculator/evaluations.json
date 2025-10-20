@@ -1,7 +1,7 @@
 {
   "server_info": {
     "source": "mcp_servers/calculator/server.py",
-    "generated_at": "2025-10-20T09:36:36.694105",
+    "generated_at": "2025-10-20T10:18:08.301447",
     "tools_count": 5
   },
   "evaluations": [
@@ -27,25 +27,25 @@
           "type": "valid_params",
           "description": "Add two negative numbers",
           "params": {
-            "a": -7.5,
+            "a": -10.5,
             "b": -2.5
           },
           "expected_result": "success",
           "expected_contains": [
-            "-10"
+            "-13"
           ]
         },
         {
           "id": "add_valid_mixed",
           "type": "valid_params",
-          "description": "Add positive and negative numbers",
+          "description": "Add positive and negative number",
           "params": {
-            "a": 10.0,
-            "b": -6.0
+            "a": 15.0,
+            "b": -7.0
           },
           "expected_result": "success",
           "expected_contains": [
-            "4"
+            "8"
           ]
         },
         {
@@ -77,7 +77,7 @@
         {
           "id": "add_missing_a",
           "type": "missing_required",
-          "description": "Missing first number parameter",
+          "description": "Missing first parameter",
           "params": {
             "b": 5.0
           },
@@ -90,9 +90,9 @@
         {
           "id": "add_missing_b",
           "type": "missing_required",
-          "description": "Missing second number parameter",
+          "description": "Missing second parameter",
           "params": {
-            "a": 3.0
+            "a": 10.0
           },
           "expected_result": "error",
           "expected_contains": [
@@ -111,9 +111,9 @@
           ]
         },
         {
-          "id": "add_invalid_type_a",
+          "id": "add_invalid_type_a_string",
           "type": "invalid_type",
-          "description": "Invalid type for first parameter",
+          "description": "Invalid type for first parameter (string)",
           "params": {
             "a": "five",
             "b": 3.0
@@ -125,12 +125,12 @@
           ]
         },
         {
-          "id": "add_invalid_type_b",
+          "id": "add_invalid_type_b_boolean",
           "type": "invalid_type",
-          "description": "Invalid type for second parameter",
+          "description": "Invalid type for second parameter (boolean)",
           "params": {
-            "a": 5.0,
-            "b": "three"
+            "a": 2.0,
+            "b": true
           },
           "expected_result": "error",
           "expected_contains": [
@@ -139,7 +139,21 @@
           ]
         },
         {
-          "id": "add_large_numbers",
+          "id": "add_invalid_type_null",
+          "type": "invalid_type",
+          "description": "Null parameter value",
+          "params": {
+            "a": null,
+            "b": 5.0
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "add_edge_large_numbers",
           "type": "edge_case",
           "description": "Add very large numbers",
           "params": {
@@ -152,7 +166,7 @@
           ]
         },
         {
-          "id": "add_very_small_numbers",
+          "id": "add_edge_small_numbers",
           "type": "edge_case",
           "description": "Add very small numbers",
           "params": {
@@ -162,6 +176,19 @@
           "expected_result": "success",
           "expected_contains": [
             "2e-308"
+          ]
+        },
+        {
+          "id": "add_edge_infinity",
+          "type": "edge_case",
+          "description": "Add with infinity",
+          "params": {
+            "a": Infinity,
+            "b": 5.0
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "inf"
           ]
         }
       ]
@@ -175,12 +202,12 @@
           "type": "valid_params",
           "description": "Sum two integers",
           "params": {
-            "a": 15,
-            "b": 25
+            "a": 100,
+            "b": 200
           },
           "expected_result": "success",
           "expected_contains": [
-            "40"
+            "300"
           ]
         },
         {
@@ -188,25 +215,25 @@
           "type": "valid_params",
           "description": "Sum two floating point numbers",
           "params": {
-            "a": 12.5,
-            "b": 7.5
+            "a": 0.1,
+            "b": 0.2
           },
           "expected_result": "success",
           "expected_contains": [
-            "20"
+            "0.3"
           ]
         },
         {
-          "id": "sum_valid_negative",
+          "id": "sum_valid_negative_result",
           "type": "valid_params",
-          "description": "Sum with negative numbers",
+          "description": "Sum resulting in negative",
           "params": {
-            "a": -20,
-            "b": 15
+            "a": -50,
+            "b": 30
           },
           "expected_result": "success",
           "expected_contains": [
-            "-5"
+            "-20"
           ]
         },
         {
@@ -236,17 +263,15 @@
           ]
         },
         {
-          "id": "sum_invalid_type_both",
+          "id": "sum_invalid_type_array",
           "type": "invalid_type",
-          "description": "Invalid types for both parameters",
+          "description": "Array instead of number",
           "params": {
             "a": [
               1,
               2
             ],
-            "b": {
-              "value": 3
-            }
+            "b": 3
           },
           "expected_result": "error",
           "expected_contains": [
@@ -255,16 +280,46 @@
           ]
         },
         {
-          "id": "sum_zero_result",
-          "type": "edge_case",
-          "description": "Sum resulting in zero",
+          "id": "sum_invalid_type_object",
+          "type": "invalid_type",
+          "description": "Object instead of number",
           "params": {
-            "a": 100,
-            "b": -100
+            "a": {
+              "value": 5
+            },
+            "b": 10
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "sum_edge_opposite_infinities",
+          "type": "edge_case",
+          "description": "Sum positive and negative infinity",
+          "params": {
+            "a": Infinity,
+            "b": -Infinity
           },
           "expected_result": "success",
           "expected_contains": [
-            "0"
+            "nan",
+            "NaN"
+          ]
+        },
+        {
+          "id": "sum_edge_max_precision",
+          "type": "edge_case",
+          "description": "Sum with maximum precision decimals",
+          "params": {
+            "a": 0.123456789012345,
+            "b": 0.987654321098765
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "1.11111"
           ]
         }
       ]
@@ -292,44 +347,24 @@
           ]
         },
         {
-          "id": "sum_many_valid_mixed",
+          "id": "sum_many_valid_two",
           "type": "valid_params",
-          "description": "Sum mixed positive and negative numbers",
+          "description": "Sum exactly two numbers",
           "params": {
             "numbers": [
-              10,
-              -5,
-              3,
-              -2,
-              8
+              10.5,
+              20.5
             ]
           },
           "expected_result": "success",
           "expected_contains": [
-            "14"
-          ]
-        },
-        {
-          "id": "sum_many_valid_decimals",
-          "type": "valid_params",
-          "description": "Sum decimal numbers",
-          "params": {
-            "numbers": [
-              1.5,
-              2.5,
-              3.5,
-              4.5
-            ]
-          },
-          "expected_result": "success",
-          "expected_contains": [
-            "12"
+            "31"
           ]
         },
         {
           "id": "sum_many_valid_single",
           "type": "valid_params",
-          "description": "Sum single number array",
+          "description": "Sum single number",
           "params": {
             "numbers": [
               42
@@ -341,62 +376,43 @@
           ]
         },
         {
-          "id": "sum_many_missing_numbers",
-          "type": "missing_required",
-          "description": "Missing numbers parameter",
-          "params": {},
-          "expected_result": "error",
-          "expected_contains": [
-            "required",
-            "numbers"
-          ]
-        },
-        {
-          "id": "sum_many_invalid_type",
-          "type": "invalid_type",
-          "description": "Invalid type for numbers parameter",
-          "params": {
-            "numbers": "1,2,3"
-          },
-          "expected_result": "error",
-          "expected_contains": [
-            "type",
-            "array"
-          ]
-        },
-        {
-          "id": "sum_many_invalid_array_items",
-          "type": "invalid_type",
-          "description": "Invalid types within array",
+          "id": "sum_many_valid_mixed_signs",
+          "type": "valid_params",
+          "description": "Sum positive and negative numbers",
           "params": {
             "numbers": [
-              1,
-              "two",
-              3,
-              "four"
+              10,
+              -5,
+              8,
+              -3,
+              2
             ]
-          },
-          "expected_result": "error",
-          "expected_contains": [
-            "type",
-            "number"
-          ]
-        },
-        {
-          "id": "sum_many_empty_array",
-          "type": "edge_case",
-          "description": "Sum empty array",
-          "params": {
-            "numbers": []
           },
           "expected_result": "success",
           "expected_contains": [
-            "0"
+            "12"
           ]
         },
         {
-          "id": "sum_many_large_array",
-          "type": "edge_case",
+          "id": "sum_many_valid_decimals",
+          "type": "valid_params",
+          "description": "Sum decimal numbers",
+          "params": {
+            "numbers": [
+              0.1,
+              0.2,
+              0.3,
+              0.4
+            ]
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "1"
+          ]
+        },
+        {
+          "id": "sum_many_valid_large_array",
+          "type": "valid_params",
           "description": "Sum large array of numbers",
           "params": {
             "numbers": [
@@ -428,15 +444,133 @@
           ]
         },
         {
-          "id": "sum_many_zeros",
+          "id": "sum_many_missing_numbers",
+          "type": "missing_required",
+          "description": "Missing numbers parameter",
+          "params": {},
+          "expected_result": "error",
+          "expected_contains": [
+            "required",
+            "numbers"
+          ]
+        },
+        {
+          "id": "sum_many_invalid_type_string",
+          "type": "invalid_type",
+          "description": "String instead of array",
+          "params": {
+            "numbers": "1,2,3"
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "array"
+          ]
+        },
+        {
+          "id": "sum_many_invalid_type_number",
+          "type": "invalid_type",
+          "description": "Single number instead of array",
+          "params": {
+            "numbers": 5
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "array"
+          ]
+        },
+        {
+          "id": "sum_many_invalid_type_mixed_array",
+          "type": "invalid_type",
+          "description": "Array with non-numeric elements",
+          "params": {
+            "numbers": [
+              1,
+              "two",
+              3,
+              true
+            ]
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "sum_many_invalid_type_null_element",
+          "type": "invalid_type",
+          "description": "Array with null element",
+          "params": {
+            "numbers": [
+              1,
+              2,
+              null,
+              4
+            ]
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "sum_many_edge_empty_array",
           "type": "edge_case",
-          "description": "Sum array of zeros",
+          "description": "Empty array",
+          "params": {
+            "numbers": []
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "0"
+          ]
+        },
+        {
+          "id": "sum_many_edge_zeros",
+          "type": "edge_case",
+          "description": "Array of zeros",
           "params": {
             "numbers": [
               0,
               0,
               0,
-              0,
+              0
+            ]
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "0"
+          ]
+        },
+        {
+          "id": "sum_many_edge_overflow",
+          "type": "edge_case",
+          "description": "Sum causing overflow",
+          "params": {
+            "numbers": [
+              1e+308,
+              1e+308,
+              1e+308
+            ]
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "inf"
+          ]
+        },
+        {
+          "id": "sum_many_edge_cancellation",
+          "type": "edge_case",
+          "description": "Numbers that cancel out",
+          "params": {
+            "numbers": [
+              1000,
+              -1000,
+              500,
+              -500,
               0
             ]
           },
@@ -478,7 +612,7 @@
           ]
         },
         {
-          "id": "multiply_valid_mixed",
+          "id": "multiply_valid_mixed_signs",
           "type": "valid_params",
           "description": "Multiply positive and negative",
           "params": {
@@ -496,11 +630,24 @@
           "description": "Multiply decimal numbers",
           "params": {
             "a": 2.5,
-            "b": 3.2
+            "b": 4.0
           },
           "expected_result": "success",
           "expected_contains": [
-            "8"
+            "10"
+          ]
+        },
+        {
+          "id": "multiply_valid_by_one",
+          "type": "valid_params",
+          "description": "Multiply by one (identity)",
+          "params": {
+            "a": 123.456,
+            "b": 1
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "123.456"
           ]
         },
         {
@@ -530,11 +677,11 @@
           ]
         },
         {
-          "id": "multiply_invalid_type_a",
+          "id": "multiply_invalid_type_string",
           "type": "invalid_type",
-          "description": "Invalid type for first parameter",
+          "description": "String parameter",
           "params": {
-            "a": null,
+            "a": "ten",
             "b": 5
           },
           "expected_result": "error",
@@ -544,7 +691,23 @@
           ]
         },
         {
-          "id": "multiply_by_zero",
+          "id": "multiply_invalid_type_array",
+          "type": "invalid_type",
+          "description": "Array parameter",
+          "params": {
+            "a": 3,
+            "b": [
+              2
+            ]
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "multiply_edge_by_zero",
           "type": "edge_case",
           "description": "Multiply by zero",
           "params": {
@@ -557,22 +720,22 @@
           ]
         },
         {
-          "id": "multiply_by_one",
+          "id": "multiply_edge_zero_by_zero",
           "type": "edge_case",
-          "description": "Multiply by one (identity)",
+          "description": "Multiply zero by zero",
           "params": {
-            "a": 73.5,
-            "b": 1
+            "a": 0,
+            "b": 0
           },
           "expected_result": "success",
           "expected_contains": [
-            "73.5"
+            "0"
           ]
         },
         {
-          "id": "multiply_large_numbers",
+          "id": "multiply_edge_large_numbers",
           "type": "edge_case",
-          "description": "Multiply very large numbers",
+          "description": "Multiply large numbers",
           "params": {
             "a": 1e+150,
             "b": 1e+150
@@ -580,6 +743,45 @@
           "expected_result": "success",
           "expected_contains": [
             "1e+300"
+          ]
+        },
+        {
+          "id": "multiply_edge_overflow",
+          "type": "edge_case",
+          "description": "Multiply causing overflow",
+          "params": {
+            "a": 1e+200,
+            "b": 1e+200
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "inf"
+          ]
+        },
+        {
+          "id": "multiply_edge_small_decimals",
+          "type": "edge_case",
+          "description": "Multiply very small decimals",
+          "params": {
+            "a": 1e-150,
+            "b": 1e-150
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "1e-300"
+          ]
+        },
+        {
+          "id": "multiply_edge_by_negative_one",
+          "type": "edge_case",
+          "description": "Multiply by negative one (negation)",
+          "params": {
+            "a": 42,
+            "b": -1
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "-42"
           ]
         }
       ]
@@ -591,7 +793,7 @@
         {
           "id": "divide_valid_even",
           "type": "valid_params",
-          "description": "Divide evenly",
+          "description": "Divide with even result",
           "params": {
             "a": 20,
             "b": 4
@@ -611,24 +813,24 @@
           },
           "expected_result": "success",
           "expected_contains": [
-            "3.33"
+            "3.333"
           ]
         },
         {
-          "id": "divide_valid_negative",
+          "id": "divide_valid_negative_dividend",
           "type": "valid_params",
-          "description": "Divide negative numbers",
+          "description": "Divide negative by positive",
           "params": {
             "a": -15,
-            "b": -3
+            "b": 3
           },
           "expected_result": "success",
           "expected_contains": [
-            "5"
+            "-5"
           ]
         },
         {
-          "id": "divide_valid_mixed_sign",
+          "id": "divide_valid_negative_divisor",
           "type": "valid_params",
           "description": "Divide positive by negative",
           "params": {
@@ -641,9 +843,48 @@
           ]
         },
         {
+          "id": "divide_valid_both_negative",
+          "type": "valid_params",
+          "description": "Divide negative by negative",
+          "params": {
+            "a": -30,
+            "b": -5
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "6"
+          ]
+        },
+        {
+          "id": "divide_valid_decimals",
+          "type": "valid_params",
+          "description": "Divide decimal numbers",
+          "params": {
+            "a": 7.5,
+            "b": 2.5
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "3"
+          ]
+        },
+        {
+          "id": "divide_valid_by_one",
+          "type": "valid_params",
+          "description": "Divide by one (identity)",
+          "params": {
+            "a": 99.99,
+            "b": 1
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "99.99"
+          ]
+        },
+        {
           "id": "divide_missing_a",
           "type": "missing_required",
-          "description": "Missing dividend parameter",
+          "description": "Missing dividend",
           "params": {
             "b": 2
           },
@@ -656,7 +897,7 @@
         {
           "id": "divide_missing_b",
           "type": "missing_required",
-          "description": "Missing divisor parameter",
+          "description": "Missing divisor",
           "params": {
             "a": 10
           },
@@ -667,9 +908,9 @@
           ]
         },
         {
-          "id": "divide_invalid_type_b",
+          "id": "divide_invalid_type_string",
           "type": "invalid_type",
-          "description": "Invalid type for divisor",
+          "description": "String divisor",
           "params": {
             "a": 10,
             "b": "two"
@@ -681,7 +922,21 @@
           ]
         },
         {
-          "id": "divide_by_zero",
+          "id": "divide_invalid_type_boolean",
+          "type": "invalid_type",
+          "description": "Boolean dividend",
+          "params": {
+            "a": false,
+            "b": 5
+          },
+          "expected_result": "error",
+          "expected_contains": [
+            "type",
+            "number"
+          ]
+        },
+        {
+          "id": "divide_edge_by_zero",
           "type": "edge_case",
           "description": "Division by zero",
           "params": {
@@ -695,9 +950,9 @@
           ]
         },
         {
-          "id": "divide_zero_by_number",
+          "id": "divide_edge_zero_dividend",
           "type": "edge_case",
-          "description": "Divide zero by number",
+          "description": "Zero divided by number",
           "params": {
             "a": 0,
             "b": 5
@@ -708,29 +963,68 @@
           ]
         },
         {
-          "id": "divide_by_one",
-          "type": "edge_case",
-          "description": "Divide by one (identity)",
-          "params": {
-            "a": 99.9,
-            "b": 1
-          },
-          "expected_result": "success",
-          "expected_contains": [
-            "99.9"
-          ]
-        },
-        {
-          "id": "divide_very_small_divisor",
+          "id": "divide_edge_very_small_divisor",
           "type": "edge_case",
           "description": "Divide by very small number",
           "params": {
             "a": 1,
-            "b": 1e-07
+            "b": 1e-308
           },
           "expected_result": "success",
           "expected_contains": [
-            "10000000"
+            "1e+308"
+          ]
+        },
+        {
+          "id": "divide_edge_very_large_dividend",
+          "type": "edge_case",
+          "description": "Divide very large number",
+          "params": {
+            "a": 1e+308,
+            "b": 10
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "1e+307"
+          ]
+        },
+        {
+          "id": "divide_edge_self_division",
+          "type": "edge_case",
+          "description": "Divide number by itself",
+          "params": {
+            "a": 42,
+            "b": 42
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "1"
+          ]
+        },
+        {
+          "id": "divide_edge_infinity_dividend",
+          "type": "edge_case",
+          "description": "Divide infinity",
+          "params": {
+            "a": Infinity,
+            "b": 2
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "inf"
+          ]
+        },
+        {
+          "id": "divide_edge_repeating_decimal",
+          "type": "edge_case",
+          "description": "Division resulting in repeating decimal",
+          "params": {
+            "a": 1,
+            "b": 3
+          },
+          "expected_result": "success",
+          "expected_contains": [
+            "0.333"
           ]
         }
       ]

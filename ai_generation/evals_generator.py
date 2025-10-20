@@ -7,7 +7,7 @@ Uses AI to create intelligent test cases including edge cases and domain-specifi
 
 import json
 from typing import Dict, Any, List
-from ai_service import AIService
+from .ai_service import AIService
 
 
 # Prompt template for generating test cases
@@ -106,7 +106,7 @@ def generate_ai_test_cases(tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 if __name__ == "__main__":
     # Test with sample tools
     import sys
-    from ai_service import test_claude_cli
+    from .ai_service import test_claude_cli
     
     if not test_claude_cli():
         print("❌ Claude CLI not found or not working")
