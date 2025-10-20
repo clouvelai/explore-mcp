@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 class AIService:
     """Service for interacting with Claude CLI to generate AI responses."""
     
-    def __init__(self, timeout: int = 120):
+    def __init__(self, timeout: int = 180):
         """
         Initialize AIService with configurable timeout.
         
