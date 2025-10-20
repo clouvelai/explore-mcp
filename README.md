@@ -63,13 +63,10 @@ uv run python -m ai_generation.evaluation_runner --evaluations generated/calcula
 ```
 
 ### Key Benefits
-- **AI-Powered**: Claude analyzes tool semantics for intelligent test generation (minimal viable tests, expandable)
-- **Fully Agnostic**: Works with any MCP server regardless of domain or purpose
+- **AI-Powered**: Claude generates intelligent tests and realistic mock responses
 - **Zero Setup**: Point at any MCP server, get instant evaluation suite
-- **Safe Testing**: Mock servers have no side effects or external dependencies
-- **Smart Responses**: AI generates realistic, contextual mock responses
-- **Isolated**: Each MCP server gets its own namespaced test environment
-- **Scalable**: Current minimal approach (2 tests/tool) with planned expansion to comprehensive coverage
+- **Safe Testing**: Mock servers with no side effects or external dependencies
+- **Domain Agnostic**: Works with any MCP server regardless of purpose
 
 ## Chat Interface Architecture
 
@@ -242,29 +239,18 @@ explore-mcp/
 
 ### Prerequisites
 ```bash
-# Install Claude CLI (required for AI generation)
-pip install claude-cli
-
-# Install Python dependencies
-uv sync
-
-# Install frontend dependencies (optional, for chat interface)
-cd chat-frontend && npm install
+pip install claude-cli  # For AI generation
+uv sync                 # Python dependencies
+cd chat-frontend && npm install  # Frontend (optional)
 ```
 
 ### Environment Setup
 ```bash
-# Copy environment template
 cp ENV_TEMPLATE .env
-
-# Edit .env with your API keys:
-# - OPENAI_API_KEY (for chat interface)
-# - Google OAuth credentials (for Gmail/Drive servers)
+# Edit .env with OPENAI_API_KEY and Google OAuth credentials
 ```
 
 ### Generate MCP Evaluations
-
-#### AI-Powered Generation (Default)
 ```bash
 # Generate with Claude AI for calculator
 uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
@@ -274,93 +260,46 @@ uv run python -m ai_generation.cli --server mcp_servers/gmail/server.py
 uv run python -m ai_generation.cli --server mcp_servers/google_drive/server.py
 
 # Custom name and output directory
-uv run python -m ai_generation.cli --server server.py --name legacy_calc --output-dir custom_output
+uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py --name custom_calc --output-dir custom_output
 ```
 
-The system automatically:
-- Discovers tools from any MCP server
-- Generates AI-powered mock responses
-- Creates minimal viable test cases (2 per tool, expandable)
-- Outputs clean server.py + tools.py structure
 
 ### Run Evaluations
 ```bash
 # Execute generated test suite
 uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
-
-# Custom output location for results
-uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py --output custom_report.md
-
-# Results saved to generated/eval_results.md by default
 ```
 
-### Generated File Structure
-```
-generated/
-├── calculator/
-│   ├── server.py           # FastMCP server setup
-│   ├── tools.py           # AI-generated tool implementations
-│   ├── evaluations.json   # Minimal test cases (2 per tool, AI-generated)
-│   └── eval_results.md    # Evaluation report (when run)
-├── gmail/
-│   └── ...
-└── google_drive/
-    └── ...
-```
 
-### Run Chat Interface (Optional)
+### Run Chat Interface
 ```bash
-# Terminal 1: Start backend (using new entry point)
+# Terminal 1: Start backend
 uv run python main.py
-# Or use the convenience script:
-./start_backend.sh
 
 # Terminal 2: Start frontend  
 cd chat-frontend && npm start
-# Or use the convenience script:
-./start_frontend.sh
 
 # Access at http://localhost:3000
 ```
 
-### Test Individual MCP Servers
+### Test MCP Servers
 ```bash
-# Test calculator server directly
+# Test with client
 uv run python client.py
 
-# Test individual servers
+# Run individual servers
 uv run python mcp_servers/calculator/server.py
-uv run python mcp_servers/gmail/server.py
-uv run python mcp_servers/google_drive/server.py
 ```
 
-## 🔍 AI Generation Features
-
-| Feature | Details |
-|---------|---------|
-| **Test Cases** | Minimal viable tests (2 per tool: valid params + invalid types) with AI-powered expansion capability |
-| **Mock Responses** | Realistic AI-generated: `"The sum of 42 and 17 is 59"` vs generic `"Mock: Operation completed"` |
-| **Server Structure** | Clean server.py + tools.py matching real MCP server patterns |
-| **Edge Cases** | Future milestone: Domain-aware edge cases (division by zero, infinity, precision limits) |
-| **Tool Discovery** | Automatic schema analysis and parameter validation |
-| **Domain Agnostic** | Works with any MCP server (calculator, Gmail, Drive, custom) |
 
 ## Dependencies
 
-**Core**:
 - `uv` - Python package manager
-- `claude` CLI - For AI generation (optional but recommended)
-
-**Python** (managed by uv):
-- `mcp>=1.0.0` - Core MCP protocol
-- `fastmcp>=0.2.0` - High-level framework  
-- `openai>=1.0.0` - OpenAI API (chat interface)
-- `flask>=3.0.0` - Backend server (chat interface)
-- `google-api-python-client>=2.0.0` - Google APIs (Gmail/Drive)
-
-**Frontend** (optional):
-- React 18.2.0
-- react-scripts 5.0.1
+- `claude` CLI - For AI generation
+- `mcp>=1.0.0`, `fastmcp>=0.2.0` - MCP protocol
+- `openai>=1.0.0`, `flask>=3.0.0` - Chat backend
+- `google-api-python-client>=2.0.0` - Google APIs
+- React 18.2.0 - Frontend
 
 ## Ports
 - Frontend: `localhost:3000`
