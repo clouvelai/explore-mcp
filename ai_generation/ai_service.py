@@ -7,8 +7,29 @@ structured responses.
 """
 
 import json
+import re
 import subprocess
 from typing import Dict, Any, Optional
+
+
+class ClaudeError(Exception):
+    """Base exception for Claude CLI related errors."""
+    pass
+
+
+class ClaudeTimeoutError(ClaudeError):
+    """Raised when Claude CLI call times out."""
+    pass
+
+
+class ClaudeNotFoundError(ClaudeError):
+    """Raised when Claude CLI is not found in PATH."""
+    pass
+
+
+class ClaudeExecutionError(ClaudeError):
+    """Raised when Claude CLI returns non-zero exit code."""
+    pass
 
 
 class AIService:
@@ -19,7 +40,7 @@ class AIService:
         Initialize AIService with configurable timeout.
         
         Args:
-            timeout: Timeout in seconds for Claude CLI calls (default: 120)
+            timeout: Timeout in seconds for Claude CLI calls (default: 180)
         """
         self.timeout = timeout
     
@@ -34,8 +55,13 @@ class AIService:
             The raw string response from Claude
             
         Raises:
-            Exception: If Claude CLI fails or times out
+            ValueError: If prompt is empty or None
+            ClaudeTimeoutError: If Claude CLI call times out
+            ClaudeNotFoundError: If Claude CLI is not found in PATH
+            ClaudeExecutionError: If Claude CLI returns non-zero exit code
         """
+        if not prompt or not prompt.strip():
+            raise ValueError("Prompt cannot be empty or None")
         try:
             result = subprocess.run(
                 ["claude", prompt],
@@ -45,16 +71,14 @@ class AIService:
             )
             
             if result.returncode != 0:
-                raise Exception(f"Claude CLI failed: {result.stderr}")
+                raise ClaudeExecutionError(f"Claude CLI failed: {result.stderr}")
             
             return result.stdout.strip()
         
         except subprocess.TimeoutExpired:
-            raise Exception(f"Claude CLI call timed out after {self.timeout} seconds")
+            raise ClaudeTimeoutError(f"Claude CLI call timed out after {self.timeout} seconds")
         except FileNotFoundError:
-            raise Exception("Claude CLI not found. Please ensure 'claude' is installed and in PATH")
-        except Exception as e:
-            raise Exception(f"Error calling Claude CLI: {e}")
+            raise ClaudeNotFoundError("Claude CLI not found. Please ensure 'claude' is installed and in PATH")
     
     def clean_json_response(self, response: str) -> str:
         """
@@ -66,18 +90,10 @@ class AIService:
         Returns:
             Cleaned JSON string
         """
-        response = response.strip()
-        
-        # Remove markdown code blocks
-        if response.startswith('```json'):
-            response = response[7:]  # Remove ```json
-        elif response.startswith('```'):
-            response = response[3:]  # Remove ```
-            
-        if response.endswith('```'):
-            response = response[:-3]  # Remove closing ```
-            
-        return response.strip()
+        # Remove markdown code blocks using regex
+        cleaned = re.sub(r'^```(?:json)?\s*', '', response.strip(), flags=re.MULTILINE)
+        cleaned = re.sub(r'\s*```$', '', cleaned, flags=re.MULTILINE)
+        return cleaned.strip()
     
     def generate_json(self, prompt: str) -> Dict[str, Any]:
         """
@@ -90,8 +106,11 @@ class AIService:
             Parsed JSON as a dictionary
             
         Raises:
+            ValueError: If prompt is empty or None
             json.JSONDecodeError: If response cannot be parsed as JSON
-            Exception: If Claude CLI fails
+            ClaudeTimeoutError: If Claude CLI call times out
+            ClaudeNotFoundError: If Claude CLI is not found in PATH
+            ClaudeExecutionError: If Claude CLI returns non-zero exit code
         """
         response = self.call_claude(prompt)
         cleaned_response = self.clean_json_response(response)
