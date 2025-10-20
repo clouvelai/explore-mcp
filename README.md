@@ -56,14 +56,14 @@ Multi-server MCP implementation with chat interface and AI-powered evaluation sy
 
 ```bash
 # Generate evaluations for any MCP server
-uv run python mcp_eval_generator.py --server server.py --name calculator --use-agent
+uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
 
 # Run the generated evaluations
-uv run python run_evaluations.py --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/mock_server.py
+uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
 ```
 
 ### Key Benefits
-- **AI-Powered**: Claude analyzes tool semantics for intelligent test generation (75+ tests vs 19 hardcoded)
+- **AI-Powered**: Claude analyzes tool semantics for intelligent test generation (70+ comprehensive tests)
 - **Fully Agnostic**: Works with any MCP server regardless of domain or purpose
 - **Zero Setup**: Point at any MCP server, get instant evaluation suite
 - **Safe Testing**: Mock servers have no side effects or external dependencies
@@ -144,6 +144,12 @@ uv run python run_evaluations.py --evaluations generated/calculator/evaluations.
 
 ```
 explore-mcp/
+├── ai_generation/           # AI-powered MCP evaluation system
+│   ├── cli.py              # Main command-line interface
+│   ├── ai_service.py       # Claude CLI interface
+│   ├── server_generator.py # Mock server generation
+│   ├── evals_generator.py  # Test case generation
+│   └── evaluation_runner.py # Evaluation execution
 ├── mcp_servers/
 │   ├── calculator/     # Calculator MCP server
 │   ├── gmail/         # Gmail MCP server  
@@ -181,40 +187,47 @@ cp ENV_TEMPLATE .env
 
 ### Generate MCP Evaluations
 
-#### AI-Enhanced Generation (Recommended)
+#### AI-Powered Generation (Default)
 ```bash
-# Generate with Claude AI (requires claude CLI)
-uv run python mcp_eval_generator.py --server server.py --name calculator --use-agent
+# Generate with Claude AI for calculator
+uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
 
-# For other servers
-uv run python mcp_eval_generator.py --server mcp_servers/gmail/server.py --name gmail --use-agent
-uv run python mcp_eval_generator.py --server mcp_servers/google_drive/server.py --name gdrive --use-agent
+# For other servers  
+uv run python -m ai_generation.cli --server mcp_servers/gmail/server.py
+uv run python -m ai_generation.cli --server mcp_servers/google_drive/server.py
+
+# Custom name and output directory
+uv run python -m ai_generation.cli --server server.py --name legacy_calc --output-dir custom_output
 ```
 
-#### Hardcoded Generation (Fallback)
-```bash
-# Generate without AI (basic pattern matching)
-uv run python mcp_eval_generator.py --server server.py --name calculator
-```
+The system automatically:
+- Discovers tools from any MCP server
+- Generates AI-powered mock responses
+- Creates comprehensive test cases (70+ tests)
+- Outputs clean server.py + tools.py structure
 
 ### Run Evaluations
 ```bash
 # Execute generated test suite
-uv run python run_evaluations.py --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/mock_server.py
+uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
 
-# Results saved to generated/calculator/eval_results.md
+# Custom output location for results
+uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py --output custom_report.md
+
+# Results saved to generated/eval_results.md by default
 ```
 
 ### Generated File Structure
 ```
 generated/
 ├── calculator/
-│   ├── mock_server.py      # Mock MCP server with same API
-│   ├── evaluations.json    # Test cases (75+ with AI, 19 without)
-│   └── eval_results.md     # Evaluation report
+│   ├── server.py           # FastMCP server setup
+│   ├── tools.py           # AI-generated tool implementations
+│   ├── evaluations.json   # Comprehensive test cases (70+ AI-generated)
+│   └── eval_results.md    # Evaluation report (when run)
 ├── gmail/
 │   └── ...
-└── gdrive/
+└── google_drive/
     └── ...
 ```
 
@@ -240,15 +253,16 @@ uv run python mcp_servers/gmail/server.py
 uv run python mcp_servers/google_drive/server.py
 ```
 
-## 🔍 AI vs Hardcoded Comparison
+## 🔍 AI Generation Features
 
-| Feature | AI-Enhanced | Hardcoded |
-|---------|-------------|-----------|
-| **Test Cases** | 75+ comprehensive tests | 19 basic tests |
-| **Mock Responses** | `"The sum of 42 and 17 is 59"` | `"Mock: Operation completed"` |
-| **Edge Cases** | Division by zero, infinity, precision | Basic type validation |
-| **Domain Awareness** | Understands calculator semantics | Pattern matching only |
-| **Setup** | Requires Claude CLI | No additional dependencies |
+| Feature | Details |
+|---------|---------|
+| **Test Cases** | 70+ comprehensive tests covering valid params, missing required, invalid types, and edge cases |
+| **Mock Responses** | Realistic AI-generated: `"The sum of 42 and 17 is 59"` vs generic `"Mock: Operation completed"` |
+| **Server Structure** | Clean server.py + tools.py matching real MCP server patterns |
+| **Edge Cases** | Domain-aware: Division by zero, infinity, precision limits, large numbers |
+| **Tool Discovery** | Automatic schema analysis and parameter validation |
+| **Domain Agnostic** | Works with any MCP server (calculator, Gmail, Drive, custom) |
 
 ## Dependencies
 
