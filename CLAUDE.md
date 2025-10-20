@@ -28,12 +28,13 @@ User → React Frontend → Flask Backend → OpenAI GPT-4
 - `sum_many(numbers)`: Adds multiple numbers
 - `explain_calculation` prompt: Educational calculation explanations
 
-**Chat Backend** (`chat_backend.py`): Flask server that:
+**Chat Backend** (`backend/`): Organized Flask application that:
 - Receives messages from frontend (port 5001)
-- Connects to MCP server to get available tools
+- Connects to MCP servers to get available tools
 - Calls OpenAI with tool definitions
 - Executes MCP tools when requested
 - Returns responses to frontend
+- Organized into modules: `auth/`, `api/`, `services/`, and `app.py`
 
 **Frontend** (`chat-frontend/`): React application for chat UI
 
@@ -54,7 +55,7 @@ cd chat-frontend && npm install
 ```bash
 # Terminal 1: Start backend (includes MCP server)
 ./start_backend.sh
-# Or manually: uv run python chat_backend.py
+# Or manually: uv run python main.py
 
 # Terminal 2: Start frontend  
 ./start_frontend.sh
@@ -66,8 +67,8 @@ cd chat-frontend && npm install
 # Run client test
 uv run python client.py
 
-# Run server standalone (stdio mode)
-uv run python server.py
+# Run calculator server standalone (stdio mode)
+uv run python mcp_servers/calculator/server.py
 ```
 
 #### Protocol Demos
@@ -102,7 +103,7 @@ uv run python client.py
 ## Key Files to Modify
 
 When adding new MCP tools:
-1. Add tool to `server.py` using `@mcp.tool()` decorator
+1. Add tool to appropriate server in `mcp_servers/` (e.g., `mcp_servers/calculator/tools.py`)
 2. Restart the backend to pick up changes
 3. Tools automatically appear in OpenAI function calls
 
