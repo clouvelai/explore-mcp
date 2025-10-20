@@ -1,149 +1,156 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this MCP automation platform.
 
-## Project Overview
+## Platform Overview
 
-This is an MCP (Model Context Protocol) learning project that demonstrates building MCP servers and clients. The project consists of:
-- A FastMCP-based server exposing calculator tools
-- A Python client for testing the MCP server
-- A Flask backend that bridges OpenAI GPT-4 with the MCP server
-- A React frontend chat interface
+This is an **MCP automation platform for CI/CD** that uses AI to generate mock servers and evaluations from any MCP server implementation. The platform consists of:
+
+- **AI Generation System** (`ai_generation/`): Discovers MCP tools and generates mock servers + test suites
+- **Modular Backend** (`backend/`): Flask application bridging OpenAI GPT-4 with MCP servers  
+- **MCP Servers** (`mcp_servers/`): Example implementations (calculator, Gmail, Google Drive)
+- **Chat Interface** (`chat-frontend/`): React frontend for testing and interaction
+
+## Core Automation Workflow
+
+```
+Real MCP Server → AI Discovery → Mock Server + Evaluations → CI/CD Testing
+```
+
+The platform automatically generates safe, side-effect-free test environments from production MCP servers.
+
+## Essential Commands
+
+### AI Generation (Core Platform Feature)
+```bash
+# Generate mock server + evaluations from any MCP server
+uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
+
+# Custom output location
+uv run python -m ai_generation.cli --server <path> --name custom --output-dir custom_output
+```
+
+### Evaluation Runner
+```bash
+# Run generated test suite against mock server
+uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
+```
+
+### Backend Development
+```bash
+# Start backend (includes all MCP servers)
+uv run python main.py
+
+# Start frontend (optional)
+cd chat-frontend && npm start
+```
+
+### Testing MCP Servers
+```bash
+# Direct server testing
+uv run python client.py
+
+# Individual server (stdio mode)
+uv run python mcp_servers/calculator/server.py
+```
 
 ## Architecture
 
-### MCP Server Flow
-```
-User → React Frontend → Flask Backend → OpenAI GPT-4
-                              ↓
-                         MCP Server (tools)
-                              ↓
-                      Tool execution result
-```
+### Backend Structure (`backend/`)
+- **`app.py`**: Flask application factory with dependency injection
+- **`auth/`**: OAuth handlers and token storage (GoogleOAuthHandler, TokenStore)
+- **`api/`**: REST endpoints (chat.py, tools.py, servers.py, auth.py)
+- **`services/`**: Business logic (MCPService, OpenAIService)
 
-### Key Components
+### MCP Servers (`mcp_servers/`)
+- **`calculator/`**: Math operations (add, multiply, divide, sum_many)
+- **`gmail/`**: Email operations (list, search, read, mark_read, create_draft)
+- **`google_drive/`**: File operations (list, search, read, create, sheets)
 
-**MCP Server** (`server.py`): FastMCP server with tools:
-- `add(a, b)`: Adds two numbers
-- `sum_many(numbers)`: Adds multiple numbers
-- `explain_calculation` prompt: Educational calculation explanations
+### AI Generation (`ai_generation/`)
+- **`cli.py`**: Main orchestrator for discovery and generation
+- **`server_generator.py`**: Creates mock MCP servers with realistic responses
+- **`evals_generator.py`**: Generates comprehensive test suites
+- **`evaluation_runner.py`**: Executes tests and generates reports
 
-**Chat Backend** (`chat_backend.py`): Flask server that:
-- Receives messages from frontend (port 5001)
-- Connects to MCP server to get available tools
-- Calls OpenAI with tool definitions
-- Executes MCP tools when requested
-- Returns responses to frontend
+## Environment Setup
 
-**Frontend** (`chat-frontend/`): React application for chat UI
-
-## Development Commands
-
-### Dependencies Installation
 ```bash
-# Install Python dependencies (uses uv)
+# Dependencies
 uv sync
-
-# Install frontend dependencies
 cd chat-frontend && npm install
-```
 
-### Running the Application
-
-#### Full Chat Interface (Recommended)
-```bash
-# Terminal 1: Start backend (includes MCP server)
-./start_backend.sh
-# Or manually: uv run python chat_backend.py
-
-# Terminal 2: Start frontend  
-./start_frontend.sh
-# Or manually: cd chat-frontend && npm start
-```
-
-#### Testing MCP Server Directly
-```bash
-# Run client test
-uv run python client.py
-
-# Run server standalone (stdio mode)
-uv run python server.py
-```
-
-#### Protocol Demos
-```bash
-# Protocol demonstration
-uv run python demos/protocol_demo.py
-
-# Raw protocol demonstration  
-uv run python demos/raw_protocol_demo.py
-
-# Universal client
-uv run python demos/universal_client.py
-```
-
-### Environment Setup
-```bash
-# Create .env file from template
+# Environment
 cp ENV_TEMPLATE .env
-# Edit .env and add your OpenAI API key
+# Add OPENAI_API_KEY and Google OAuth credentials
 ```
 
-## Testing
+## Key Development Patterns
 
-Run tests to verify the setup:
+### Adding New MCP Tools
+1. **Add to appropriate server**: `mcp_servers/{server}/tools.py`
+2. **Use FastMCP decorator**:
+   ```python
+   @mcp.tool()
+   def your_tool(param: type) -> str:
+       """Tool description."""
+       return "result"
+   ```
+3. **Restart backend**: Changes auto-discovered by OpenAI integration
+
+### Modifying Backend Services
+- **MCP connections**: `backend/services/mcp_service.py`
+- **OpenAI integration**: `backend/services/openai_service.py`  
+- **Authentication**: `backend/auth/oauth_handler.py`
+- **API endpoints**: `backend/api/{chat,tools,servers,auth}.py`
+
+### File Import Patterns
+MCP servers require proper Python path setup:
+```python
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+```
+
+## Common Issues
+
+### Port Conflicts
+Backend runs on `localhost:5001`, frontend on `localhost:3000`. Kill existing processes:
 ```bash
-# Test the MCP client-server connection
-uv run python client.py
-
-# For chat interface testing, follow TEST_GUIDE.md
+lsof -ti:5001 | xargs kill -9
 ```
 
-## Key Files to Modify
+### MCP Server Authentication
+Google-based servers (Gmail, Drive) require OAuth. Check `/api/servers` for auth status.
 
-When adding new MCP tools:
-1. Add tool to `server.py` using `@mcp.tool()` decorator
-2. Restart the backend to pick up changes
-3. Tools automatically appear in OpenAI function calls
+### Import Errors
+Ensure MCP servers have proper sys.path configuration and use absolute imports from project root.
 
 ## Dependencies
 
-Python packages (managed by uv):
-- `mcp>=1.0.0` - Core MCP protocol
-- `fastmcp>=0.2.0` - High-level MCP framework
-- `openai>=1.0.0` - OpenAI API client
-- `flask>=3.0.0` - Web backend
-- `flask-cors>=4.0.0` - CORS support
+**Core Platform**:
+- `mcp>=1.0.0`, `fastmcp>=0.2.0` - MCP protocol
+- `openai>=1.0.0` - AI generation
+- `flask>=3.0.0` - Backend API
 
-Frontend packages:
-- React 18.2.0
-- react-scripts 5.0.1
+**Development**:
+- `uv` - Python package manager
+- `claude` CLI - AI generation (install separately)
 
 ## Port Configuration
-
-- Backend/API: `localhost:5001`
+- Backend: `localhost:5001`
 - Frontend: `localhost:3000`
-- HTTP demo server: `localhost:8000`
 
-## Common Tasks
+## Quick Reference
 
-### Add a new MCP tool
-Edit `server.py` and add:
-```python
-@mcp.tool()
-def your_tool(param: type) -> str:
-    """Tool description."""
-    # Implementation
-    return "Result"
-```
-
-### Clear chat history
-Use the "Clear Chat" button in UI or call:
 ```bash
-curl -X POST http://localhost:5001/api/clear
-```
-
-### Check available MCP tools
-```bash
+# Check available tools
 curl http://localhost:5001/api/tools
+
+# Clear chat history  
+curl -X POST http://localhost:5001/api/clear
+
+# Generate + test complete workflow
+uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
+uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
 ```

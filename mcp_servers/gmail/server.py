@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 """
-Gmail MCP Server
+Gmail MCP Server using FastMCP.
 
 This server provides tools to interact with Gmail using the Gmail API.
 It requires OAuth authentication via environment variables.
 """
 
-from fastmcp import FastMCP
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+# Add the project root to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from fastmcp import FastMCP
 from mcp_servers.gmail.tools import register_tools
 
-# Create the FastMCP server instance
-mcp = FastMCP("gmail")
+# Create MCP instance
+mcp = FastMCP("Gmail")
 
-# Register all tools
+# Register all Gmail tools
 register_tools(mcp)
 
 if __name__ == "__main__":
