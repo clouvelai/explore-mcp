@@ -63,13 +63,13 @@ uv run python -m ai_generation.evaluation_runner --evaluations generated/calcula
 ```
 
 ### Key Benefits
-- **AI-Powered**: Claude analyzes tool semantics for intelligent test generation (70+ comprehensive tests)
+- **AI-Powered**: Claude analyzes tool semantics for intelligent test generation (minimal viable tests, expandable)
 - **Fully Agnostic**: Works with any MCP server regardless of domain or purpose
 - **Zero Setup**: Point at any MCP server, get instant evaluation suite
 - **Safe Testing**: Mock servers have no side effects or external dependencies
 - **Smart Responses**: AI generates realistic, contextual mock responses
 - **Isolated**: Each MCP server gets its own namespaced test environment
-- **Comprehensive**: Tests valid inputs, missing params, wrong types, mathematical edge cases
+- **Scalable**: Current minimal approach (2 tests/tool) with planned expansion to comprehensive coverage
 
 ## Chat Interface Architecture
 
@@ -203,7 +203,7 @@ uv run python -m ai_generation.cli --server server.py --name legacy_calc --outpu
 The system automatically:
 - Discovers tools from any MCP server
 - Generates AI-powered mock responses
-- Creates comprehensive test cases (70+ tests)
+- Creates minimal viable test cases (2 per tool, expandable)
 - Outputs clean server.py + tools.py structure
 
 ### Run Evaluations
@@ -223,7 +223,7 @@ generated/
 ├── calculator/
 │   ├── server.py           # FastMCP server setup
 │   ├── tools.py           # AI-generated tool implementations
-│   ├── evaluations.json   # Comprehensive test cases (70+ AI-generated)
+│   ├── evaluations.json   # Minimal test cases (2 per tool, AI-generated)
 │   └── eval_results.md    # Evaluation report (when run)
 ├── gmail/
 │   └── ...
@@ -257,10 +257,10 @@ uv run python mcp_servers/google_drive/server.py
 
 | Feature | Details |
 |---------|---------|
-| **Test Cases** | 70+ comprehensive tests covering valid params, missing required, invalid types, and edge cases |
+| **Test Cases** | Minimal viable tests (2 per tool: valid params + invalid types) with AI-powered expansion capability |
 | **Mock Responses** | Realistic AI-generated: `"The sum of 42 and 17 is 59"` vs generic `"Mock: Operation completed"` |
 | **Server Structure** | Clean server.py + tools.py matching real MCP server patterns |
-| **Edge Cases** | Domain-aware: Division by zero, infinity, precision limits, large numbers |
+| **Edge Cases** | Future milestone: Domain-aware edge cases (division by zero, infinity, precision limits) |
 | **Tool Discovery** | Automatic schema analysis and parameter validation |
 | **Domain Agnostic** | Works with any MCP server (calculator, Gmail, Drive, custom) |
 

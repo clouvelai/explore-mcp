@@ -72,17 +72,14 @@ uv run python server.py
 
 #### Protocol Demos
 ```bash
-# HTTP server demo
-uv run python http_server.py
-
 # Protocol demonstration
-uv run python protocol_demo.py
+uv run python demos/protocol_demo.py
 
-# Raw protocol demonstration
-uv run python raw_protocol_demo.py
+# Raw protocol demonstration  
+uv run python demos/raw_protocol_demo.py
 
 # Universal client
-uv run python universal_client.py
+uv run python demos/universal_client.py
 ```
 
 ### Environment Setup

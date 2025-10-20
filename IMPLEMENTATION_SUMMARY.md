@@ -277,7 +277,7 @@ explore-mcp/
 ├── ENV_TEMPLATE                # UPDATED: Google OAuth config
 ├── .gitignore                  # UPDATED: Exclude .mcp_data/
 ├── pyproject.toml              # UPDATED: Google auth libraries
-├── GOOGLE_DRIVE_SETUP.md       # NEW: Setup guide
+├── mcp_servers/google_drive/SETUP.md  # Google Drive setup guide
 └── IMPLEMENTATION_SUMMARY.md   # NEW: This file
 ```
 
