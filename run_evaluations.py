@@ -4,6 +4,13 @@ MCP Evaluation Runner
 
 Executes test cases from evaluations.json against a mock MCP server
 and generates a results report.
+
+TODO: Next iteration improvements needed:
+- The AI-generated test cases often expect actual computation results (e.g., "8" for add(5,3))
+  but mock servers return static responses (e.g., "The sum of 15 and 27 is 42")
+- Consider adding a "mock_mode" flag to evaluations that adjusts expectations for mock vs real servers
+- Or have separate evaluation sets: one for testing mock server structure/errors, 
+  another for testing real server computation accuracy
 """
 
 import asyncio
