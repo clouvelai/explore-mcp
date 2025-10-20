@@ -8,9 +8,11 @@ and generates a results report.
 TODO: Next iteration improvements needed:
 - The AI-generated test cases often expect actual computation results (e.g., "8" for add(5,3))
   but mock servers return static responses (e.g., "The sum of 15 and 27 is 42")
-- Consider adding a "mock_mode" flag to evaluations that adjusts expectations for mock vs real servers
-- Or have separate evaluation sets: one for testing mock server structure/errors, 
-  another for testing real server computation accuracy
+- Consider separating evaluation types:
+  * Structural tests (for mocks): Test parameter validation, error handling, tool signatures
+  * Computational tests (for real servers): Test actual calculation accuracy  
+- Add a flag system to adjust expectations based on whether we're testing against a mock or real server
+- This would make the evaluation system useful for both mock testing and real server validation
 """
 
 import asyncio
