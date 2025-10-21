@@ -23,8 +23,14 @@ The platform automatically generates safe, side-effect-free test environments fr
 
 ### AI Generation (Core Platform Feature)
 ```bash
-# Generate mock server + evaluations from any MCP server
+# Generate mock server + evaluations from local MCP server
 uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
+
+# Generate from public MCP server (Microsoft Learn documentation)
+uv run python -m ai_generation.cli --server https://learn.microsoft.com/api/mcp --name microsoft-docs
+
+# Generate from local HTTP MCP server
+uv run python -m ai_generation.cli --server http://localhost:8080/sse --name my-server
 
 # Custom output location
 uv run python -m ai_generation.cli --server <path> --name custom --output-dir custom_output
@@ -162,6 +168,31 @@ Ensure MCP servers have proper sys.path configuration and use absolute imports f
 - Backend: `localhost:5001`
 - Frontend: `localhost:3000`
 
+## Testing Public MCP Servers
+
+The platform supports discovering and generating mocks from **any public MCP server** on the internet:
+
+### Microsoft Learn MCP Server
+Microsoft provides a public MCP server with documentation tools:
+```bash
+# Discover Microsoft Learn MCP server
+uv run python -m ai_generation.discovery https://learn.microsoft.com/api/mcp
+
+# Generate complete mock + evaluations
+uv run python -m ai_generation.cli --server https://learn.microsoft.com/api/mcp --name microsoft-docs
+
+# Available tools:
+# - microsoft_docs_search: Search official Microsoft/Azure documentation
+# - microsoft_code_sample_search: Find code examples with language filtering  
+# - microsoft_docs_fetch: Fetch complete documentation pages
+```
+
+### Automatic Transport Detection
+The platform automatically detects the correct transport protocol:
+- **HTTP URLs** → Tries HTTP transport first, falls back to SSE if needed
+- **Local files** → Uses stdio transport
+- **Manual override** → Use `--transport [http|sse|stdio]` flag
+
 ## Quick Reference
 
 ```bash
@@ -171,7 +202,11 @@ curl http://localhost:5001/api/tools
 # Clear chat history  
 curl -X POST http://localhost:5001/api/clear
 
-# Generate + test complete workflow
+# Test with local server
 uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
 uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
+
+# Test with public server  
+uv run python -m ai_generation.cli --server https://learn.microsoft.com/api/mcp --name microsoft-docs
+uv run python -m ai_generation.evaluation_runner --evaluations generated/microsoft-docs/evaluations.json --mock-server generated/microsoft-docs/server.py
 ```

@@ -175,12 +175,23 @@ def main():
         NODE_PATH: Optional for custom Node.js installation
     """
     parser = argparse.ArgumentParser(
-        description="Generate AI-powered mock MCP server and evaluations"
+        description="Generate AI-powered mock MCP server and evaluations from local or remote MCP servers",
+        epilog="""Examples:
+  # Local MCP server
+  %(prog)s --server mcp_servers/calculator/server.py
+  
+  # Public MCP server (Microsoft Learn)
+  %(prog)s --server https://learn.microsoft.com/api/mcp --name microsoft-docs
+  
+  # Local HTTP server
+  %(prog)s --server http://localhost:8080/sse --name my-server
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "--server", 
         required=True, 
-        help="Path to MCP server to analyze"
+        help="Path to local MCP server OR URL to remote MCP server (e.g., https://learn.microsoft.com/api/mcp)"
     )
     parser.add_argument(
         "--output-dir", 
