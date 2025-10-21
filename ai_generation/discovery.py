@@ -54,13 +54,23 @@ import subprocess
 import hashlib
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Literal
 from datetime import datetime
 try:
     from .discovery_models import DiscoveryResult, DiscoveryMetadata, MCPTool, MCPResource, MCPPrompt, ServerInfo
 except ImportError:
     # For direct execution
     from discovery_models import DiscoveryResult, DiscoveryMetadata, MCPTool, MCPResource, MCPPrompt, ServerInfo
+
+# Type aliases for better type safety
+TransportType = Literal["auto", "stdio", "sse", "http"]
+
+# Transport type constants
+class Transport:
+    AUTO = "auto"
+    STDIO = "stdio"
+    SSE = "sse" 
+    HTTP = "http"
 
 
 class DependencyError(Exception):
@@ -151,7 +161,7 @@ class DiscoveryEngine:
     def discover(
         self, 
         server_path: str, 
-        transport: str = "auto",
+        transport: TransportType = Transport.AUTO,
         use_cache: bool = False  # TODO: Enable by default in CI/production after prototyping phase
     ) -> DiscoveryResult:
         """
@@ -208,10 +218,15 @@ class DiscoveryEngine:
         # Check dependencies first
         self.check_dependencies()
         
-        # Validate server path
-        server_file = Path(server_path)
-        if not server_file.exists():
-            raise DiscoveryError(f"Server file not found: {server_path}")
+        # Validate server path or URL
+        if server_path.startswith(("http://", "https://")):
+            # For HTTP URLs, no local file validation needed
+            print(f"🌐 HTTP server URL detected: {server_path}")
+        else:
+            # For local files, check existence
+            server_file = Path(server_path)
+            if not server_file.exists():
+                raise DiscoveryError(f"Server file not found: {server_path}")
         
         # Check cache if enabled
         if use_cache:
@@ -224,7 +239,7 @@ class DiscoveryEngine:
                 return cached
         
         # Detect transport if auto
-        if transport == "auto":
+        if transport == Transport.AUTO:
             transport = self._detect_transport(server_path)
             print(f"🔍 Auto-detected transport: {transport}")
         
@@ -253,7 +268,7 @@ class DiscoveryEngine:
         
         # Discover tools
         try:
-            tools_result = self._execute_inspector(server_cmd, "tools/list")
+            tools_result = self._execute_inspector(server_cmd, "tools/list", transport)
             raw_tools = tools_result.get("tools", [])
             tools = [MCPTool(**tool) for tool in raw_tools]
             print(f"   ✓ Found {len(tools)} tools")
@@ -265,7 +280,7 @@ class DiscoveryEngine:
         # like "resource://{param}") are not returned by MCP Inspector's resources/list method.
         # This is a known limitation that affects discovery but not runtime functionality.
         try:
-            resources_result = self._execute_inspector(server_cmd, "resources/list")
+            resources_result = self._execute_inspector(server_cmd, "resources/list", transport)
             raw_resources = resources_result.get("resources", [])
             resources = [MCPResource(**resource) for resource in raw_resources]
             print(f"   ✓ Found {len(resources)} resources")
@@ -274,7 +289,7 @@ class DiscoveryEngine:
         
         # Discover prompts
         try:
-            prompts_result = self._execute_inspector(server_cmd, "prompts/list")
+            prompts_result = self._execute_inspector(server_cmd, "prompts/list", transport)
             raw_prompts = prompts_result.get("prompts", [])
             prompts = [MCPPrompt(**prompt) for prompt in raw_prompts]
             print(f"   ✓ Found {len(prompts)} prompts")
@@ -283,7 +298,7 @@ class DiscoveryEngine:
         
         # Try to get server info (may not be available)
         try:
-            server_info_result = self._execute_inspector(server_cmd, "server/info")
+            server_info_result = self._execute_inspector(server_cmd, "server/info", transport)
             if server_info_result:
                 server_info = ServerInfo(**server_info_result)
         except:
@@ -313,61 +328,68 @@ class DiscoveryEngine:
         
         return discovery_result
     
-    def _detect_transport(self, server_path: str) -> str:  # pylint: disable=unused-argument
+    def _detect_transport(self, server_path: str) -> TransportType:
         """
         Auto-detect the transport type based on server characteristics.
         
-        Currently defaults to 'stdio' for all local files. Future enhancements
-        could inspect file content, check for HTTP/SSE indicators, or use
-        naming conventions to detect transport type.
+        Detects transport type based on:
+        - HTTP/HTTPS URLs → "sse" (Server-Sent Events over HTTP)
+        - Local files → "stdio" (Standard I/O)
         
         Args:
-            server_path (str): Path to the server file
+            server_path (str): Path to the server file or HTTP/HTTPS URL
             
         Returns:
-            str: Detected transport type ("stdio", "http", or "sse")
+            str: Detected transport type ("stdio", "sse", or "http")
             
-        Note:
-            This is a placeholder implementation. Enhancement opportunities:
-            - Parse server file for transport indicators
-            - Check for HTTP server setup code
-            - Use naming conventions (e.g., *-http.py, *-sse.js)
-            - Check for URL patterns in server_path
+        Examples:
+            _detect_transport("server.py") → "stdio"
+            _detect_transport("http://localhost:8000") → "http"  
+            _detect_transport("https://api.example.com/mcp") → "http"
         """
-        # For now, default to stdio for local files
-        # Could be enhanced to detect based on file content or naming
-        return "stdio"
-    
-    def _build_command(self, server_path: str, transport: str) -> List[str]:  # pylint: disable=unused-argument
-        """
-        Build the appropriate command to launch the server.
+        # Check if it's an HTTP/HTTPS URL
+        if server_path.startswith(("http://", "https://")):
+            # Use HTTP transport first (newer MCP standard)
+            return Transport.HTTP
         
-        Automatically detects the runtime based on file extension and project setup:
+        # Default to stdio for local files
+        return Transport.STDIO
+    
+    def _build_command(self, server_path: str, transport: TransportType) -> List[str]:
+        """
+        Build the appropriate command to launch the server or connect to HTTP URL.
+        
+        For stdio transport:
         - Python files (.py): Uses 'uv run python' if uv project detected, else 'python'
         - JavaScript files (.js, .mjs): Uses 'node'
         - TypeScript files (.ts): Uses 'tsx' (assumes tsx is installed)
         - Other files: Attempts direct execution
         
+        For HTTP/SSE transport:
+        - Returns URL directly (handled by MCP Inspector's --server-url flag)
+        
         Args:
-            server_path (str): Path to the server file
-            transport (str): Transport type (currently unused but reserved for future)
+            server_path (str): Path to the server file or HTTP/HTTPS URL
+            transport (str): Transport type ("stdio", "sse", "http")
             
         Returns:
-            List[str]: Command list suitable for subprocess.run()
+            List[str]: Command list suitable for subprocess.run() or URL for HTTP
             
         Examples:
             # Python with uv project
             _build_command('server.py', 'stdio') → ['uv', 'run', 'python', 'server.py']
             
-            # Python without uv
-            _build_command('server.py', 'stdio') → ['python', 'server.py']
+            # HTTP URL
+            _build_command('http://localhost:8000', 'sse') → ['http://localhost:8000']
             
             # Node.js
             _build_command('server.js', 'stdio') → ['node', 'server.js']
-            
-            # TypeScript
-            _build_command('server.ts', 'stdio') → ['tsx', 'server.ts']
         """
+        # For HTTP/SSE transport, return the URL directly
+        if transport in [Transport.SSE, Transport.HTTP] and server_path.startswith(("http://", "https://")):
+            return [server_path]
+        
+        # For stdio transport, handle local files
         server_file = Path(server_path)
         
         # Determine the runtime based on file extension
@@ -386,12 +408,16 @@ class DiscoveryEngine:
             # Default to trying to execute directly
             return [str(server_path)]
     
-    def _execute_inspector(self, server_cmd: List[str], method: str) -> Dict[str, Any]:
+    def _execute_inspector(self, server_cmd: List[str], method: str, transport: TransportType) -> Dict[str, Any]:
         """
         Execute MCP Inspector CLI and parse the JSON output.
         
+        Handles both stdio and HTTP/SSE transports:
+        - For stdio: Uses server_cmd as subprocess arguments  
+        - For HTTP/SSE: Uses server_cmd[0] as URL with --server-url flag
+        
         Args:
-            server_cmd: Command to launch the server
+            server_cmd: Command to launch server (stdio) or URL list (HTTP/SSE)
             method: Inspector method to call (e.g., "tools/list")
             
         Returns:
@@ -400,28 +426,49 @@ class DiscoveryEngine:
         Raises:
             DiscoveryError: If Inspector execution fails
         """
-        # Build the full Inspector command
-        cmd = [
-            "npx",
-            "@modelcontextprotocol/inspector",
-            "--cli"
-        ] + server_cmd + [
-            "--method",
-            method
-        ]
+        # Check if this is an HTTP URL (server_cmd[0] starts with http)
+        if len(server_cmd) == 1 and server_cmd[0].startswith(("http://", "https://")):
+            # HTTP/SSE transport - URL as positional argument
+            url = server_cmd[0]
+            
+            cmd = [
+                "npx",
+                "@modelcontextprotocol/inspector",
+                "--cli",
+                url,
+                "--transport", transport,
+                "--method", method
+            ]
+        else:
+            # Stdio transport - use server command
+            cmd = [
+                "npx",
+                "@modelcontextprotocol/inspector",
+                "--cli"
+            ] + server_cmd + [
+                "--method",
+                method
+            ]
         
         try:
             result = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=10
+                timeout=30  # Increased timeout for HTTP requests
             )
             
             if result.returncode != 0:
                 # Check if it's a method not found error (expected for some methods)
                 if "Method not found" in result.stderr:
                     return {}
+                
+                # For HTTP URLs, try fallback to SSE if HTTP transport failed
+                if (len(server_cmd) == 1 and server_cmd[0].startswith(("http://", "https://")) 
+                    and transport == Transport.HTTP):
+                    print(f"   ⚠️  HTTP transport failed, trying SSE fallback...")
+                    return self._execute_inspector(server_cmd, method, Transport.SSE)
+                
                 raise DiscoveryError(
                     f"Inspector failed for method {method}: {result.stderr}"
                 )

@@ -225,9 +225,9 @@ def register_tools(mcp: FastMCP):
         # Add AI-generated mock response
         tools_code += "        # Return mock response\n"
         if tool_name in ai_responses:
-            # Properly escape the response string
-            ai_response = ai_responses[tool_name].replace('\\', '\\\\').replace('"', '\\"')
-            tools_code += f'        return "{ai_response}"\n\n'
+            # Use triple quotes for multiline strings, escape triple quotes in content
+            ai_response = ai_responses[tool_name].replace('"""', '\\"\\"\\"')
+            tools_code += f'        return """{ai_response}"""\n\n'
         else:
             # Fallback if AI didn't generate a response for this tool
             tools_code += f'        return "Mock response for {tool_name}"\n\n'

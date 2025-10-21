@@ -45,7 +45,7 @@ import json
 import sys
 import argparse
 from pathlib import Path
-from .discovery import DiscoveryEngine, DependencyError, DiscoveryError
+from .discovery import DiscoveryEngine, DependencyError, DiscoveryError, Transport
 from .discovery_models import DiscoveryResult
 from .server_generator import generate_ai_mock_server
 from .evals_generator import generate_ai_test_cases
@@ -175,12 +175,23 @@ def main():
         NODE_PATH: Optional for custom Node.js installation
     """
     parser = argparse.ArgumentParser(
-        description="Generate AI-powered mock MCP server and evaluations"
+        description="Generate AI-powered mock MCP server and evaluations from local or remote MCP servers",
+        epilog="""Examples:
+  # Local MCP server
+  %(prog)s --server mcp_servers/calculator/server.py
+  
+  # Public MCP server (Microsoft Learn)
+  %(prog)s --server https://learn.microsoft.com/api/mcp --name microsoft-docs
+  
+  # Local HTTP server
+  %(prog)s --server http://localhost:8080/sse --name my-server
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "--server", 
         required=True, 
-        help="Path to MCP server to analyze"
+        help="Path to local MCP server OR URL to remote MCP server (e.g., https://learn.microsoft.com/api/mcp)"
     )
     parser.add_argument(
         "--output-dir", 
@@ -193,8 +204,8 @@ def main():
     )
     parser.add_argument(
         "--transport",
-        default="auto",
-        choices=["auto", "stdio", "http", "sse"],
+        default=Transport.AUTO,
+        choices=[Transport.AUTO, Transport.STDIO, Transport.HTTP, Transport.SSE],
         help="Transport type for the MCP server (default: auto-detect)"
     )
     parser.add_argument(

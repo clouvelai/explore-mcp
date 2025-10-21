@@ -1,0 +1,1 @@
+"""Air Fryer MCP Server - HTTP transport implementation."""
