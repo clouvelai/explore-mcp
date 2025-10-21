@@ -1,0 +1,42 @@
+{
+  "name": "test_cases",
+  "version": "1.0.0",
+  "created_by": "ai_generation_system",
+  "created_at": "2024-01-01T00:00:00Z",
+  "description": "Generate comprehensive test cases for MCP tools including valid and invalid parameter scenarios",
+  "category": "test_generation",
+  "template": "I need you to generate minimal test cases for MCP tools. Here are the tools:\n\n{tools_json}\n\nFor each tool, generate exactly 2 test cases:\n1. One valid parameter test with realistic values\n2. One invalid type test (wrong parameter type)\n\nReturn ONLY a JSON array of test case objects. Each test case should have:\n- \"tool\": tool name\n- \"description\": description of what the tool does\n- \"test_cases\": array of test case objects with:\n  - \"id\": unique test case ID\n  - \"type\": test type (valid_params or invalid_type)\n  - \"description\": what this test checks\n  - \"params\": parameters to pass to the tool\n  - \"expected_result\": \"success\" or \"error\"\n  - \"expected_contains\": array of strings that should appear in the response\n\nExample format:\n[\n  {{\n    \"tool\": \"add\",\n    \"description\": \"Add two numbers together\",\n    \"test_cases\": [\n      {{\n        \"id\": \"add_valid\",\n        \"type\": \"valid_params\",\n        \"description\": \"Add two positive numbers\",\n        \"params\": {{\"a\": 5.0, \"b\": 3.0}},\n        \"expected_result\": \"success\",\n        \"expected_contains\": [\"8\"]\n      }},\n      {{\n        \"id\": \"add_invalid_type\",\n        \"type\": \"invalid_type\",\n        \"description\": \"Test with string parameter\",\n        \"params\": {{\"a\": \"not_a_number\", \"b\": 3.0}},\n        \"expected_result\": \"error\",\n        \"expected_contains\": [\"error\", \"invalid\", \"type\"]\n      }}\n    ]\n  }}\n]",
+  "variables": ["tools_json"],
+  "expected_output_format": "json_array",
+  "examples": [
+    {
+      "input": {
+        "tools_json": "[{\"name\": \"divide\", \"description\": \"Divide one number by another\", \"schema\": {\"properties\": {\"dividend\": {\"type\": \"number\"}, \"divisor\": {\"type\": \"number\"}}}}]"
+      },
+      "output": [
+        {
+          "tool": "divide",
+          "description": "Divide one number by another",
+          "test_cases": [
+            {
+              "id": "divide_valid",
+              "type": "valid_params",
+              "description": "Divide 10 by 2",
+              "params": {"dividend": 10.0, "divisor": 2.0},
+              "expected_result": "success",
+              "expected_contains": ["5"]
+            },
+            {
+              "id": "divide_invalid_type",
+              "type": "invalid_type", 
+              "description": "Test with string divisor",
+              "params": {"dividend": 10.0, "divisor": "two"},
+              "expected_result": "error",
+              "expected_contains": ["error", "invalid", "type"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

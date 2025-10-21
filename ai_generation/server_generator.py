@@ -9,28 +9,9 @@ import json
 from pathlib import Path
 from typing import Dict, Any, List
 from .ai_service import AIService
+from .prompts import format_prompt
 
 
-# Prompt template for generating mock responses
-MOCK_RESPONSES_PROMPT_TEMPLATE = """
-I need you to generate realistic mock responses for MCP tools. Here are the tools:
-
-{tools_json}
-
-For each tool, generate a realistic mock response string that:
-1. Reflects what the tool would actually return
-2. Is appropriate for the tool's purpose based on its name and description
-3. Includes realistic data (not just "mock_value")
-4. Handles mathematical operations with actual calculations when possible
-
-Return ONLY a JSON object mapping tool names to mock response strings. No other text.
-
-Example format:
-{{
-  "tool_name": "realistic response string",
-  "another_tool": "another realistic response"
-}}
-"""
 
 
 def generate_ai_mock_responses(tools: List[Dict[str, Any]]) -> Dict[str, str]:
@@ -56,7 +37,8 @@ def generate_ai_mock_responses(tools: List[Dict[str, Any]]) -> Dict[str, str]:
         tools_info.append(tool_info)
     
     # Format the prompt
-    prompt = MOCK_RESPONSES_PROMPT_TEMPLATE.format(
+    prompt = format_prompt(
+        "mock_responses",
         tools_json=json.dumps(tools_info, indent=2)
     )
     
