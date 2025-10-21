@@ -87,6 +87,27 @@ cp ENV_TEMPLATE .env
 
 ## Key Development Patterns
 
+### Prompt Management
+**IMPORTANT: Prompt Version Control Rules**
+1. **Isolated Commits**: Each prompt change MUST be in its own commit
+2. **Version Updates**: Always increment version in the JSON file when modifying a prompt
+3. **Semantic Versioning**: Use semantic versioning (major.minor.patch):
+   - Major: Breaking changes to prompt structure or expected output
+   - Minor: New features or significant improvements
+   - Patch: Bug fixes or minor tweaks
+4. **Commit Message Format**: `prompt: update [prompt_name] to v[version] - [description]`
+
+Example workflow:
+```bash
+# Edit prompt file
+vi ai_generation/prompts/mock_responses.json
+# Update "version": "1.0.0" to "version": "1.0.1"
+
+# Commit ONLY the prompt change
+git add ai_generation/prompts/mock_responses.json
+git commit -m "prompt: update mock_responses to v1.0.1 - improve response realism"
+```
+
 ### Adding New MCP Tools
 1. **Add to appropriate server**: `mcp_servers/{server}/tools.py`
 2. **Use FastMCP decorator**:

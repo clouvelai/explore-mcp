@@ -189,6 +189,31 @@ The Flask backend has been refactored into a modular, maintainable structure:
 - **read_spreadsheet_cells** - Read Google Sheets data
 - **update_spreadsheet_cells** - Write to Google Sheets
 
+## Prompt Management
+
+### Version Control Rules for AI Prompts
+
+The AI generation system uses JSON-based prompts in `ai_generation/prompts/`. When modifying prompts:
+
+1. **Isolated Commits**: Each prompt change MUST be in its own commit
+2. **Version Updates**: Always increment the `version` field in the JSON file
+3. **Semantic Versioning**: Use semantic versioning (major.minor.patch):
+   - **Major**: Breaking changes to prompt structure or expected output format
+   - **Minor**: New features or significant improvements to prompt quality
+   - **Patch**: Bug fixes or minor tweaks to wording
+4. **Commit Format**: Use `prompt: update [prompt_name] to v[version] - [description]`
+
+Example:
+```bash
+# Edit prompt
+vi ai_generation/prompts/mock_responses.json
+# Change "version": "1.0.0" to "version": "1.0.1"
+
+# Commit ONLY the prompt change
+git add ai_generation/prompts/mock_responses.json
+git commit -m "prompt: update mock_responses to v1.0.1 - improve response realism"
+```
+
 ## Project Structure
 
 ```
@@ -215,7 +240,11 @@ explore-mcp/
 │   ├── ai_service.py     # Claude CLI interface
 │   ├── server_generator.py # Mock server generation
 │   ├── evals_generator.py  # Test case generation
-│   └── evaluation_runner.py # Evaluation execution
+│   ├── evaluation_runner.py # Evaluation execution
+│   └── prompts/          # JSON-based AI prompt templates
+│       ├── schema.json   # Validation schema for prompts
+│       ├── mock_responses.json # Mock response generation
+│       └── test_cases.json # Test case generation
 ├── mcp_servers/           # MCP server implementations
 │   ├── calculator/       # Calculator MCP server
 │   │   ├── server.py     # FastMCP server setup

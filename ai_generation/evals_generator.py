@@ -8,57 +8,9 @@ Uses AI to create intelligent test cases including edge cases and domain-specifi
 import json
 from typing import Dict, Any, List
 from .ai_service import AIService
+from .prompts import format_prompt
 
 
-# Prompt template for generating test cases
-# TODO: Future milestone - expand to include domain-specific edge cases, boundary conditions,
-# missing required parameter tests, and additional valid/invalid parameter variations
-TEST_CASES_PROMPT_TEMPLATE = """
-I need you to generate minimal test cases for MCP tools. Here are the tools:
-
-{tools_json}
-
-For each tool, generate exactly 2 test cases:
-1. One valid parameter test with realistic values
-2. One invalid type test (wrong parameter type)
-
-Return ONLY a JSON array of test case objects. Each test case should have:
-- "tool": tool name
-- "description": description of what the tool does
-- "test_cases": array of test case objects with:
-  - "id": unique test case ID
-  - "type": test type (valid_params or invalid_type)
-  - "description": what this test checks
-  - "params": parameters to pass to the tool
-  - "expected_result": "success" or "error"
-  - "expected_contains": array of strings that should appear in the response
-
-Example format:
-[
-  {{
-    "tool": "add",
-    "description": "Add two numbers together",
-    "test_cases": [
-      {{
-        "id": "add_valid",
-        "type": "valid_params",
-        "description": "Add two positive numbers",
-        "params": {{"a": 5.0, "b": 3.0}},
-        "expected_result": "success",
-        "expected_contains": ["8"]
-      }},
-      {{
-        "id": "add_invalid_type",
-        "type": "invalid_type",
-        "description": "Test with string parameter",
-        "params": {{"a": "not_a_number", "b": 3.0}},
-        "expected_result": "error",
-        "expected_contains": ["error", "invalid", "type"]
-      }}
-    ]
-  }}
-]
-"""
 
 
 def generate_ai_test_cases(tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -95,7 +47,8 @@ def generate_ai_test_cases(tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 def _generate_bulk_test_cases(tools_info: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Generate test cases for all tools at once."""
     # Format the prompt
-    prompt = TEST_CASES_PROMPT_TEMPLATE.format(
+    prompt = format_prompt(
+        "test_cases",
         tools_json=json.dumps(tools_info, indent=2)
     )
     
@@ -122,7 +75,8 @@ def _generate_per_tool_test_cases(tools_info: List[Dict[str, Any]]) -> List[Dict
             print(f"🔧 Generating test cases for {tool_info['name']}...")
             
             # Create prompt for single tool
-            prompt = TEST_CASES_PROMPT_TEMPLATE.format(
+            prompt = format_prompt(
+                "test_cases",
                 tools_json=json.dumps([tool_info], indent=2)
             )
             
