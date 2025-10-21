@@ -42,6 +42,12 @@ class MCPService:
                 "args": ["mcp_servers/gmail/server.py"],
                 "requires_auth": True,
                 "auth_type": "google_oauth"
+            },
+            "air-fryer": {
+                "name": "Air Fryer (HTTP)",
+                "transport": "sse",
+                "url": "http://localhost:8080/sse",
+                "requires_auth": False,
             }
             # Example HTTP server configuration:
             # "remote-mcp-server": {

@@ -428,7 +428,7 @@ class DiscoveryEngine:
         """
         # Check if this is an HTTP URL (server_cmd[0] starts with http)
         if len(server_cmd) == 1 and server_cmd[0].startswith(("http://", "https://")):
-            # HTTP/SSE transport - use --server-url
+            # HTTP/SSE transport - URL as positional argument
             url = server_cmd[0]
             # Determine transport type based on URL or default to SSE
             transport = Transport.SSE  # Most common for HTTP MCP servers
@@ -437,8 +437,8 @@ class DiscoveryEngine:
                 "npx",
                 "@modelcontextprotocol/inspector",
                 "--cli",
+                url,
                 "--transport", transport,
-                "--server-url", url,
                 "--method", method
             ]
         else:
