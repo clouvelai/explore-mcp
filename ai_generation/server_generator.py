@@ -254,8 +254,10 @@ def register_resources(mcp: FastMCP):
             # Add AI-generated mock content
             tools_code += "        # Return mock content\n"
             if resource_name in ai_resource_content:
-                # Properly escape the content string
-                ai_content = ai_resource_content[resource_name].replace('\\', '\\\\').replace('"', '\\"')
+                # Properly escape the content string and handle multiline content
+                ai_content = ai_resource_content[resource_name]
+                # Escape backslashes, quotes, and newlines
+                ai_content = ai_content.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
                 tools_code += f'        return "{ai_content}"\n\n'
             else:
                 # Fallback if AI didn't generate content for this resource
