@@ -122,8 +122,12 @@ def get_python_type(json_type: str, is_array: bool = False) -> str:
     return python_type
 
 
-def generate_tools_py(discovery_data: Dict[str, Any], output_dir: Path):
-    """Generate tools.py with AI-powered mock implementations."""
+def generate_tools_py(discovery_data: Dict[str, Any], output_dir: Path) -> tuple[int, int]:
+    """Generate tools.py with AI-powered mock implementations.
+    
+    Returns:
+        tuple: (tools_count, generated_resources_count)
+    """
     print("🔨 Generating tools.py...")
     
     tools = discovery_data["tools"]
@@ -229,6 +233,7 @@ def register_tools(mcp: FastMCP):
             tools_code += f'        return "Mock response for {tool_name}"\n\n'
     
     # Add resource generation if any resources were discovered
+    generated_resources = 0
     if resources:
         tools_code += '''
 
@@ -259,9 +264,11 @@ def register_resources(mcp: FastMCP):
                 # Escape backslashes, quotes, and newlines
                 ai_content = ai_content.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
                 tools_code += f'        return "{ai_content}"\n\n'
+                generated_resources += 1
             else:
-                # Fallback if AI didn't generate content for this resource
-                tools_code += f'        return "Mock content for {resource_name}"\n\n'
+                # Skip resource if no AI content was generated
+                print(f"   ⚠️  Skipping resource {resource_name} - no AI content generated")
+                continue
 
     # Add request log tool
     tools_code += '''    @mcp.tool()
@@ -275,16 +282,16 @@ def register_resources(mcp: FastMCP):
     with open(tools_path, "w") as f:
         f.write(tools_code)
     
-    resource_count = len(resources)
-    print(f"✅ Generated tools.py with {len(tools)} tools" + (f" and {resource_count} resources" if resource_count > 0 else ""))
+    print(f"✅ Generated tools.py with {len(tools)} tools" + (f" and {generated_resources} resources" if generated_resources > 0 else ""))
+    
+    return len(tools), generated_resources
 
 
-def generate_server_py(discovery_data: Dict[str, Any], output_dir: Path):
+def generate_server_py(discovery_data: Dict[str, Any], output_dir: Path, generated_resources_count: int = 0):
     """Generate server.py that imports and runs the tools."""
     print("🔨 Generating server.py...")
     
-    resources = discovery_data.get("resources", [])
-    has_resources = len(resources) > 0
+    has_resources = generated_resources_count > 0
     
     imports = "from tools import register_tools"
     if has_resources:
@@ -337,18 +344,15 @@ def generate_ai_mock_server(discovery_data: Dict[str, Any], output_dir: Path):
     """
     print(f"📦 Generating mock server in: {output_dir}")
     
-    # Generate tools.py with AI-powered responses
-    generate_tools_py(discovery_data, output_dir)
+    # Generate tools.py with AI-powered responses and track generated resources
+    tools_count, generated_resources_count = generate_tools_py(discovery_data, output_dir)
     
     # Generate server.py
-    generate_server_py(discovery_data, output_dir)
-    
-    tools_count = len(discovery_data['tools'])
-    resources_count = len(discovery_data.get('resources', []))
+    generate_server_py(discovery_data, output_dir, generated_resources_count)
     
     message = f"✅ Mock server generated with {tools_count} tools"
-    if resources_count > 0:
-        message += f" and {resources_count} resources"
+    if generated_resources_count > 0:
+        message += f" and {generated_resources_count} resources"
     print(message)
 
 
