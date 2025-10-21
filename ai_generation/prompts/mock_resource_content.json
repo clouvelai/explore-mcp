@@ -1,0 +1,21 @@
+{
+  "name": "mock_resource_content",
+  "version": "1.0.0",
+  "created_by": "ai_generation_system",
+  "created_at": "2024-01-01T00:00:00Z",
+  "description": "Generate realistic mock content for MCP resources based on their specifications",
+  "category": "server_generation",
+  "template": "I need you to generate realistic mock content for MCP resources. Here are the resources:\n\n{resources_json}\n\nFor each resource, generate realistic mock content that:\n1. Reflects what the resource would actually contain based on its URI and description\n2. Is appropriate for the resource's purpose and MIME type\n3. Includes realistic data (not just placeholder text)\n4. For text resources, use proper formatting (markdown, JSON, etc. as appropriate)\n\nReturn ONLY a JSON object mapping resource names to content strings. No other text.\n\nExample format:\n{{\n  \"resource_name\": \"realistic content string\",\n  \"another_resource\": \"another realistic content\"\n}}",
+  "variables": ["resources_json"],
+  "expected_output_format": "json_object",
+  "examples": [
+    {
+      "input": {
+        "resources_json": "[{\"uri\": \"calculator://constants\", \"name\": \"get_mathematical_constants\", \"description\": \"Provides common mathematical constants\", \"mimeType\": \"text/plain\"}]"
+      },
+      "output": {
+        "get_mathematical_constants": "# Mathematical Constants\\n\\n**π (pi)**: 3.14159265359\\n**e (Euler's number)**: 2.71828182846\\n**φ (Golden ratio)**: 1.61803398875"
+      }
+    }
+  ]
+}
