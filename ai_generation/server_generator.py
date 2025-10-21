@@ -113,7 +113,7 @@ def register_tools(mcp: FastMCP):
     
 '''.format(
         server_path=discovery_data["server_path"],
-        timestamp=discovery_data["discovered_at"]
+        timestamp=discovery_data["metadata"]["discovered_at"]
     )
     
     # Generate each tool function
