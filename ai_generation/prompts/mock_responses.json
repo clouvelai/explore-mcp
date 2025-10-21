@@ -1,11 +1,11 @@
 {
   "name": "mock_responses",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "created_by": "ai_generation_system",
   "created_at": "2024-01-01T00:00:00Z",
   "description": "Generate realistic mock responses for MCP tools based on their specifications",
   "category": "server_generation",
-  "template": "I need you to generate realistic mock responses for MCP tools. Here are the tools:\n\n{tools_json}\n\nFor each tool, generate a realistic mock response string that:\n1. Reflects what the tool would actually return\n2. Is appropriate for the tool's purpose based on its name and description\n3. Includes realistic data (not just \"mock_value\")\n4. Handles mathematical operations with actual calculations when possible\n\nReturn ONLY a JSON object mapping tool names to mock response strings. No other text.\n\nExample format:\n{{\n  \"tool_name\": \"realistic response string\",\n  \"another_tool\": \"another realistic response\"\n}}",
+  "template": "I need you to generate realistic mock responses for MCP tools. Here are the tools:\n\n{tools_json}\n\nFor each tool, generate a realistic mock response string that:\n1. Reflects what the tool would actually return\n2. Is appropriate for the tool's purpose based on its name and description\n3. Includes realistic data (not just \"mock_value\")\n\nReturn ONLY a JSON object mapping tool names to mock response strings. No other text.\n\nExample format:\n{{\n  \"tool_name\": \"realistic response string\",\n  \"another_tool\": \"another realistic response\"\n}}",
   "variables": ["tools_json"],
   "expected_output_format": "json_object",
   "examples": [
