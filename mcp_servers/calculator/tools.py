@@ -92,6 +92,83 @@ def register_tools(mcp: FastMCP):
         return f"{a} divided by {b} is {result}"
 
 
+def register_resources(mcp: FastMCP):
+    """Register all calculator resources with the given FastMCP instance.
+    
+    Note: Template resources (with parameters like {category}) are correctly implemented
+    and functional, but may not be discovered by MCP Inspector discovery tools yet.
+    This is a known limitation of the current discovery process.
+    """
+    
+    @mcp.resource("calculator://constants")
+    def get_mathematical_constants() -> str:
+        """Provides common mathematical constants used in calculations.
+        
+        Returns a formatted list of important mathematical constants
+        with their values and descriptions.
+        """
+        constants = {
+            "π (pi)": "3.14159265359",
+            "e (Euler's number)": "2.71828182846", 
+            "φ (Golden ratio)": "1.61803398875",
+            "√2 (Square root of 2)": "1.41421356237",
+            "√3 (Square root of 3)": "1.73205080757",
+            "ln(2) (Natural log of 2)": "0.69314718056",
+            "ln(10) (Natural log of 10)": "2.30258509299"
+        }
+        
+        result = "# Mathematical Constants\n\n"
+        for name, value in constants.items():
+            result += f"**{name}**: {value}\n"
+        
+        return result
+    
+    @mcp.resource("calculator://formulas/{category}")
+    def get_formulas(category: str) -> str:
+        """Provides mathematical formulas for different categories.
+        
+        Args:
+            category: The category of formulas (geometry, algebra, trigonometry)
+            
+        Note: This is a template resource that should work correctly at runtime,
+        but may not appear in discovery tools due to MCP Inspector limitations.
+        """
+        formulas = {
+            "geometry": {
+                "Circle Area": "A = π × r²",
+                "Circle Circumference": "C = 2 × π × r",
+                "Rectangle Area": "A = length × width",
+                "Triangle Area": "A = (base × height) / 2",
+                "Sphere Volume": "V = (4/3) × π × r³",
+                "Cylinder Volume": "V = π × r² × height"
+            },
+            "algebra": {
+                "Quadratic Formula": "x = (-b ± √(b² - 4ac)) / (2a)",
+                "Distance Formula": "d = √((x₂-x₁)² + (y₂-y₁)²)",
+                "Slope Formula": "m = (y₂-y₁) / (x₂-x₁)",
+                "Compound Interest": "A = P(1 + r/n)^(nt)"
+            },
+            "trigonometry": {
+                "Sine": "sin(θ) = opposite / hypotenuse",
+                "Cosine": "cos(θ) = adjacent / hypotenuse", 
+                "Tangent": "tan(θ) = opposite / adjacent",
+                "Pythagorean Identity": "sin²(θ) + cos²(θ) = 1",
+                "Law of Cosines": "c² = a² + b² - 2ab×cos(C)"
+            }
+        }
+        
+        if category.lower() not in formulas:
+            available = ", ".join(formulas.keys())
+            return f"Category '{category}' not found. Available categories: {available}"
+        
+        category_formulas = formulas[category.lower()]
+        result = f"# {category.title()} Formulas\n\n"
+        for name, formula in category_formulas.items():
+            result += f"**{name}**: {formula}\n"
+        
+        return result
+
+
 def register_prompts(mcp: FastMCP):
     """Register all calculator prompts with the given FastMCP instance."""
     

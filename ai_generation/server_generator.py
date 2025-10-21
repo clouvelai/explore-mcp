@@ -58,6 +58,54 @@ def generate_ai_mock_responses(tools: List[Dict[str, Any]]) -> Dict[str, str]:
         return {}
 
 
+def generate_ai_mock_resource_content(resources: List[Dict[str, Any]]) -> Dict[str, str]:
+    """
+    Generate mock content for resources using Claude.
+    
+    Args:
+        resources: List of resource definitions with uri, name, description
+        
+    Returns:
+        Dictionary mapping resource names to mock content strings
+    """
+    if not resources:
+        return {}
+        
+    print("🤖 Generating AI-powered mock resource content...")
+    
+    # Prepare resource information for Claude
+    resources_info = []
+    for resource in resources:
+        resource_info = {
+            "uri": resource["uri"],
+            "name": resource["name"],
+            "description": resource["description"],
+            "mimeType": resource.get("mimeType", "text/plain")
+        }
+        resources_info.append(resource_info)
+    
+    # Format the prompt (we'll create a resource-specific prompt)
+    prompt = format_prompt(
+        "mock_resource_content",
+        resources_json=json.dumps(resources_info, indent=2)
+    )
+    
+    try:
+        # Use AIService to generate response
+        service = AIService()
+        mock_content = service.generate_json(prompt)
+        
+        print(f"✅ Generated {len(mock_content)} AI mock resource content")
+        return mock_content
+    
+    except json.JSONDecodeError as e:
+        print(f"⚠️  Failed to parse Claude response as JSON: {e}")
+        return {}
+    except Exception as e:
+        print(f"⚠️  Error generating AI mock resource content: {e}")
+        return {}
+
+
 def get_python_type(json_type: str, is_array: bool = False) -> str:
     """Convert JSON schema type to Python type annotation."""
     type_map = {
@@ -74,14 +122,22 @@ def get_python_type(json_type: str, is_array: bool = False) -> str:
     return python_type
 
 
-def generate_tools_py(discovery_data: Dict[str, Any], output_dir: Path):
-    """Generate tools.py with AI-powered mock implementations."""
+def generate_tools_py(discovery_data: Dict[str, Any], output_dir: Path) -> tuple[int, int]:
+    """Generate tools.py with AI-powered mock implementations.
+    
+    Returns:
+        tuple: (tools_count, generated_resources_count)
+    """
     print("🔨 Generating tools.py...")
     
     tools = discovery_data["tools"]
+    resources = discovery_data.get("resources", [])
     
-    # Generate AI responses
+    # Generate AI responses for tools
     ai_responses = generate_ai_mock_responses(tools)
+    
+    # Generate AI content for resources
+    ai_resource_content = generate_ai_mock_resource_content(resources)
     
     # Start building tools.py content
     tools_code = '''"""
@@ -176,6 +232,44 @@ def register_tools(mcp: FastMCP):
             # Fallback if AI didn't generate a response for this tool
             tools_code += f'        return "Mock response for {tool_name}"\n\n'
     
+    # Add resource generation if any resources were discovered
+    generated_resources = 0
+    if resources:
+        tools_code += '''
+
+def register_resources(mcp: FastMCP):
+    """Register all resources with the MCP server."""
+    
+'''
+        
+        # Generate each resource function (static resources only)
+        for resource in resources:
+            resource_name = resource["name"]
+            description = resource["description"]
+            uri = resource["uri"]
+            
+            # Generate static resource
+            tools_code += f'''    @mcp.resource("{uri}")
+    def {resource_name}() -> str:
+        """
+        {description}
+        """
+'''
+            
+            # Add AI-generated mock content
+            tools_code += "        # Return mock content\n"
+            if resource_name in ai_resource_content:
+                # Properly escape the content string and handle multiline content
+                ai_content = ai_resource_content[resource_name]
+                # Escape backslashes, quotes, and newlines
+                ai_content = ai_content.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+                tools_code += f'        return "{ai_content}"\n\n'
+                generated_resources += 1
+            else:
+                # Skip resource if no AI content was generated
+                print(f"   ⚠️  Skipping resource {resource_name} - no AI content generated")
+                continue
+
     # Add request log tool
     tools_code += '''    @mcp.tool()
     def get_request_log() -> str:
@@ -188,14 +282,26 @@ def register_tools(mcp: FastMCP):
     with open(tools_path, "w") as f:
         f.write(tools_code)
     
-    print(f"✅ Generated tools.py with {len(tools)} tools")
+    print(f"✅ Generated tools.py with {len(tools)} tools" + (f" and {generated_resources} resources" if generated_resources > 0 else ""))
+    
+    return len(tools), generated_resources
 
 
-def generate_server_py(output_dir: Path):
+def generate_server_py(discovery_data: Dict[str, Any], output_dir: Path, generated_resources_count: int = 0):
     """Generate server.py that imports and runs the tools."""
     print("🔨 Generating server.py...")
     
-    server_code = '''#!/usr/bin/env python3
+    has_resources = generated_resources_count > 0
+    
+    imports = "from tools import register_tools"
+    if has_resources:
+        imports += ", register_resources"
+    
+    registration = "# Register all tools\nregister_tools(mcp)"
+    if has_resources:
+        registration += "\n\n# Register all resources\nregister_resources(mcp)"
+    
+    server_code = f'''#!/usr/bin/env python3
 """
 Auto-generated Mock MCP Server
 """
@@ -208,13 +314,12 @@ logging.basicConfig(level=logging.CRITICAL, stream=sys.stderr)
 logging.getLogger().setLevel(logging.CRITICAL)
 
 from fastmcp import FastMCP
-from tools import register_tools
+{imports}
 
 # Create mock server instance
 mcp = FastMCP("mock-server")
 
-# Register all tools
-register_tools(mcp)
+{registration}
 
 if __name__ == "__main__":
     # Run the server
@@ -234,18 +339,21 @@ def generate_ai_mock_server(discovery_data: Dict[str, Any], output_dir: Path):
     Generate a complete mock MCP server with server.py and tools.py structure.
     
     Args:
-        discovery_data: Server discovery information including tools
+        discovery_data: Server discovery information including tools and resources
         output_dir: Directory to write the generated files
     """
     print(f"📦 Generating mock server in: {output_dir}")
     
-    # Generate tools.py with AI-powered responses
-    generate_tools_py(discovery_data, output_dir)
+    # Generate tools.py with AI-powered responses and track generated resources
+    tools_count, generated_resources_count = generate_tools_py(discovery_data, output_dir)
     
     # Generate server.py
-    generate_server_py(output_dir)
+    generate_server_py(discovery_data, output_dir, generated_resources_count)
     
-    print(f"✅ Mock server generated with {len(discovery_data['tools'])} tools")
+    message = f"✅ Mock server generated with {tools_count} tools"
+    if generated_resources_count > 0:
+        message += f" and {generated_resources_count} resources"
+    print(message)
 
 
 if __name__ == "__main__":

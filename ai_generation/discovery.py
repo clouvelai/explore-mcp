@@ -261,6 +261,9 @@ class DiscoveryEngine:
             print(f"   ⚠️  Failed to discover tools: {e}")
         
         # Discover resources
+        # Note: Currently only discovers static resources. Template resources (with parameters
+        # like "resource://{param}") are not returned by MCP Inspector's resources/list method.
+        # This is a known limitation that affects discovery but not runtime functionality.
         try:
             resources_result = self._execute_inspector(server_cmd, "resources/list")
             raw_resources = resources_result.get("resources", [])
