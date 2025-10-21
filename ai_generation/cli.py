@@ -102,6 +102,15 @@ def extract_server_name(server_path: str) -> str:
     return filename
 
 
+def save_discovery_data(discovery_data: Dict[str, Any], output_dir: Path):
+    """Save the complete discovery data to a JSON file."""
+    discovery_path = output_dir / "discovery.json"
+    with open(discovery_path, "w") as f:
+        json.dump(discovery_data, f, indent=2)
+    print(f"💾 Saved discovery data to: {discovery_path}")
+    return discovery_path
+
+
 def generate_evaluations(discovery_data: Dict[str, Any], output_dir: Path):
     """Generate AI-powered evaluation test cases."""
     print(f"📝 Generating evaluations...")
@@ -176,6 +185,9 @@ async def main():
         # Discover MCP server tools
         discovery_data = await discover_mcp_server(args.server)
         
+        # Save discovery data
+        discovery_path = save_discovery_data(discovery_data, output_dir)
+        
         # Generate mock server with server.py + tools.py structure
         generate_ai_mock_server(discovery_data, output_dir)
         
@@ -184,6 +196,7 @@ async def main():
         
         print(f"\n✨ Generation complete for '{server_name}'!")
         print(f"   Output directory: {output_dir}")
+        print(f"   Discovery data: {discovery_path}")
         print(f"   Mock server: {output_dir}/server.py")
         print(f"   Tools: {output_dir}/tools.py")
         print(f"   Evaluations: {eval_path}")

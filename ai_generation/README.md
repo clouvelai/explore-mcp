@@ -20,7 +20,8 @@ This system automatically generates evaluation suites and mock MCP servers from 
 2. Generation Phase:
    Tool Schemas analyzed by Claude AI
         ↓
-   Generates three outputs:
+   Generates four outputs:
+   ├── generated/discovery.json (Complete discovery metadata)
    ├── generated/server.py (FastMCP server setup)
    ├── generated/tools.py (AI-generated tool implementations)  
    └── generated/evaluations.json (AI-generated test cases)
@@ -45,6 +46,7 @@ This system automatically generates evaluation suites and mock MCP servers from 
 **Key Functions**:
 - `discover_mcp_server(server_path)`: Connect to MCP server and retrieve tools
 - `extract_server_name(server_path)`: Generate clean server names from paths
+- `save_discovery_data(discovery_data, output_dir)`: Save complete discovery metadata to JSON
 - `generate_evaluations(discovery_data, output_dir)`: Orchestrate test case generation
 
 **Usage**:
