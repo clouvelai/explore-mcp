@@ -268,7 +268,7 @@ class DiscoveryEngine:
         
         # Discover tools
         try:
-            tools_result = self._execute_inspector(server_cmd, "tools/list")
+            tools_result = self._execute_inspector(server_cmd, "tools/list", transport)
             raw_tools = tools_result.get("tools", [])
             tools = [MCPTool(**tool) for tool in raw_tools]
             print(f"   ✓ Found {len(tools)} tools")
@@ -280,7 +280,7 @@ class DiscoveryEngine:
         # like "resource://{param}") are not returned by MCP Inspector's resources/list method.
         # This is a known limitation that affects discovery but not runtime functionality.
         try:
-            resources_result = self._execute_inspector(server_cmd, "resources/list")
+            resources_result = self._execute_inspector(server_cmd, "resources/list", transport)
             raw_resources = resources_result.get("resources", [])
             resources = [MCPResource(**resource) for resource in raw_resources]
             print(f"   ✓ Found {len(resources)} resources")
@@ -289,7 +289,7 @@ class DiscoveryEngine:
         
         # Discover prompts
         try:
-            prompts_result = self._execute_inspector(server_cmd, "prompts/list")
+            prompts_result = self._execute_inspector(server_cmd, "prompts/list", transport)
             raw_prompts = prompts_result.get("prompts", [])
             prompts = [MCPPrompt(**prompt) for prompt in raw_prompts]
             print(f"   ✓ Found {len(prompts)} prompts")
@@ -298,7 +298,7 @@ class DiscoveryEngine:
         
         # Try to get server info (may not be available)
         try:
-            server_info_result = self._execute_inspector(server_cmd, "server/info")
+            server_info_result = self._execute_inspector(server_cmd, "server/info", transport)
             if server_info_result:
                 server_info = ServerInfo(**server_info_result)
         except:
@@ -344,13 +344,13 @@ class DiscoveryEngine:
             
         Examples:
             _detect_transport("server.py") → "stdio"
-            _detect_transport("http://localhost:8000") → "sse"  
-            _detect_transport("https://api.example.com/mcp") → "sse"
+            _detect_transport("http://localhost:8000") → "http"  
+            _detect_transport("https://api.example.com/mcp") → "http"
         """
         # Check if it's an HTTP/HTTPS URL
         if server_path.startswith(("http://", "https://")):
-            # Use SSE transport for HTTP URLs (most common for MCP over HTTP)
-            return Transport.SSE
+            # Use HTTP transport first (newer MCP standard)
+            return Transport.HTTP
         
         # Default to stdio for local files
         return Transport.STDIO
@@ -408,7 +408,7 @@ class DiscoveryEngine:
             # Default to trying to execute directly
             return [str(server_path)]
     
-    def _execute_inspector(self, server_cmd: List[str], method: str) -> Dict[str, Any]:
+    def _execute_inspector(self, server_cmd: List[str], method: str, transport: TransportType) -> Dict[str, Any]:
         """
         Execute MCP Inspector CLI and parse the JSON output.
         
@@ -430,8 +430,6 @@ class DiscoveryEngine:
         if len(server_cmd) == 1 and server_cmd[0].startswith(("http://", "https://")):
             # HTTP/SSE transport - URL as positional argument
             url = server_cmd[0]
-            # Determine transport type based on URL or default to SSE
-            transport = Transport.SSE  # Most common for HTTP MCP servers
             
             cmd = [
                 "npx",
@@ -464,6 +462,13 @@ class DiscoveryEngine:
                 # Check if it's a method not found error (expected for some methods)
                 if "Method not found" in result.stderr:
                     return {}
+                
+                # For HTTP URLs, try fallback to SSE if HTTP transport failed
+                if (len(server_cmd) == 1 and server_cmd[0].startswith(("http://", "https://")) 
+                    and transport == Transport.HTTP):
+                    print(f"   ⚠️  HTTP transport failed, trying SSE fallback...")
+                    return self._execute_inspector(server_cmd, method, Transport.SSE)
+                
                 raise DiscoveryError(
                     f"Inspector failed for method {method}: {result.stderr}"
                 )
