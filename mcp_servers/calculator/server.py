@@ -12,13 +12,14 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from fastmcp import FastMCP
-from mcp_servers.calculator.tools import register_tools
+from mcp_servers.calculator.tools import register_tools, register_resources
 
 # Create MCP instance
 mcp = FastMCP("Calculator")
 
-# Register all calculator tools
+# Register all calculator tools and resources
 register_tools(mcp)
+register_resources(mcp)
 
 # Add explanatory prompt
 @mcp.prompt()
