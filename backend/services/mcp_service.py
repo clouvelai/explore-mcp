@@ -6,6 +6,7 @@ import asyncio
 import os
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from mcp.client.sse import sse_client
 from backend.auth.token_store import TokenStore
 from backend.auth.oauth_handler import GoogleOAuthHandler
 
@@ -21,12 +22,14 @@ class MCPService:
         self.servers = {
             "calculator": {
                 "name": "Calculator",
+                "transport": "stdio",
                 "command": "python",
                 "args": ["mcp_servers/calculator/server.py"],
                 "requires_auth": False,
             },
             "google-drive": {
                 "name": "Google Drive",
+                "transport": "stdio",
                 "command": "python",
                 "args": ["mcp_servers/google_drive/server.py"],
                 "requires_auth": True,
@@ -34,11 +37,19 @@ class MCPService:
             },
             "gmail": {
                 "name": "Gmail",
+                "transport": "stdio",
                 "command": "python",
                 "args": ["mcp_servers/gmail/server.py"],
                 "requires_auth": True,
                 "auth_type": "google_oauth"
             }
+            # Example HTTP server configuration:
+            # "remote-mcp-server": {
+            #     "name": "Remote MCP Server",
+            #     "transport": "sse",
+            #     "url": "https://api.example.com/mcp",
+            #     "requires_auth": False,
+            # }
         }
     
     async def get_server_env(self, server_key: str) -> dict:
@@ -70,6 +81,25 @@ class MCPService:
         
         return env
 
+    async def _create_client_session(self, server_config: dict, env: dict):
+        """Create appropriate client session based on transport type."""
+        transport = server_config.get("transport", "stdio")
+        
+        if transport == "stdio":
+            # Stdio transport
+            server_params = StdioServerParameters(
+                command=server_config["command"],
+                args=server_config["args"],
+                env=env
+            )
+            return stdio_client(server_params)
+        elif transport == "sse":
+            # SSE/HTTP transport
+            url = server_config["url"]
+            return sse_client(url)
+        else:
+            raise ValueError(f"Unsupported transport type: {transport}")
+
     async def get_tools(self):
         """Connect to all available MCP servers and get tools."""
         all_tools = []
@@ -87,13 +117,8 @@ class MCPService:
                 if env is None:  # Auth failed
                     continue
                 
-                server_params = StdioServerParameters(
-                    command=server_config["command"],
-                    args=server_config["args"],
-                    env=env
-                )
-                
-                async with stdio_client(server_params) as (read, write):
+                # Create appropriate client based on transport
+                async with self._create_client_session(server_config, env) as (read, write):
                     async with ClientSession(read, write) as session:
                         await session.initialize()
                         
@@ -141,13 +166,8 @@ class MCPService:
         if env is None:
             raise ValueError(f"Authentication failed for {server_config['name']}")
         
-        server_params = StdioServerParameters(
-            command=server_config["command"],
-            args=server_config["args"],
-            env=env
-        )
-        
-        async with stdio_client(server_params) as (read, write):
+        # Create appropriate client based on transport
+        async with self._create_client_session(server_config, env) as (read, write):
             async with ClientSession(read, write) as session:
                 await session.initialize()
                 result = await session.call_tool(tool_name, arguments)
@@ -167,6 +187,7 @@ class MCPService:
             server_info = {
                 "key": key,
                 "name": config["name"],
+                "transport": config.get("transport", "stdio"),
                 "requires_auth": config.get("requires_auth", False),
                 "authenticated": False
             }

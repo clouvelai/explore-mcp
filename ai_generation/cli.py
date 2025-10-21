@@ -45,7 +45,7 @@ import json
 import sys
 import argparse
 from pathlib import Path
-from .discovery import DiscoveryEngine, DependencyError, DiscoveryError
+from .discovery import DiscoveryEngine, DependencyError, DiscoveryError, Transport
 from .discovery_models import DiscoveryResult
 from .server_generator import generate_ai_mock_server
 from .evals_generator import generate_ai_test_cases
@@ -193,8 +193,8 @@ def main():
     )
     parser.add_argument(
         "--transport",
-        default="auto",
-        choices=["auto", "stdio", "http", "sse"],
+        default=Transport.AUTO,
+        choices=[Transport.AUTO, Transport.STDIO, Transport.HTTP, Transport.SSE],
         help="Transport type for the MCP server (default: auto-detect)"
     )
     parser.add_argument(
