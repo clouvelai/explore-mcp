@@ -51,6 +51,9 @@ uv.lock
 .mcp_data/
 *.db
 
+# MCP CI cache
+.mcp-ci/cache/
+
 # React/Node
 chat-frontend/node_modules/
 chat-frontend/build/

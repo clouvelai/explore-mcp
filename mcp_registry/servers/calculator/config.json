@@ -1,0 +1,36 @@
+{
+  "id": "calculator",
+  "name": "Calculator MCP Server",
+  "source": {
+    "type": "local",
+    "path": "mcp_servers/calculator/server.py",
+    "url": null,
+    "transport": "stdio"
+  },
+  "discovery": {
+    "enabled": true,
+    "cache_ttl": 3600,
+    "timeout": 30,
+    "retry_attempts": 3,
+    "auth_headers": null,
+    "last_discovered": "2025-10-22 11:22:41.849115"
+  },
+  "generation": {
+    "enabled": true,
+    "output_dir": "generated",
+    "include_resources": true,
+    "include_prompts": true,
+    "mock_data_enabled": true,
+    "last_generated": "2025-10-22 11:22:51.019187"
+  },
+  "metadata": {
+    "created_at": "2025-10-22 11:22:30.453866",
+    "updated_at": "2025-10-22 11:22:51.019587",
+    "version": "1.0.0",
+    "description": "Simple calculator with basic math operations",
+    "category": "Utilities",
+    "provider": "Local",
+    "auth_required": false,
+    "auth_type": null
+  }
+}

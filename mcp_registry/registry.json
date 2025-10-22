@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-10-22 11:22:30.454229",
+  "servers": [
+    "microsoft-learn",
+    "calculator"
+  ],
+  "categories": {
+    "Documentation": [
+      "microsoft-learn"
+    ],
+    "Utilities": [
+      "calculator"
+    ]
+  }
+}
