@@ -274,10 +274,6 @@ def main():
     # server update-templates
     server_subparsers.add_parser('update-templates', help='Update templates from data models')
     
-    # server auto-discover-local
-    auto_discover_parser = server_subparsers.add_parser('auto-discover-local', help='Auto-discover and add all local servers')
-    auto_discover_parser.add_argument('--dry-run', action='store_true', help='Show what would be added without actually adding')
-    
     args = parser.parse_args()
     
     if args.command == 'local':
