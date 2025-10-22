@@ -1,0 +1,32 @@
+{
+  "name": "Microsoft Learn MCP Server",
+  "id": "microsoft-learn",
+  "description": "Official Microsoft documentation server providing access to Microsoft/Azure documentation",
+  "url": "https://learn.microsoft.com/api/mcp",
+  "transport": "http",
+  "auth_required": false,
+  "auth_type": null,
+  "category": "Documentation",
+  "provider": "Microsoft",
+  "status": "active",
+  "discovery_config": {
+    "enabled": true,
+    "cache_ttl": 3600,
+    "timeout": 30,
+    "retry_attempts": 3,
+    "auth_headers": null
+  },
+  "generation_config": {
+    "enabled": true,
+    "output_dir": "generated/",
+    "include_resources": true,
+    "include_prompts": true,
+    "mock_data_enabled": true
+  },
+  "metadata": {
+    "created_at": "2025-10-22 10:21:07.741796",
+    "last_discovered": "2025-10-22 10:22:37.941246",
+    "last_generated": "2025-10-22 10:23:13.969680",
+    "version": "1.0.0"
+  }
+}

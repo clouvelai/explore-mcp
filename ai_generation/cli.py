@@ -48,6 +48,7 @@ from pathlib import Path
 from .discovery import DiscoveryEngine, DependencyError, DiscoveryError, Transport
 from .discovery_models import DiscoveryResult
 from .server_generator import generate_ai_mock_server
+from remote_mcp_servers import RemoteServerManager, RemoteServerConfig
 from .evals_generator import generate_ai_test_cases
 from .ai_service import test_claude_cli
 
@@ -157,80 +158,119 @@ def main():
     """
     Main CLI entry point for the MCP Generator.
     
-    Parses command-line arguments, orchestrates the discovery and generation
-    process, and handles errors gracefully. This function coordinates:
-    
-    1. Dependency checking (Claude CLI, npx)
-    2. Server discovery using DiscoveryEngine
-    3. Mock server generation with AI
-    4. Evaluation suite generation
-    5. Output organization and user guidance
-    
-    Exit Codes:
-        0: Success - all files generated successfully
-        1: Error - dependency missing, discovery failed, or generation failed
-        
-    Environment Variables:
-        OPENAI_API_KEY: Required for Claude CLI integration
-        NODE_PATH: Optional for custom Node.js installation
+    Supports both local server generation and remote server management.
     """
     parser = argparse.ArgumentParser(
         description="Generate AI-powered mock MCP server and evaluations from local or remote MCP servers",
         epilog="""Examples:
   # Local MCP server
-  %(prog)s --server mcp_servers/calculator/server.py
+  %(prog)s local --server mcp_servers/calculator/server.py
   
-  # Public MCP server (Microsoft Learn)
-  %(prog)s --server https://learn.microsoft.com/api/mcp --name microsoft-docs
-  
-  # Local HTTP server
-  %(prog)s --server http://localhost:8080/sse --name my-server
+  # Remote server management
+  %(prog)s remote list
+  %(prog)s remote discover-all --auth-required=false
+  %(prog)s remote generate-all --auth-required=false
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument(
+    
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    
+    # Local server generation (existing functionality)
+    local_parser = subparsers.add_parser('local', help='Generate mock server from local MCP server')
+    local_parser.add_argument(
         "--server", 
         required=True, 
-        help="Path to local MCP server OR URL to remote MCP server (e.g., https://learn.microsoft.com/api/mcp)"
+        help="Path to local MCP server"
     )
-    parser.add_argument(
+    local_parser.add_argument(
         "--output-dir", 
         default="generated", 
         help="Base output directory for generated files"
     )
-    parser.add_argument(
+    local_parser.add_argument(
         "--name", 
         help="Name for the server (auto-detected if not provided)"
     )
-    parser.add_argument(
+    local_parser.add_argument(
         "--transport",
         default=Transport.AUTO,
         choices=[Transport.AUTO, Transport.STDIO, Transport.HTTP, Transport.SSE],
         help="Transport type for the MCP server (default: auto-detect)"
     )
-    parser.add_argument(
+    local_parser.add_argument(
         "--cache",
         action="store_true",
         help="Enable discovery caching (recommended for CI/production)"
     )
-    parser.add_argument(
+    local_parser.add_argument(
         "--cache-ttl",
         type=int,
         default=900,
         help="Cache TTL in seconds (default: 900 = 15 minutes)"
     )
-    parser.add_argument(
+    local_parser.add_argument(
         "--cache-dir",
         default=".mcp-ci/cache",
         help="Directory for cache storage (default: .mcp-ci/cache)"
     )
-    parser.add_argument(
+    local_parser.add_argument(
         "--clear-cache",
         action="store_true",
         help="Clear all cache before running discovery"
     )
     
+    # Remote server management
+    remote_parser = subparsers.add_parser('remote', help='Manage remote MCP servers')
+    remote_subparsers = remote_parser.add_subparsers(dest='remote_command', help='Remote server commands')
+    
+    # remote list
+    remote_subparsers.add_parser('list', help='List all remote servers')
+    
+    # remote add
+    add_parser = remote_subparsers.add_parser('add', help='Add a new remote server')
+    add_parser.add_argument('server_id', help='Unique identifier for the server')
+    add_parser.add_argument('--name', required=True, help='Server name')
+    add_parser.add_argument('--url', required=True, help='Server URL')
+    add_parser.add_argument('--description', help='Server description')
+    add_parser.add_argument('--category', default='General', help='Server category')
+    add_parser.add_argument('--provider', help='Server provider')
+    add_parser.add_argument('--auth-required', action='store_true', help='Server requires authentication')
+    add_parser.add_argument('--auth-type', help='Authentication type (OAuth, API Key, etc.)')
+    add_parser.add_argument('--transport', default='http', help='Transport type')
+    
+    # remote discover
+    discover_parser = remote_subparsers.add_parser('discover', help='Discover server capabilities')
+    discover_parser.add_argument('server_id', help='Server ID to discover')
+    
+    # remote discover-all
+    discover_all_parser = remote_subparsers.add_parser('discover-all', help='Discover all servers')
+    discover_all_parser.add_argument('--auth-required', action='store_true', help='Only discover servers requiring authentication')
+    
+    # remote generate
+    generate_parser = remote_subparsers.add_parser('generate', help='Generate mock server')
+    generate_parser.add_argument('server_id', help='Server ID to generate mock for')
+    
+    # remote generate-all
+    generate_all_parser = remote_subparsers.add_parser('generate-all', help='Generate mocks for all servers')
+    generate_all_parser.add_argument('--auth-required', action='store_true', help='Only generate for servers requiring authentication')
+    
+    # remote remove
+    remove_parser = remote_subparsers.add_parser('remove', help='Remove server definition')
+    remove_parser.add_argument('server_id', help='Server ID to remove')
+    
     args = parser.parse_args()
+    
+    if args.command == 'local':
+        handle_local_command(args)
+    elif args.command == 'remote':
+        handle_remote_command(args)
+    else:
+        parser.print_help()
+
+
+def handle_local_command(args):
+    """Handle local server generation (existing functionality)."""
     
     # Check Claude CLI availability (required for AI generation)
     if not test_claude_cli():
@@ -326,6 +366,75 @@ def main():
             import traceback
             traceback.print_exc()
         
+        sys.exit(1)
+
+
+def handle_remote_command(args):
+    """Handle remote server management commands."""
+    manager = RemoteServerManager()
+    
+    if args.remote_command == 'list':
+        servers = manager.list_servers()
+        if not servers:
+            print("📋 No remote servers defined")
+            return
+        
+        print("📋 Remote MCP Servers:")
+        print(f"{'ID':<20} {'Name':<30} {'Status':<10} {'Auth':<8} {'Category':<15}")
+        print("-" * 85)
+        for server in servers:
+            auth_status = "Yes" if server.get('auth_required') else "No"
+            print(f"{server['id']:<20} {server['name']:<30} {server['status']:<10} {auth_status:<8} {server['category']:<15}")
+    
+    elif args.remote_command == 'add':
+        # Create server configuration
+        server_config = RemoteServerConfig(
+            id=args.server_id,
+            name=args.name,
+            description=args.description or f"Remote MCP server: {args.name}",
+            url=args.url,
+            transport=args.transport,
+            auth_required=args.auth_required,
+            auth_type=args.auth_type,
+            category=args.category,
+            provider=args.provider or "Unknown"
+        )
+        
+        manager.add_server(server_config)
+    
+    elif args.remote_command == 'discover':
+        result = manager.discover_server(args.server_id)
+        if result:
+            print(f"✅ Discovery successful for {args.server_id}")
+        else:
+            print(f"❌ Discovery failed for {args.server_id}")
+            sys.exit(1)
+    
+    elif args.remote_command == 'discover-all':
+        auth_required = args.auth_required
+        results = manager.discover_all(auth_required=auth_required)
+        print(f"✅ Discovery completed: {len(results)} servers successful")
+    
+    elif args.remote_command == 'generate':
+        result = manager.generate_mock(args.server_id)
+        if result:
+            print(f"✅ Mock generation successful for {args.server_id}")
+        else:
+            print(f"❌ Mock generation failed for {args.server_id}")
+            sys.exit(1)
+    
+    elif args.remote_command == 'generate-all':
+        auth_required = args.auth_required
+        results = manager.generate_all(auth_required=auth_required)
+        print(f"✅ Generation completed: {len(results)} servers successful")
+    
+    elif args.remote_command == 'remove':
+        success = manager.remove_server(args.server_id)
+        if not success:
+            sys.exit(1)
+    
+    else:
+        print("❌ Unknown remote command")
         sys.exit(1)
 
 

@@ -1,0 +1,32 @@
+{
+  "name": "{{SERVER_NAME}}",
+  "id": "{{SERVER_ID}}",
+  "description": "{{SERVER_DESCRIPTION}}",
+  "url": "{{SERVER_URL}}",
+  "transport": "{{TRANSPORT_TYPE}}",
+  "auth_required": {{AUTH_REQUIRED}},
+  "auth_type": {{AUTH_TYPE}},
+  "category": "{{CATEGORY}}",
+  "provider": "{{PROVIDER}}",
+  "status": "{{STATUS}}",
+  "discovery_config": {
+    "enabled": true,
+    "cache_ttl": 3600,
+    "timeout": 30,
+    "retry_attempts": 3,
+    "auth_headers": {{AUTH_HEADERS}}
+  },
+  "generation_config": {
+    "enabled": true,
+    "output_dir": "generated/",
+    "include_resources": true,
+    "include_prompts": true,
+    "mock_data_enabled": true
+  },
+  "metadata": {
+    "created_at": "{{CREATED_AT}}",
+    "last_discovered": null,
+    "last_generated": null,
+    "version": "1.0.0"
+  }
+}
