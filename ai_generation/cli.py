@@ -400,12 +400,29 @@ def handle_local_command(args):
         sys.exit(1)
 
 
-def handle_server_command(args):
-    """Handle unified server management commands."""
-    manager = ServerManager()
+class BaseCommand:
+    """Base class for CLI commands."""
     
-    if args.server_command == 'list':
-        servers = manager.list_servers()
+    def __init__(self, manager: 'ServerManager'):
+        self.manager = manager
+    
+    def execute(self, args) -> None:
+        """Execute the command with given arguments."""
+        raise NotImplementedError("Subclasses must implement execute()")
+    
+    def _get_filter_args(self, args):
+        """Extract common filter arguments."""
+        return {
+            'server_type': getattr(args, 'type', None),
+            'auth_required': getattr(args, 'auth_required', None)
+        }
+
+
+class ListCommand(BaseCommand):
+    """Handle server list command."""
+    
+    def execute(self, args) -> None:
+        servers = self.manager.list_servers()
         if not servers:
             print("📋 No servers defined")
             return
@@ -416,8 +433,12 @@ def handle_server_command(args):
         for server in servers:
             auth_status = "Yes" if server.get('auth_required') else "No"
             print(f"{server['id']:<20} {server['name']:<30} {server['type']:<8} {server['status']:<10} {auth_status:<8} {server['category']:<15}")
+
+
+class AddCommand(BaseCommand):
+    """Handle server add command."""
     
-    elif args.server_command == 'add':
+    def execute(self, args) -> None:
         # Validate required arguments
         if args.type == 'local' and not args.path:
             print("❌ --path is required for local servers")
@@ -432,7 +453,7 @@ def handle_server_command(args):
         else:
             source = ServerSource(type='remote', url=args.url, transport=args.transport)
         
-        manager.add_server(
+        self.manager.add_server(
             server_id=args.server_id,
             name=args.name,
             source=source,
@@ -442,37 +463,55 @@ def handle_server_command(args):
             auth_required=args.auth_required,
             auth_type=args.auth_type
         )
+
+
+class DiscoverCommand(BaseCommand):
+    """Handle server discover command."""
     
-    elif args.server_command == 'discover':
-        result = manager.discover_server(args.server_id)
+    def execute(self, args) -> None:
+        result = self.manager.discover_server(args.server_id)
         if result:
             print(f"✅ Discovery successful for {args.server_id}")
         else:
             print(f"❌ Discovery failed for {args.server_id}")
             sys.exit(1)
+
+
+class DiscoverAllCommand(BaseCommand):
+    """Handle server discover-all command."""
     
-    elif args.server_command == 'discover-all':
-        server_type = args.type if hasattr(args, 'type') else None
-        auth_required = args.auth_required if hasattr(args, 'auth_required') else None
-        results = manager.discover_all(server_type=server_type, auth_required=auth_required)
+    def execute(self, args) -> None:
+        filters = self._get_filter_args(args)
+        results = self.manager.discover_all(**filters)
         print(f"✅ Discovery completed: {len(results)} servers successful")
+
+
+class GenerateCommand(BaseCommand):
+    """Handle server generate command."""
     
-    elif args.server_command == 'generate':
-        result = manager.generate_mock(args.server_id)
+    def execute(self, args) -> None:
+        result = self.manager.generate_mock(args.server_id)
         if result:
             print(f"✅ Mock generation successful for {args.server_id}")
         else:
             print(f"❌ Mock generation failed for {args.server_id}")
             sys.exit(1)
+
+
+class GenerateAllCommand(BaseCommand):
+    """Handle server generate-all command."""
     
-    elif args.server_command == 'generate-all':
-        server_type = args.type if hasattr(args, 'type') else None
-        auth_required = args.auth_required if hasattr(args, 'auth_required') else None
-        results = manager.generate_all(server_type=server_type, auth_required=auth_required)
+    def execute(self, args) -> None:
+        filters = self._get_filter_args(args)
+        results = self.manager.generate_all(**filters)
         print(f"✅ Generation completed: {len(results)} servers successful")
+
+
+class StatusCommand(BaseCommand):
+    """Handle server status command."""
     
-    elif args.server_command == 'status':
-        status = manager.get_server_status(args.server_id)
+    def execute(self, args) -> None:
+        status = self.manager.get_server_status(args.server_id)
         if "error" in status:
             print(f"❌ {status['error']}")
             sys.exit(1)
@@ -492,20 +531,32 @@ def handle_server_command(args):
         print(f"   Last Generated: {status['generation']['last_generated']}")
         print(f"   Generated Path: {status['generation']['output_dir']}")
         print(f"   Has Generated Files: {status['generation']['has_files']}")
+
+
+class RemoveCommand(BaseCommand):
+    """Handle server remove command."""
     
-    elif args.server_command == 'remove':
-        success = manager.remove_server(args.server_id)
+    def execute(self, args) -> None:
+        success = self.manager.remove_server(args.server_id)
         if not success:
             sys.exit(1)
+
+
+class UpdateTemplatesCommand(BaseCommand):
+    """Handle server update-templates command."""
     
-    elif args.server_command == 'update-templates':
-        manager.update_templates()
+    def execute(self, args) -> None:
+        self.manager.update_templates()
+
+
+class AutoDiscoverLocalCommand(BaseCommand):
+    """Handle server auto-discover-local command."""
     
-    elif args.server_command == 'auto-discover-local':
+    def execute(self, args) -> None:
         servers_dir = args.servers_dir
-        dry_run = args.dry_run if hasattr(args, 'dry_run') else False
+        dry_run = getattr(args, 'dry_run', False)
         
-        added_servers = manager.auto_discover_and_add_local_servers(
+        added_servers = self.manager.auto_discover_and_add_local_servers(
             mcp_servers_dir=servers_dir,
             dry_run=dry_run
         )
@@ -519,17 +570,21 @@ def handle_server_command(args):
                 print("   Next steps:")
                 print("   1. Run discovery: python -m ai_generation.cli server discover-all --type local")
                 print("   2. Generate mocks: python -m ai_generation.cli server generate-all --type local")
+
+
+class MigrateLocalCommand(BaseCommand):
+    """Handle server migrate-local command."""
     
-    elif args.server_command == 'migrate-local':
+    def execute(self, args) -> None:
         servers_dir = args.servers_dir
-        run_discovery = args.discover if hasattr(args, 'discover') else False
-        run_generation = args.generate if hasattr(args, 'generate') else False
+        run_discovery = getattr(args, 'discover', False)
+        run_generation = getattr(args, 'generate', False)
         
         print("🚀 Starting local server migration...")
         
         # Step 1: Auto-discover and add servers
         print("\n📋 Step 1: Auto-discovering local servers...")
-        added_servers = manager.auto_discover_and_add_local_servers(
+        added_servers = self.manager.auto_discover_and_add_local_servers(
             mcp_servers_dir=servers_dir,
             dry_run=False
         )
@@ -541,7 +596,7 @@ def handle_server_command(args):
         # Step 2: Run discovery if requested
         if run_discovery:
             print(f"\n🔍 Step 2: Running discovery on {len(added_servers)} servers...")
-            discovery_results = manager.discover_all(server_type='local')
+            discovery_results = self.manager.discover_all(server_type='local')
             print(f"✅ Discovery completed: {len(discovery_results)}/{len(added_servers)} servers successful")
         else:
             print(f"\n⏭️  Step 2: Skipping discovery (use --discover to enable)")
@@ -549,7 +604,7 @@ def handle_server_command(args):
         # Step 3: Generate mocks if requested
         if run_generation:
             print(f"\n🏗️  Step 3: Generating mock servers...")
-            generation_results = manager.generate_all(server_type='local')
+            generation_results = self.manager.generate_all(server_type='local')
             print(f"✅ Generation completed: {len(generation_results)}/{len(added_servers)} servers successful")
         else:
             print(f"\n⏭️  Step 3: Skipping generation (use --generate to enable)")
@@ -565,10 +620,43 @@ def handle_server_command(args):
                 print(f"   python -m ai_generation.cli server discover-all --type local")
             if not run_generation:
                 print(f"   python -m ai_generation.cli server generate-all --type local")
+
+
+class ServerCommandHandler:
+    """Centralized handler for server commands using command pattern."""
     
-    else:
-        print("❌ Unknown server command")
-        sys.exit(1)
+    def __init__(self, manager: 'ServerManager'):
+        self.manager = manager
+        self.commands = {
+            'list': ListCommand(manager),
+            'add': AddCommand(manager),
+            'discover': DiscoverCommand(manager),
+            'discover-all': DiscoverAllCommand(manager),
+            'generate': GenerateCommand(manager),
+            'generate-all': GenerateAllCommand(manager),
+            'status': StatusCommand(manager),
+            'remove': RemoveCommand(manager),
+            'update-templates': UpdateTemplatesCommand(manager),
+            'auto-discover-local': AutoDiscoverLocalCommand(manager),
+            'migrate-local': MigrateLocalCommand(manager),
+        }
+    
+    def handle(self, args) -> None:
+        """Handle server command using command pattern."""
+        command_name = args.server_command
+        
+        if command_name not in self.commands:
+            print(f"❌ Unknown server command: {command_name}")
+            sys.exit(1)
+        
+        self.commands[command_name].execute(args)
+
+
+def handle_server_command(args):
+    """Handle unified server management commands using command pattern."""
+    manager = ServerManager()
+    handler = ServerCommandHandler(manager)
+    handler.handle(args)
 
 
 if __name__ == "__main__":
