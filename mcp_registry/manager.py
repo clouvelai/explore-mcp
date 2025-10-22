@@ -7,6 +7,7 @@ with consistent discovery, generation, and tracking capabilities.
 
 import json
 import shutil
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
@@ -472,3 +473,250 @@ class ServerManager:
                 "version": config.metadata.version
             }
         }
+    
+    def discover_local_servers(self, mcp_servers_dir: str = "mcp_servers") -> List[Dict[str, Any]]:
+        """
+        Auto-discover all local MCP servers in the mcp_servers directory.
+        
+        Args:
+            mcp_servers_dir: Path to the mcp_servers directory
+            
+        Returns:
+            List of discovered server information
+        """
+        servers_dir = Path(mcp_servers_dir)
+        if not servers_dir.exists():
+            print(f"❌ MCP servers directory not found: {mcp_servers_dir}")
+            return []
+        
+        discovered_servers = []
+        
+        print(f"🔍 Scanning {mcp_servers_dir} for MCP servers...")
+        
+        # Look for server.py files in subdirectories
+        for server_dir in servers_dir.iterdir():
+            if not server_dir.is_dir():
+                continue
+            
+            server_file = server_dir / "server.py"
+            if not server_file.exists():
+                continue
+            
+            # Extract server metadata from the server file
+            server_info = self._extract_server_metadata(server_file)
+            
+            # Generate server ID from directory name
+            server_id = server_dir.name
+            
+            # Determine transport type from server file
+            transport = self._detect_transport_type(server_file)
+            
+            # Check if server requires authentication
+            auth_required = self._detect_auth_requirement(server_file)
+            
+            server_info.update({
+                "id": server_id,
+                "path": str(server_file),
+                "transport": transport,
+                "auth_required": auth_required,
+                "category": self._categorize_server(server_info.get("name", server_id))
+            })
+            
+            discovered_servers.append(server_info)
+            print(f"   ✅ Found: {server_info['name']} ({server_id})")
+        
+        print(f"🎯 Discovered {len(discovered_servers)} local servers")
+        return discovered_servers
+    
+    def _extract_server_metadata(self, server_file: Path) -> Dict[str, Any]:
+        """
+        Extract metadata from a server.py file.
+        
+        Args:
+            server_file: Path to the server.py file
+            
+        Returns:
+            Dictionary with extracted metadata
+        """
+        try:
+            with open(server_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Extract server name from FastMCP constructor
+            name_match = re.search(r'FastMCP\("([^"]+)"\)', content)
+            server_name = name_match.group(1) if name_match else server_file.parent.name.title()
+            
+            # Extract description from docstring
+            desc_match = re.search(r'"""(.*?)"""', content, re.DOTALL)
+            description = None
+            if desc_match:
+                desc_text = desc_match.group(1).strip()
+                # Take first line as description
+                description = desc_text.split('\n')[0].strip()
+            
+            # Extract provider from imports or comments
+            provider = None
+            if "gmail" in content.lower():
+                provider = "Google"
+            elif "google" in content.lower():
+                provider = "Google"
+            elif "microsoft" in content.lower():
+                provider = "Microsoft"
+            
+            return {
+                "name": server_name,
+                "description": description,
+                "provider": provider
+            }
+            
+        except Exception as e:
+            print(f"⚠️  Warning: Could not extract metadata from {server_file}: {e}")
+            return {
+                "name": server_file.parent.name.title(),
+                "description": None,
+                "provider": None
+            }
+    
+    def _detect_transport_type(self, server_file: Path) -> str:
+        """
+        Detect the transport type used by a server.
+        
+        Args:
+            server_file: Path to the server.py file
+            
+        Returns:
+            Transport type (stdio, sse, http)
+        """
+        try:
+            with open(server_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Check for SSE/HTTP transport
+            if 'transport="sse"' in content or 'transport="http"' in content:
+                return "sse"
+            elif 'mcp.run(transport="sse"' in content:
+                return "sse"
+            elif 'mcp.run(transport="http"' in content:
+                return "http"
+            
+            # Default to stdio
+            return "stdio"
+            
+        except Exception:
+            return "stdio"
+    
+    def _detect_auth_requirement(self, server_file: Path) -> bool:
+        """
+        Detect if a server requires authentication.
+        
+        Args:
+            server_file: Path to the server.py file
+            
+        Returns:
+            True if authentication is required
+        """
+        try:
+            with open(server_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Look for authentication-related keywords
+            auth_keywords = [
+                "oauth", "authentication", "auth", "credentials", 
+                "api_key", "token", "login", "environment variables"
+            ]
+            
+            content_lower = content.lower()
+            return any(keyword in content_lower for keyword in auth_keywords)
+            
+        except Exception:
+            return False
+    
+    def _categorize_server(self, server_name: str) -> str:
+        """
+        Categorize a server based on its name.
+        
+        Args:
+            server_name: Name of the server
+            
+        Returns:
+            Category string
+        """
+        name_lower = server_name.lower()
+        
+        if any(word in name_lower for word in ["gmail", "email", "mail"]):
+            return "Communication"
+        elif any(word in name_lower for word in ["drive", "storage", "file"]):
+            return "Storage"
+        elif any(word in name_lower for word in ["calculator", "math", "compute"]):
+            return "Utilities"
+        elif any(word in name_lower for word in ["air", "fryer", "cooking", "recipe"]):
+            return "Lifestyle"
+        elif any(word in name_lower for word in ["git", "github", "repository"]):
+            return "Development"
+        elif any(word in name_lower for word in ["docs", "documentation", "learn"]):
+            return "Documentation"
+        else:
+            return "General"
+    
+    def auto_discover_and_add_local_servers(self, mcp_servers_dir: str = "mcp_servers", dry_run: bool = False) -> List[str]:
+        """
+        Auto-discover and add all local servers to the registry.
+        
+        Args:
+            mcp_servers_dir: Path to the mcp_servers directory
+            dry_run: If True, only show what would be added without actually adding
+            
+        Returns:
+            List of added server IDs
+        """
+        discovered_servers = self.discover_local_servers(mcp_servers_dir)
+        
+        if not discovered_servers:
+            print("📋 No local servers found to add")
+            return []
+        
+        added_servers = []
+        
+        print(f"\n{'🔍 DRY RUN - ' if dry_run else ''}Adding discovered servers to registry:")
+        
+        for server_info in discovered_servers:
+            server_id = server_info["id"]
+            
+            # Check if server already exists
+            existing_server = self.get_server(server_id)
+            if existing_server:
+                print(f"   ⚠️  Skipping {server_info['name']} ({server_id}) - already exists")
+                continue
+            
+            if dry_run:
+                print(f"   📝 Would add: {server_info['name']} ({server_id})")
+                print(f"      Path: {server_info['path']}")
+                print(f"      Transport: {server_info['transport']}")
+                print(f"      Auth Required: {server_info['auth_required']}")
+                print(f"      Category: {server_info['category']}")
+                added_servers.append(server_id)
+            else:
+                # Create server source
+                source = ServerSource(
+                    type="local",
+                    path=server_info["path"],
+                    transport=server_info["transport"]
+                )
+                
+                # Add server to registry
+                self.add_server(
+                    server_id=server_id,
+                    name=server_info["name"],
+                    source=source,
+                    description=server_info.get("description"),
+                    category=server_info["category"],
+                    provider=server_info.get("provider"),
+                    auth_required=server_info["auth_required"]
+                )
+                
+                added_servers.append(server_id)
+        
+        if not dry_run and added_servers:
+            print(f"\n✅ Successfully added {len(added_servers)} local servers to registry")
+        
+        return added_servers

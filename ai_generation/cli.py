@@ -174,6 +174,11 @@ def main():
   %(prog)s server generate-all
   %(prog)s server status microsoft-learn
   %(prog)s server update-templates
+  
+  # Auto-discovery and migration (NEW!)
+  %(prog)s server auto-discover-local mcp_servers --dry-run
+  %(prog)s server auto-discover-local mcp_servers
+  %(prog)s server migrate-local mcp_servers --discover --generate
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -273,6 +278,17 @@ def main():
     
     # server update-templates
     server_subparsers.add_parser('update-templates', help='Update templates from data models')
+    
+    # server auto-discover-local
+    auto_discover_parser = server_subparsers.add_parser('auto-discover-local', help='Auto-discover and add all local servers')
+    auto_discover_parser.add_argument('servers_dir', help='Directory containing MCP servers (e.g., mcp_servers, servers, ./local-mcp)')
+    auto_discover_parser.add_argument('--dry-run', action='store_true', help='Show what would be added without actually adding')
+    
+    # server migrate-local
+    migrate_parser = server_subparsers.add_parser('migrate-local', help='Migrate all local servers to unified system')
+    migrate_parser.add_argument('servers_dir', help='Directory containing MCP servers (e.g., mcp_servers, servers, ./local-mcp)')
+    migrate_parser.add_argument('--discover', action='store_true', help='Run discovery on all servers after adding')
+    migrate_parser.add_argument('--generate', action='store_true', help='Generate mock servers for all servers after discovery')
     
     args = parser.parse_args()
     
@@ -484,6 +500,71 @@ def handle_server_command(args):
     
     elif args.server_command == 'update-templates':
         manager.update_templates()
+    
+    elif args.server_command == 'auto-discover-local':
+        servers_dir = args.servers_dir
+        dry_run = args.dry_run if hasattr(args, 'dry_run') else False
+        
+        added_servers = manager.auto_discover_and_add_local_servers(
+            mcp_servers_dir=servers_dir,
+            dry_run=dry_run
+        )
+        
+        if dry_run:
+            print(f"\n🔍 Dry run complete - would add {len(added_servers)} servers")
+            print("   Run without --dry-run to actually add the servers")
+        else:
+            print(f"\n✅ Auto-discovery complete - added {len(added_servers)} servers")
+            if added_servers:
+                print("   Next steps:")
+                print("   1. Run discovery: python -m ai_generation.cli server discover-all --type local")
+                print("   2. Generate mocks: python -m ai_generation.cli server generate-all --type local")
+    
+    elif args.server_command == 'migrate-local':
+        servers_dir = args.servers_dir
+        run_discovery = args.discover if hasattr(args, 'discover') else False
+        run_generation = args.generate if hasattr(args, 'generate') else False
+        
+        print("🚀 Starting local server migration...")
+        
+        # Step 1: Auto-discover and add servers
+        print("\n📋 Step 1: Auto-discovering local servers...")
+        added_servers = manager.auto_discover_and_add_local_servers(
+            mcp_servers_dir=servers_dir,
+            dry_run=False
+        )
+        
+        if not added_servers:
+            print("❌ No servers found to migrate")
+            return
+        
+        # Step 2: Run discovery if requested
+        if run_discovery:
+            print(f"\n🔍 Step 2: Running discovery on {len(added_servers)} servers...")
+            discovery_results = manager.discover_all(server_type='local')
+            print(f"✅ Discovery completed: {len(discovery_results)}/{len(added_servers)} servers successful")
+        else:
+            print(f"\n⏭️  Step 2: Skipping discovery (use --discover to enable)")
+        
+        # Step 3: Generate mocks if requested
+        if run_generation:
+            print(f"\n🏗️  Step 3: Generating mock servers...")
+            generation_results = manager.generate_all(server_type='local')
+            print(f"✅ Generation completed: {len(generation_results)}/{len(added_servers)} servers successful")
+        else:
+            print(f"\n⏭️  Step 3: Skipping generation (use --generate to enable)")
+        
+        print(f"\n🎉 Migration complete!")
+        print(f"   Added: {len(added_servers)} servers")
+        print(f"   Discovery: {'✅ Completed' if run_discovery else '⏭️  Skipped'}")
+        print(f"   Generation: {'✅ Completed' if run_generation else '⏭️  Skipped'}")
+        
+        if not run_discovery or not run_generation:
+            print(f"\n💡 To complete the migration:")
+            if not run_discovery:
+                print(f"   python -m ai_generation.cli server discover-all --type local")
+            if not run_generation:
+                print(f"   python -m ai_generation.cli server generate-all --type local")
     
     else:
         print("❌ Unknown server command")

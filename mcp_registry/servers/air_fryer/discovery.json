@@ -1,0 +1,25 @@
+{
+  "server_path": "mcp_servers/air_fryer/server.py",
+  "transport": "sse",
+  "command": "uv run python mcp_servers/air_fryer/server.py",
+  "tools": [],
+  "resources": [],
+  "prompts": [],
+  "server_info": {
+    "name": null,
+    "version": null,
+    "description": null,
+    "author": null,
+    "license": null
+  },
+  "metadata": {
+    "discovered_at": "2025-10-22 12:02:39.644745",
+    "discovery_method": "mcp-inspector",
+    "discovery_time_ms": 33823,
+    "cache_hit": false,
+    "cache_age_seconds": null,
+    "inspector_version": null
+  },
+  "server_file_hash": "19db0df53543c2eccc9dd43f213f9426",
+  "discovery_content_hash": "02d3c6b7e4e798b4ede4944fcecc539c"
+}

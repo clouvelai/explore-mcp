@@ -1,11 +1,11 @@
 {
-  "id": "calculator",
-  "name": "Calculator MCP Server",
+  "id": "air_fryer",
+  "name": "Air Fryer",
   "source": {
     "type": "local",
-    "path": "mcp_servers/calculator/server.py",
+    "path": "mcp_servers/air_fryer/server.py",
     "url": null,
-    "transport": "stdio"
+    "transport": "sse"
   },
   "discovery": {
     "enabled": true,
@@ -13,7 +13,7 @@
     "timeout": 30,
     "retry_attempts": 3,
     "auth_headers": null,
-    "last_discovered": "2025-10-22 12:02:39.525712"
+    "last_discovered": "2025-10-22 12:03:13.468308"
   },
   "generation": {
     "enabled": true,
@@ -21,15 +21,15 @@
     "include_resources": true,
     "include_prompts": true,
     "mock_data_enabled": true,
-    "last_generated": "2025-10-22 12:03:22.933064"
+    "last_generated": "2025-10-22 12:03:26.228158"
   },
   "metadata": {
-    "created_at": "2025-10-22 11:22:30.453866",
-    "updated_at": "2025-10-22 12:03:22.933183",
+    "created_at": "2025-10-22 12:01:25.160962",
+    "updated_at": "2025-10-22 12:03:26.228212",
     "version": "1.0.0",
-    "description": "Simple calculator with basic math operations",
-    "category": "Utilities",
-    "provider": "Local",
+    "description": "Air Fryer MCP Server using FastMCP with HTTP (SSE) transport.",
+    "category": "Lifestyle",
+    "provider": null,
     "auth_required": false,
     "auth_type": null
   }

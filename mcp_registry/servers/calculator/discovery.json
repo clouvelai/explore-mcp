@@ -222,9 +222,9 @@
     "license": null
   },
   "metadata": {
-    "discovered_at": "2025-10-22 11:22:37.156614",
+    "discovered_at": "2025-10-22 12:02:34.679283",
     "discovery_method": "mcp-inspector",
-    "discovery_time_ms": 4691,
+    "discovery_time_ms": 4845,
     "cache_hit": false,
     "cache_age_seconds": null,
     "inspector_version": null
