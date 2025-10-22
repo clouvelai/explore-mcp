@@ -1,9 +1,9 @@
 {
-  "id": "calculator",
-  "name": "Calculator MCP Server",
+  "id": "gmail",
+  "name": "Gmail",
   "source": {
     "type": "local",
-    "path": "mcp_servers/calculator/server.py",
+    "path": "mcp_servers/gmail/server.py",
     "url": null,
     "transport": "stdio"
   },
@@ -13,7 +13,7 @@
     "timeout": 30,
     "retry_attempts": 3,
     "auth_headers": null,
-    "last_discovered": "2025-10-22 12:02:39.525712"
+    "last_discovered": null
   },
   "generation": {
     "enabled": true,
@@ -21,16 +21,16 @@
     "include_resources": true,
     "include_prompts": true,
     "mock_data_enabled": true,
-    "last_generated": "2025-10-22 12:03:22.933064"
+    "last_generated": null
   },
   "metadata": {
-    "created_at": "2025-10-22 11:22:30.453866",
-    "updated_at": "2025-10-22 12:03:22.933183",
+    "created_at": "2025-10-22 12:01:25.161864",
+    "updated_at": "2025-10-22 12:01:25.161864",
     "version": "1.0.0",
-    "description": "Simple calculator with basic math operations",
-    "category": "Utilities",
-    "provider": "Local",
-    "auth_required": false,
+    "description": "Gmail MCP Server using FastMCP.",
+    "category": "Communication",
+    "provider": "Google",
+    "auth_required": true,
     "auth_type": null
   }
 }

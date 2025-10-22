@@ -1,9 +1,12 @@
 {
   "version": "1.0.0",
-  "last_updated": "2025-10-22 11:22:30.454229",
+  "last_updated": "2025-10-22 12:01:25.162243",
   "servers": [
     "microsoft-learn",
-    "calculator"
+    "calculator",
+    "air_fryer",
+    "gmail",
+    "google_drive"
   ],
   "categories": {
     "Documentation": [
@@ -11,6 +14,15 @@
     ],
     "Utilities": [
       "calculator"
+    ],
+    "Lifestyle": [
+      "air_fryer"
+    ],
+    "Communication": [
+      "gmail"
+    ],
+    "Storage": [
+      "google_drive"
     ]
   }
 }
