@@ -36,6 +36,10 @@ uv run python -m ai_generation.cli --server http://localhost:8080/sse --name my-
 uv run python -m ai_generation.cli --server <path> --name custom --output-dir custom_output
 ```
 
+**Change Detection**: Discovery automatically tracks two hash types for schema intelligence:
+- `server_file_hash`: MD5 of server file (local servers only) 
+- `discovery_content_hash`: MD5 of API schema (all server types - primary for change detection)
+
 ### Evaluation Runner
 ```bash
 # Run generated test suite against mock server

@@ -308,6 +308,18 @@ class DiscoveryEngine:
         discovery_time = time.time() - start_time
         metadata.discovery_time_ms = int(discovery_time * 1000)
         
+        # Compute server file hash (for local files only)
+        server_file_hash = None
+        if not server_path.startswith(("http://", "https://")):
+            server_file_hash = DiscoveryResult.compute_file_hash(server_path)
+            if server_file_hash:
+                print(f"   🔐 File hash: {server_file_hash[:8]}...")
+        
+        # Compute discovery content hash (for all server types)
+        discovery_content_hash = DiscoveryResult.compute_discovery_hash(tools, resources, prompts)
+        if discovery_content_hash:
+            print(f"   🔐 Discovery hash: {discovery_content_hash[:8]}...")
+        
         # Create the structured result
         discovery_result = DiscoveryResult(
             server_path=str(server_path),
@@ -317,7 +329,9 @@ class DiscoveryEngine:
             resources=resources,
             prompts=prompts,
             server_info=server_info,
-            metadata=metadata
+            metadata=metadata,
+            server_file_hash=server_file_hash,
+            discovery_content_hash=discovery_content_hash
         )
         
         # Cache the results (convert to dict for storage)
