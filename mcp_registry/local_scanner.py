@@ -163,17 +163,18 @@ class LocalServerScanner:
         name_lower = server_name.lower()
         content_lower = content.lower()
         
-        # Check name first, then content
+        # Check name first, then content - order matters for specificity
         text_to_check = f"{name_lower} {content_lower}"
         
-        if any(word in text_to_check for word in ["gmail", "email", "mail"]):
-            return "Communication"
-        elif any(word in text_to_check for word in ["drive", "storage", "file"]):
-            return "Storage"
-        elif any(word in text_to_check for word in ["calculator", "math", "compute"]):
+        # Check most specific categories first
+        if any(word in text_to_check for word in ["calculator", "math", "compute", "arithmetic"]):
             return "Utilities"
+        elif any(word in text_to_check for word in ["gmail", "email", "mail"]):
+            return "Communication"
         elif any(word in text_to_check for word in ["air", "fryer", "cooking", "recipe"]):
             return "Lifestyle"
+        elif any(word in text_to_check for word in ["drive", "storage", "file"]):
+            return "Storage"
         elif any(word in text_to_check for word in ["git", "github", "repository"]):
             return "Development"
         elif any(word in text_to_check for word in ["docs", "documentation", "learn"]):
