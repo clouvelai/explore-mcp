@@ -7,5 +7,16 @@ with consistent discovery, generation, and tracking capabilities.
 
 from .manager import ServerManager
 from .models import ServerConfig, ServerSource, ServerRegistry, DiscoveryConfig, GenerationConfig
+from .exceptions import (
+    MCPRegistryError, ServerNotFoundError, ServerConfigurationError, 
+    RegistryLoadError, DiscoveryError, GenerationError, DirectoryNotFoundError,
+    FileOperationError, ValidationError, handle_error, handle_warning
+)
 
-__all__ = ['ServerManager', 'ServerConfig', 'ServerSource', 'ServerRegistry', 'DiscoveryConfig', 'GenerationConfig']
+__all__ = [
+    'ServerManager', 'ServerConfig', 'ServerSource', 'ServerRegistry', 
+    'DiscoveryConfig', 'GenerationConfig',
+    'MCPRegistryError', 'ServerNotFoundError', 'ServerConfigurationError',
+    'RegistryLoadError', 'DiscoveryError', 'GenerationError', 'DirectoryNotFoundError',
+    'FileOperationError', 'ValidationError', 'handle_error', 'handle_warning'
+]

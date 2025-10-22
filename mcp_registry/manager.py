@@ -12,6 +12,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
 from .models import ServerConfig, ServerRegistry, ServerSource, DiscoveryConfig, GenerationConfig, ServerMetadata
+from .exceptions import (
+    ServerNotFoundError, ServerConfigurationError, RegistryLoadError, 
+    DiscoveryError, GenerationError, DirectoryNotFoundError, FileOperationError,
+    ValidationError, handle_error, handle_warning, validate_server_id, validate_file_path
+)
 from ai_generation.discovery import DiscoveryEngine, DiscoveryResult
 
 
@@ -46,8 +51,12 @@ class ServerManager:
                 with open(self.registry_file, 'r') as f:
                     data = json.load(f)
                 return ServerRegistry(**data)
+            except json.JSONDecodeError as e:
+                handle_warning(f"Registry file contains invalid JSON: {e}", str(self.registry_file))
+            except (IOError, OSError) as e:
+                handle_warning(f"Cannot read registry file: {e}", str(self.registry_file))
             except Exception as e:
-                print(f"Warning: Failed to load registry: {e}")
+                handle_warning(f"Failed to load registry: {e}", str(self.registry_file))
         
         # Create new registry
         return ServerRegistry()
@@ -218,9 +227,12 @@ class ServerManager:
             with open(config_file, 'r') as f:
                 data = json.load(f)
             return ServerConfig(**data)
-        except Exception as e:
-            print(f"Error loading server {server_id}: {e}")
-            return None
+        except json.JSONDecodeError as e:
+            raise ServerConfigurationError(server_id, f"Invalid JSON in config file: {e}")
+        except (IOError, OSError) as e:
+            raise FileOperationError(str(config_file), "read", str(e))
+        except ValueError as e:
+            raise ServerConfigurationError(server_id, f"Invalid configuration data: {e}")
     
     def list_servers(
         self,
@@ -278,19 +290,22 @@ class ServerManager:
             
         Returns:
             Discovery result or None if failed
+            
+        Raises:
+            ServerNotFoundError: If server doesn't exist
+            DiscoveryError: If discovery process fails
         """
-        config = self.get_server(server_id)
-        if not config:
-            print(f"❌ Server not found: {server_id}")
-            return None
-        
-        if not config.discovery.enabled:
-            print(f"⚠️  Discovery disabled for server: {server_id}")
-            return None
-        
-        print(f"🔍 Discovering server: {config.name}")
-        
         try:
+            config = self.get_server(server_id)
+            if not config:
+                raise ServerNotFoundError(server_id)
+            
+            if not config.discovery.enabled:
+                handle_warning(f"Discovery disabled for server: {server_id}")
+                return None
+            
+            print(f"🔍 Discovering server: {config.name}")
+            
             # Determine source path/URL
             if config.source.type == "local":
                 source_path = config.source.path
@@ -305,24 +320,33 @@ class ServerManager:
             )
             
             # Save discovery results
-            with open(config.discovery_path, 'w') as f:
-                json.dump(result.model_dump(), f, indent=2, default=str)
+            try:
+                with open(config.discovery_path, 'w') as f:
+                    json.dump(result.model_dump(), f, indent=2, default=str)
+            except (IOError, OSError) as e:
+                raise FileOperationError(str(config.discovery_path), "write", str(e))
             
             # Update server configuration
             config.discovery.last_discovered = datetime.now()
             config.metadata.updated_at = datetime.now()
             
-            with open(config.config_path, 'w') as f:
-                json.dump(config.model_dump(), f, indent=2, default=str)
+            try:
+                with open(config.config_path, 'w') as f:
+                    json.dump(config.model_dump(), f, indent=2, default=str)
+            except (IOError, OSError) as e:
+                raise FileOperationError(str(config.config_path), "write", str(e))
             
             print(f"✅ Discovery completed: {len(result.tools)} tools, {len(result.resources)} resources")
             print(f"   Discovery saved to: {config.discovery_path}")
             
             return result
             
+        except (ServerNotFoundError, DiscoveryError, FileOperationError):
+            # Re-raise our custom exceptions
+            raise
         except Exception as e:
-            print(f"❌ Discovery failed for {server_id}: {e}")
-            return None
+            # Wrap unexpected errors in DiscoveryError
+            raise DiscoveryError(server_id, str(e))
     
     def discover_all(
         self,

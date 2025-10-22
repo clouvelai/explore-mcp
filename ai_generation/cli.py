@@ -48,7 +48,10 @@ from pathlib import Path
 from .discovery import DiscoveryEngine, DependencyError, DiscoveryError, Transport
 from .discovery_models import DiscoveryResult
 from .server_generator import generate_ai_mock_server
-from mcp_registry import ServerManager, ServerConfig, ServerSource
+from mcp_registry import (
+    ServerManager, ServerConfig, ServerSource,
+    MCPRegistryError, ServerNotFoundError, handle_error
+)
 from .evals_generator import generate_ai_test_cases
 from .ai_service import test_claude_cli
 
@@ -469,12 +472,15 @@ class DiscoverCommand(BaseCommand):
     """Handle server discover command."""
     
     def execute(self, args) -> None:
-        result = self.manager.discover_server(args.server_id)
-        if result:
-            print(f"✅ Discovery successful for {args.server_id}")
-        else:
-            print(f"❌ Discovery failed for {args.server_id}")
-            sys.exit(1)
+        try:
+            result = self.manager.discover_server(args.server_id)
+            if result:
+                print(f"✅ Discovery successful for {args.server_id}")
+            else:
+                # Warning case (discovery disabled) - don't exit
+                pass
+        except MCPRegistryError as e:
+            handle_error(e, "server discovery", exit_on_error=True)
 
 
 class DiscoverAllCommand(BaseCommand):
