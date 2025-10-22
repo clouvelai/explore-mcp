@@ -86,17 +86,71 @@ class ServerManager:
         Returns:
             Server ID
         """
-        # Create server source
+        # Normalize and create server configuration
+        server_source = self._normalize_server_source(source)
+        server_config = self._create_server_config(
+            server_id, name, server_source, description, category, 
+            provider, auth_required, auth_type, **kwargs
+        )
+        
+        # Set up filesystem and persistence
+        self._setup_server_directories(server_config)
+        self._persist_server_config(server_config)
+        self._update_registry(server_id, category)
+        
+        # Provide user feedback
+        self._log_server_addition(server_config)
+        
+        return server_id
+    
+    def _normalize_server_source(self, source: Union[str, ServerSource]) -> ServerSource:
+        """
+        Normalize source input to a ServerSource object.
+        
+        Args:
+            source: String path/URL or ServerSource object
+            
+        Returns:
+            ServerSource object
+        """
         if isinstance(source, str):
             if source.startswith(("http://", "https://")):
-                server_source = ServerSource(type="remote", url=source, transport="http")
+                return ServerSource(type="remote", url=source, transport="http")
             else:
-                server_source = ServerSource(type="local", path=source, transport="stdio")
+                return ServerSource(type="local", path=source, transport="stdio")
         else:
-            server_source = source
+            return source
+    
+    def _create_server_config(
+        self, 
+        server_id: str,
+        name: str,
+        server_source: ServerSource,
+        description: Optional[str],
+        category: str,
+        provider: Optional[str],
+        auth_required: bool,
+        auth_type: Optional[str],
+        **kwargs
+    ) -> ServerConfig:
+        """
+        Create a complete server configuration object.
         
-        # Create server configuration
-        server_config = ServerConfig(
+        Args:
+            server_id: Unique server identifier
+            name: Human-readable server name
+            server_source: Normalized server source
+            description: Server description
+            category: Server category
+            provider: Server provider
+            auth_required: Whether authentication is required
+            auth_type: Type of authentication
+            **kwargs: Additional configuration options
+            
+        Returns:
+            ServerConfig object
+        """
+        return ServerConfig(
             id=server_id,
             name=name,
             source=server_source,
@@ -109,26 +163,50 @@ class ServerManager:
             ),
             **kwargs
         )
+    
+    def _setup_server_directories(self, server_config: ServerConfig) -> None:
+        """
+        Create necessary directories for the server.
         
-        # Create server directory
-        server_dir = self.servers_dir / server_id
+        Args:
+            server_config: Server configuration object
+        """
+        server_dir = self.servers_dir / server_config.id
         server_dir.mkdir(exist_ok=True)
         (server_dir / server_config.generation.output_dir).mkdir(exist_ok=True)
+    
+    def _persist_server_config(self, server_config: ServerConfig) -> None:
+        """
+        Save server configuration to disk.
         
-        # Save server configuration
+        Args:
+            server_config: Server configuration to save
+        """
         with open(server_config.config_path, 'w') as f:
             json.dump(server_config.model_dump(), f, indent=2, default=str)
+    
+    def _update_registry(self, server_id: str, category: str) -> None:
+        """
+        Update the main registry with the new server.
         
-        # Update registry
+        Args:
+            server_id: Server identifier
+            category: Server category
+        """
         self.registry.add_server(server_id, category)
         self._save_registry()
+    
+    def _log_server_addition(self, server_config: ServerConfig) -> None:
+        """
+        Log successful server addition to user.
         
-        print(f"✅ Added server: {name} ({server_id})")
-        print(f"   Type: {server_source.type}")
-        print(f"   Source: {server_source.url or server_source.path}")
+        Args:
+            server_config: Added server configuration
+        """
+        print(f"✅ Added server: {server_config.name} ({server_config.id})")
+        print(f"   Type: {server_config.source.type}")
+        print(f"   Source: {server_config.source.url or server_config.source.path}")
         print(f"   Generated path: {server_config.generated_path}")
-        
-        return server_id
     
     def get_server(self, server_id: str) -> Optional[ServerConfig]:
         """Get server configuration by ID."""
