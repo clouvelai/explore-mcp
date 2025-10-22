@@ -158,20 +158,22 @@ def main():
     """
     Main CLI entry point for the MCP Generator.
     
-    Supports both local server generation and remote server management.
+    Supports unified server management for both local and remote MCP servers.
     """
     parser = argparse.ArgumentParser(
         description="Generate AI-powered mock MCP server and evaluations from local or remote MCP servers",
         epilog="""Examples:
-  # Local MCP server
+  # Local MCP server generation
   %(prog)s local --server mcp_servers/calculator/server.py
   
-  # Server management (unified)
+  # Unified server management
   %(prog)s server list
   %(prog)s server add microsoft-learn --type remote --url "https://learn.microsoft.com/api/mcp"
   %(prog)s server add calculator --type local --path "mcp_servers/calculator/server.py"
   %(prog)s server discover-all
   %(prog)s server generate-all
+  %(prog)s server status microsoft-learn
+  %(prog)s server update-templates
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -278,8 +280,6 @@ def main():
         handle_local_command(args)
     elif args.command == 'server':
         handle_server_command(args)
-    elif args.command == 'remote':
-        handle_remote_command(args)
     else:
         parser.print_help()
 
@@ -487,75 +487,6 @@ def handle_server_command(args):
     
     else:
         print("❌ Unknown server command")
-        sys.exit(1)
-
-
-def handle_remote_command(args):
-    """Handle remote server management commands."""
-    manager = RemoteServerManager()
-    
-    if args.remote_command == 'list':
-        servers = manager.list_servers()
-        if not servers:
-            print("📋 No remote servers defined")
-            return
-        
-        print("📋 Remote MCP Servers:")
-        print(f"{'ID':<20} {'Name':<30} {'Status':<10} {'Auth':<8} {'Category':<15}")
-        print("-" * 85)
-        for server in servers:
-            auth_status = "Yes" if server.get('auth_required') else "No"
-            print(f"{server['id']:<20} {server['name']:<30} {server['status']:<10} {auth_status:<8} {server['category']:<15}")
-    
-    elif args.remote_command == 'add':
-        # Create server configuration
-        server_config = RemoteServerConfig(
-            id=args.server_id,
-            name=args.name,
-            description=args.description or f"Remote MCP server: {args.name}",
-            url=args.url,
-            transport=args.transport,
-            auth_required=args.auth_required,
-            auth_type=args.auth_type,
-            category=args.category,
-            provider=args.provider or "Unknown"
-        )
-        
-        manager.add_server(server_config)
-    
-    elif args.remote_command == 'discover':
-        result = manager.discover_server(args.server_id)
-        if result:
-            print(f"✅ Discovery successful for {args.server_id}")
-        else:
-            print(f"❌ Discovery failed for {args.server_id}")
-            sys.exit(1)
-    
-    elif args.remote_command == 'discover-all':
-        auth_required = args.auth_required
-        results = manager.discover_all(auth_required=auth_required)
-        print(f"✅ Discovery completed: {len(results)} servers successful")
-    
-    elif args.remote_command == 'generate':
-        result = manager.generate_mock(args.server_id)
-        if result:
-            print(f"✅ Mock generation successful for {args.server_id}")
-        else:
-            print(f"❌ Mock generation failed for {args.server_id}")
-            sys.exit(1)
-    
-    elif args.remote_command == 'generate-all':
-        auth_required = args.auth_required
-        results = manager.generate_all(auth_required=auth_required)
-        print(f"✅ Generation completed: {len(results)} servers successful")
-    
-    elif args.remote_command == 'remove':
-        success = manager.remove_server(args.server_id)
-        if not success:
-            sys.exit(1)
-    
-    else:
-        print("❌ Unknown remote command")
         sys.exit(1)
 
 
