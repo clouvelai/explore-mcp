@@ -48,7 +48,7 @@ from pathlib import Path
 from .discovery import DiscoveryEngine, DependencyError, DiscoveryError, Transport
 from .discovery_models import DiscoveryResult
 from .server_generator import generate_ai_mock_server
-from remote_mcp_servers import RemoteServerManager, RemoteServerConfig
+from mcp_registry import ServerManager, ServerConfig, ServerSource
 from .evals_generator import generate_ai_test_cases
 from .ai_service import test_claude_cli
 
@@ -166,10 +166,12 @@ def main():
   # Local MCP server
   %(prog)s local --server mcp_servers/calculator/server.py
   
-  # Remote server management
-  %(prog)s remote list
-  %(prog)s remote discover-all --auth-required=false
-  %(prog)s remote generate-all --auth-required=false
+  # Server management (unified)
+  %(prog)s server list
+  %(prog)s server add microsoft-learn --type remote --url "https://learn.microsoft.com/api/mcp"
+  %(prog)s server add calculator --type local --path "mcp_servers/calculator/server.py"
+  %(prog)s server discover-all
+  %(prog)s server generate-all
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -220,49 +222,62 @@ def main():
         help="Clear all cache before running discovery"
     )
     
-    # Remote server management
-    remote_parser = subparsers.add_parser('remote', help='Manage remote MCP servers')
-    remote_subparsers = remote_parser.add_subparsers(dest='remote_command', help='Remote server commands')
+    # Unified server management
+    server_parser = subparsers.add_parser('server', help='Manage MCP servers (unified)')
+    server_subparsers = server_parser.add_subparsers(dest='server_command', help='Server management commands')
     
-    # remote list
-    remote_subparsers.add_parser('list', help='List all remote servers')
+    # server list
+    server_subparsers.add_parser('list', help='List all servers')
     
-    # remote add
-    add_parser = remote_subparsers.add_parser('add', help='Add a new remote server')
+    # server add
+    add_parser = server_subparsers.add_parser('add', help='Add a new server')
     add_parser.add_argument('server_id', help='Unique identifier for the server')
     add_parser.add_argument('--name', required=True, help='Server name')
-    add_parser.add_argument('--url', required=True, help='Server URL')
+    add_parser.add_argument('--type', required=True, choices=['local', 'remote'], help='Server type')
+    add_parser.add_argument('--path', help='Path to local server file')
+    add_parser.add_argument('--url', help='URL to remote server')
+    add_parser.add_argument('--transport', default='stdio', help='Transport type')
     add_parser.add_argument('--description', help='Server description')
     add_parser.add_argument('--category', default='General', help='Server category')
     add_parser.add_argument('--provider', help='Server provider')
     add_parser.add_argument('--auth-required', action='store_true', help='Server requires authentication')
     add_parser.add_argument('--auth-type', help='Authentication type (OAuth, API Key, etc.)')
-    add_parser.add_argument('--transport', default='http', help='Transport type')
     
-    # remote discover
-    discover_parser = remote_subparsers.add_parser('discover', help='Discover server capabilities')
+    # server discover
+    discover_parser = server_subparsers.add_parser('discover', help='Discover server capabilities')
     discover_parser.add_argument('server_id', help='Server ID to discover')
     
-    # remote discover-all
-    discover_all_parser = remote_subparsers.add_parser('discover-all', help='Discover all servers')
+    # server discover-all
+    discover_all_parser = server_subparsers.add_parser('discover-all', help='Discover all servers')
+    discover_all_parser.add_argument('--type', choices=['local', 'remote'], help='Only discover servers of this type')
     discover_all_parser.add_argument('--auth-required', action='store_true', help='Only discover servers requiring authentication')
     
-    # remote generate
-    generate_parser = remote_subparsers.add_parser('generate', help='Generate mock server')
+    # server generate
+    generate_parser = server_subparsers.add_parser('generate', help='Generate mock server')
     generate_parser.add_argument('server_id', help='Server ID to generate mock for')
     
-    # remote generate-all
-    generate_all_parser = remote_subparsers.add_parser('generate-all', help='Generate mocks for all servers')
+    # server generate-all
+    generate_all_parser = server_subparsers.add_parser('generate-all', help='Generate mocks for all servers')
+    generate_all_parser.add_argument('--type', choices=['local', 'remote'], help='Only generate for servers of this type')
     generate_all_parser.add_argument('--auth-required', action='store_true', help='Only generate for servers requiring authentication')
     
-    # remote remove
-    remove_parser = remote_subparsers.add_parser('remove', help='Remove server definition')
+    # server status
+    status_parser = server_subparsers.add_parser('status', help='Get server status')
+    status_parser.add_argument('server_id', help='Server ID to get status for')
+    
+    # server remove
+    remove_parser = server_subparsers.add_parser('remove', help='Remove server definition')
     remove_parser.add_argument('server_id', help='Server ID to remove')
+    
+    # server update-templates
+    server_subparsers.add_parser('update-templates', help='Update templates from data models')
     
     args = parser.parse_args()
     
     if args.command == 'local':
         handle_local_command(args)
+    elif args.command == 'server':
+        handle_server_command(args)
     elif args.command == 'remote':
         handle_remote_command(args)
     else:
@@ -366,6 +381,112 @@ def handle_local_command(args):
             import traceback
             traceback.print_exc()
         
+        sys.exit(1)
+
+
+def handle_server_command(args):
+    """Handle unified server management commands."""
+    manager = ServerManager()
+    
+    if args.server_command == 'list':
+        servers = manager.list_servers()
+        if not servers:
+            print("📋 No servers defined")
+            return
+        
+        print("📋 MCP Servers:")
+        print(f"{'ID':<20} {'Name':<30} {'Type':<8} {'Status':<10} {'Auth':<8} {'Category':<15}")
+        print("-" * 95)
+        for server in servers:
+            auth_status = "Yes" if server.get('auth_required') else "No"
+            print(f"{server['id']:<20} {server['name']:<30} {server['type']:<8} {server['status']:<10} {auth_status:<8} {server['category']:<15}")
+    
+    elif args.server_command == 'add':
+        # Validate required arguments
+        if args.type == 'local' and not args.path:
+            print("❌ --path is required for local servers")
+            sys.exit(1)
+        elif args.type == 'remote' and not args.url:
+            print("❌ --url is required for remote servers")
+            sys.exit(1)
+        
+        # Create server source
+        if args.type == 'local':
+            source = ServerSource(type='local', path=args.path, transport=args.transport)
+        else:
+            source = ServerSource(type='remote', url=args.url, transport=args.transport)
+        
+        manager.add_server(
+            server_id=args.server_id,
+            name=args.name,
+            source=source,
+            description=args.description,
+            category=args.category,
+            provider=args.provider,
+            auth_required=args.auth_required,
+            auth_type=args.auth_type
+        )
+    
+    elif args.server_command == 'discover':
+        result = manager.discover_server(args.server_id)
+        if result:
+            print(f"✅ Discovery successful for {args.server_id}")
+        else:
+            print(f"❌ Discovery failed for {args.server_id}")
+            sys.exit(1)
+    
+    elif args.server_command == 'discover-all':
+        server_type = args.type if hasattr(args, 'type') else None
+        auth_required = args.auth_required if hasattr(args, 'auth_required') else None
+        results = manager.discover_all(server_type=server_type, auth_required=auth_required)
+        print(f"✅ Discovery completed: {len(results)} servers successful")
+    
+    elif args.server_command == 'generate':
+        result = manager.generate_mock(args.server_id)
+        if result:
+            print(f"✅ Mock generation successful for {args.server_id}")
+        else:
+            print(f"❌ Mock generation failed for {args.server_id}")
+            sys.exit(1)
+    
+    elif args.server_command == 'generate-all':
+        server_type = args.type if hasattr(args, 'type') else None
+        auth_required = args.auth_required if hasattr(args, 'auth_required') else None
+        results = manager.generate_all(server_type=server_type, auth_required=auth_required)
+        print(f"✅ Generation completed: {len(results)} servers successful")
+    
+    elif args.server_command == 'status':
+        status = manager.get_server_status(args.server_id)
+        if "error" in status:
+            print(f"❌ {status['error']}")
+            sys.exit(1)
+        
+        print(f"📊 Server Status: {status['name']}")
+        print(f"   ID: {status['id']}")
+        print(f"   Type: {status['type']}")
+        print(f"   Source: {status['source']}")
+        print(f"   Transport: {status['transport']}")
+        print(f"   Auth Required: {status['auth_required']}")
+        print(f"   Category: {status['category']}")
+        print(f"   Provider: {status['provider']}")
+        print(f"   Discovery: {'Enabled' if status['discovery']['enabled'] else 'Disabled'}")
+        print(f"   Last Discovered: {status['discovery']['last_discovered']}")
+        print(f"   Has Discovery Results: {status['discovery']['has_results']}")
+        print(f"   Generation: {'Enabled' if status['generation']['enabled'] else 'Disabled'}")
+        print(f"   Last Generated: {status['generation']['last_generated']}")
+        print(f"   Generated Path: {status['generation']['output_dir']}")
+        print(f"   Has Generated Files: {status['generation']['has_files']}")
+    
+    elif args.server_command == 'remove':
+        success = manager.remove_server(args.server_id)
+        if not success:
+            sys.exit(1)
+    
+    elif args.server_command == 'update-templates':
+        manager.update_templates()
+    
+    else:
+        print("❌ Unknown server command")
         sys.exit(1)
 
 

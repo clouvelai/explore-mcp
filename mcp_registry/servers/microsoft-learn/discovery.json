@@ -1,6 +1,6 @@
 {
   "server_path": "https://learn.microsoft.com/api/mcp",
-  "transport": "http",
+  "transport": "stdio",
   "command": "https://learn.microsoft.com/api/mcp",
   "tools": [
     {
@@ -97,9 +97,9 @@
     "license": null
   },
   "metadata": {
-    "discovered_at": "2025-10-22 10:22:30.283520",
+    "discovered_at": "2025-10-22 11:01:05.905284",
     "discovery_method": "mcp-inspector",
-    "discovery_time_ms": 7656,
+    "discovery_time_ms": 7855,
     "cache_hit": false,
     "cache_age_seconds": null,
     "inspector_version": null

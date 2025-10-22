@@ -1,0 +1,36 @@
+{
+  "id": "{{SERVER_ID}}",
+  "name": "{{SERVER_NAME}}",
+  "source": {
+    "type": "{{SERVER_TYPE}}",
+    "path": "{{SERVER_PATH}}",
+    "url": "{{SERVER_URL}}",
+    "transport": "{{TRANSPORT}}"
+  },
+  "discovery": {
+    "enabled": true,
+    "cache_ttl": 3600,
+    "timeout": 30,
+    "retry_attempts": 3,
+    "auth_headers": null,
+    "last_discovered": null
+  },
+  "generation": {
+    "enabled": true,
+    "output_dir": "generated",
+    "include_resources": true,
+    "include_prompts": true,
+    "mock_data_enabled": true,
+    "last_generated": null
+  },
+  "metadata": {
+    "created_at": "{{CREATED_AT}}",
+    "updated_at": "{{CREATED_AT}}",
+    "version": "1.0.0",
+    "description": "{{DESCRIPTION}}",
+    "category": "{{CATEGORY}}",
+    "provider": "{{PROVIDER}}",
+    "auth_required": false,
+    "auth_type": "{{AUTH_TYPE}}"
+  }
+}

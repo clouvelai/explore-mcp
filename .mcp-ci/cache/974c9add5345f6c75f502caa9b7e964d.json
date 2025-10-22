@@ -1,6 +1,6 @@
 {
   "server_path": "https://learn.microsoft.com/api/mcp",
-  "transport": "http",
+  "transport": "stdio",
   "command": "https://learn.microsoft.com/api/mcp",
   "tools": [
     {
