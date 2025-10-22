@@ -1,0 +1,446 @@
+[
+  {
+    "name": "Microsoft Learn MCP Server",
+    "description": "Official Microsoft documentation server providing access to Microsoft/Azure documentation, code samples, and technical content through AI tools",
+    "url": "https://learn.microsoft.com/api/mcp",
+    "auth_required": false,
+    "category": "Documentation",
+    "provider": "Microsoft",
+    "tools": [
+      "microsoft_docs_search",
+      "microsoft_code_sample_search", 
+      "microsoft_docs_fetch"
+    ],
+    "transport": "http"
+  },
+  {
+    "name": "GitHub Remote MCP Server",
+    "description": "Official GitHub MCP server providing repository intelligence, issue management, PR automation, CI/CD visibility, and security insights",
+    "url": "https://api.githubcopilot.com/mcp/",
+    "auth_required": true,
+    "auth_type": "OAuth 2.0",
+    "category": "Development",
+    "provider": "GitHub",
+    "readonly_url": "https://api.githubcopilot.com/mcp/readonly",
+    "transport": "http"
+  },
+  {
+    "name": "Backdocket Legal Practice Management",
+    "description": "Legal practice management server allowing search, retrieval, and updates of Claims, Matters, Contacts, Tasks, and Advanced Searches",
+    "url": "https://ai.backdocket.com/mcp",
+    "auth_required": true,
+    "category": "Legal/Practice Management",
+    "provider": "Backdocket",
+    "transport": "http"
+  },
+  {
+    "name": "Alpha Vantage Financial Data",
+    "description": "Comprehensive financial market data API providing real-time and historical stock quotes, company earnings, technical indicators, crypto, forex, and economic data",
+    "url": "https://mcp.alphavantage.co/mcp",
+    "auth_required": true,
+    "auth_type": "API Key",
+    "category": "Financial Data",
+    "provider": "Alpha Vantage",
+    "setup_url": "https://mcp.alphavantage.co/",
+    "transport": "http"
+  },
+  {
+    "name": "Semgrep Security Scanner",
+    "description": "Static analysis security scanner with 5,000+ rules for finding and fixing security vulnerabilities in code across multiple languages",
+    "url": "https://mcp.semgrep.ai/mcp",
+    "auth_required": false,
+    "category": "Security/Code Analysis",
+    "provider": "Semgrep",
+    "sse_url": "https://mcp.semgrep.ai/sse",
+    "status": "experimental",
+    "transport": "http"
+  },
+  {
+    "name": "GitMCP Dynamic Repository Access",
+    "description": "Instant MCP server creation for any GitHub repository by changing domain from github.com to gitmcp.io - no setup required",
+    "url": "https://gitmcp.io/docs",
+    "auth_required": false,
+    "category": "Development",
+    "provider": "GitMCP",
+    "usage": "Replace github.com with gitmcp.io in any repository URL",
+    "transport": "http"
+  },
+  {
+    "name": "DeepWiki Documentation",
+    "description": "Free remote MCP service providing documentation and knowledge base access",
+    "url": "https://mcp.deepwiki.com/mcp",
+    "auth_required": false,
+    "category": "Documentation",
+    "provider": "DeepWiki",
+    "sse_url": "https://mcp.deepwiki.com/sse",
+    "transport": "http"
+  },
+  {
+    "name": "Zapier Integration Platform",
+    "description": "Access to 7,000+ apps with fine-grained control over individual actions through Zapier's automation platform",
+    "url": "https://zapier.com/mcp",
+    "auth_required": true,
+    "category": "Integration/Automation",
+    "provider": "Zapier",
+    "transport": "http"
+  },
+  {
+    "name": "Make Automation Platform",
+    "description": "Turn existing 'On Demand' Make Scenarios into tools for AI integration and workflow automation",
+    "url": "https://developers.make.com/mcp-server",
+    "auth_required": true,
+    "category": "Integration/Automation",
+    "provider": "Make",
+    "transport": "http"
+  },
+  {
+    "name": "Composio Multi-App Integration",
+    "description": "Multiple server endpoints, each connecting to specific applications for comprehensive integration capabilities",
+    "url": "https://mcp.composio.dev",
+    "auth_required": true,
+    "category": "Integration/Automation",
+    "provider": "Composio",
+    "transport": "http"
+  },
+  {
+    "name": "Activepieces Workflow Platform",
+    "description": "Turn 'Pieces' and 'Flows' into MCP tools for workflow automation and integration",
+    "url": "https://www.activepieces.com/docs/ai/mcp",
+    "auth_required": true,
+    "category": "Integration/Automation",
+    "provider": "Activepieces",
+    "transport": "http"
+  },
+  {
+    "name": "Pipedream API Integration",
+    "description": "Access to 2,500+ APIs and 10,000+ integration tools through Pipedream's serverless integration platform",
+    "url": "https://mcp.pipedream.com/",
+    "auth_required": true,
+    "category": "Integration/Automation",
+    "provider": "Pipedream",
+    "transport": "http"
+  },
+  {
+    "name": "n8n Workflow Automation",
+    "description": "Turns n8n workflows into MCP tools for advanced automation and integration capabilities",
+    "url": "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/",
+    "auth_required": true,
+    "category": "Integration/Automation",
+    "provider": "n8n",
+    "transport": "http"
+  },
+  {
+    "name": "Supermachine Public MCP Registry",
+    "description": "Access to 3,939+ public MCP servers aggregated from the community",
+    "url": "https://supermachine.ai/public-mcp-servers",
+    "auth_required": false,
+    "category": "Registry/Directory",
+    "provider": "Supermachine",
+    "transport": "http"
+  },
+  {
+    "name": "Smithery Community MCP Hub",
+    "description": "Access to 7,316+ MCP servers built by the community with comprehensive server discovery",
+    "url": "https://smithery.ai/",
+    "auth_required": false,
+    "category": "Registry/Directory",
+    "provider": "Smithery",
+    "transport": "http"
+  },
+  {
+    "name": "Pabbly Connect Automation",
+    "description": "Workflow automation and AI tool integration platform for business process automation",
+    "url": "https://forum.pabbly.com/threads/pabbly-connect-mcp-server-beta.28381/",
+    "auth_required": true,
+    "category": "Integration/Automation",
+    "provider": "Pabbly",
+    "status": "beta",
+    "transport": "http"
+  },
+  {
+    "name": "Time MCP Server",
+    "description": "Provides time and timezone conversion capabilities with current time and timezone tools",
+    "url": "Unknown - Listed in directories",
+    "auth_required": false,
+    "category": "Utilities",
+    "provider": "Community",
+    "transport": "http"
+  },
+  {
+    "name": "EdgeOne Pages Deployment",
+    "description": "Deploy HTML content, folders, and zip files to EdgeOne Pages and obtain accessible public URLs",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "Deployment/Hosting",
+    "provider": "EdgeOne",
+    "transport": "http"
+  },
+  {
+    "name": "Jina AI Search Foundation",
+    "description": "Integrates with Jina AI Search Foundation APIs for advanced search and AI capabilities",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "AI/Search",
+    "provider": "Jina AI",
+    "transport": "http"
+  },
+  {
+    "name": "MiniMax Multimodal AI",
+    "description": "Official MiniMax server providing Text to Speech, image generation, and video generation APIs",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "AI/Multimodal",
+    "provider": "MiniMax",
+    "transport": "http"
+  },
+  {
+    "name": "Perplexity Ask Search",
+    "description": "Connector for Perplexity API to enable web search capabilities through AI",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "AI/Search", 
+    "provider": "Perplexity",
+    "transport": "http"
+  },
+  {
+    "name": "AWS Knowledge Base Retrieval",
+    "description": "Retrieves information from AWS Knowledge Base for cloud infrastructure and documentation access",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "Cloud/Documentation",
+    "provider": "AWS Community",
+    "transport": "http"
+  },
+  {
+    "name": "Amap Maps",
+    "description": "Official Amap (AutoNavi) Maps MCP Server providing Chinese mapping and location services",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "Maps/Location",
+    "provider": "Amap/AutoNavi",
+    "transport": "http"
+  },
+  {
+    "name": "Search1API Universal Search",
+    "description": "One API for Search, Crawling, and Sitemaps providing comprehensive web search capabilities",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "Search/Web Crawling",
+    "provider": "Search1API",
+    "transport": "http"
+  },
+  {
+    "name": "Brightdata Web Research",
+    "description": "Discover, extract, and interact with the web through automated access across the public internet",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "Web Research/Data Extraction",
+    "provider": "Brightdata",
+    "transport": "http"
+  },
+  {
+    "name": "Figma Context MCP",
+    "description": "Provides Figma layout information to AI coding agents for design-to-code workflows",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "Design/Development",
+    "provider": "GLips",
+    "transport": "http"
+  },
+  {
+    "name": "Stripe Payment Processing",
+    "description": "Go library integration for the Stripe API enabling payment processing capabilities",
+    "url": "Unknown - Listed in directories",
+    "auth_required": true,
+    "category": "Payments/E-commerce",
+    "provider": "Stripe",
+    "transport": "http"
+  },
+  {
+    "name": "Google Data Commons",
+    "description": "Official Google Data Commons MCP Server providing access to comprehensive public datasets including census, climate, health, and economic statistics",
+    "url": "https://datacommons.org",
+    "auth_required": false,
+    "category": "Data/Analytics",
+    "provider": "Google",
+    "release_date": "October 2025",
+    "transport": "http"
+  },
+  {
+    "name": "WayStation Universal MCP Hub",
+    "description": "Connect any MCP host with daily productivity tools (Notion, Monday, Airtable, Jira) through no-code secure integration hub",
+    "url": "https://waystation.ai/mcp",
+    "auth_required": true,
+    "category": "Integration/Automation",
+    "provider": "WayStation",
+    "supports_sse": true,
+    "transport": "http"
+  },
+  {
+    "name": "Supabase Database Platform",
+    "description": "Official Supabase MCP server for managing PostgreSQL databases, tables, authentication, and real-time data operations",
+    "url": "https://mcp.supabase.com/mcp",
+    "auth_required": true,
+    "auth_type": "OAuth",
+    "category": "Database/Storage",
+    "provider": "Supabase",
+    "local_url": "http://localhost:54321/mcp",
+    "transport": "http"
+  },
+  {
+    "name": "Salesforce CRM Platform",
+    "description": "Official Salesforce hosted MCP servers enabling AI agents to securely access Salesforce data and CRM operations",
+    "url": "TBD - Beta Release",
+    "auth_required": true,
+    "category": "CRM/Enterprise",
+    "provider": "Salesforce",
+    "status": "beta",
+    "release_date": "October 2025",
+    "transport": "http"
+  },
+  {
+    "name": "HubSpot CRM and Marketing",
+    "description": "Inbound marketing, sales, and customer service platform integration for AI-powered CRM operations",
+    "url": "https://mcp.hubspot.com/anthropic",
+    "auth_required": true,
+    "category": "CRM/Marketing",
+    "provider": "HubSpot",
+    "transport": "http"
+  },
+  {
+    "name": "Atlassian Jira Project Management",
+    "description": "Connect AI capabilities to Jira project management and issue tracking workflows with JQL support",
+    "url": "https://mcp.atlassian.com/v1/sse",
+    "auth_required": true,
+    "category": "Project Management",
+    "provider": "Atlassian",
+    "transport": "sse"
+  },
+  {
+    "name": "Twilio Communication Platform",
+    "description": "Alpha MCP server covering 1,400+ API endpoints for messaging, voice, and communication services",
+    "url": "https://twilioalpha.com/mcp",
+    "auth_required": true,
+    "category": "Communication/Messaging",
+    "provider": "Twilio",
+    "status": "alpha",
+    "endpoint_count": "1400+",
+    "transport": "http"
+  },
+  {
+    "name": "Azure Cloud Platform",
+    "description": "Official Azure MCP server for Cosmos DB, Storage, and Monitor integration with KQL query support",
+    "url": "mcr.microsoft.com/azure-sdk/azure-mcp:latest",
+    "auth_required": true,
+    "category": "Cloud Platform",
+    "provider": "Microsoft Azure",
+    "status": "public_preview",
+    "docker_image": true,
+    "transport": "http"
+  },
+  {
+    "name": "MCP Registry Official",
+    "description": "Official Model Context Protocol registry providing API access to discover and list all public MCP servers",
+    "url": "https://registry.modelcontextprotocol.io",
+    "auth_required": false,
+    "category": "Registry/Directory",
+    "provider": "MCP Foundation",
+    "api_endpoint": "/v0/servers",
+    "release_date": "September 2025",
+    "transport": "http"
+  },
+  {
+    "name": "Rube Multi-App Connector",
+    "description": "Connect AI tools to 500+ apps like Gmail, Slack, GitHub, and Notion with one-time authentication",
+    "url": "Unknown - Community Registry",
+    "auth_required": true,
+    "category": "Integration/Automation",
+    "provider": "Rube",
+    "app_count": "500+",
+    "transport": "http"
+  },
+  {
+    "name": "Discord Bot Platform",
+    "description": "Connect Discord server with AI to create channels, send messages, manage reactions and server operations",
+    "url": "Unknown - Community Implementation",
+    "auth_required": true,
+    "category": "Communication/Gaming",
+    "provider": "Discord Community",
+    "transport": "http"
+  },
+  {
+    "name": "Telegram Messaging Platform",
+    "description": "Interact with Telegram via MTProto API for searching, sending messages, and managing chats",
+    "url": "Unknown - Community Implementation",
+    "auth_required": true,
+    "category": "Communication/Messaging",
+    "provider": "Telegram Community",
+    "access_type": "read-only",
+    "transport": "http"
+  },
+  {
+    "name": "Notion Workspace Management",
+    "description": "Integrate with Notion workspaces for database operations, page management, block manipulation, and search",
+    "url": "Unknown - Community Implementation",
+    "auth_required": true,
+    "category": "Productivity/Documentation",
+    "provider": "Notion Community",
+    "transport": "http"
+  },
+  {
+    "name": "Slack Workspace Integration",
+    "description": "Comprehensive Slack workspace integration for communication, channel management, and workflow automation",
+    "url": "Unknown - Community Implementation",
+    "auth_required": true,
+    "category": "Communication/Collaboration",
+    "provider": "Slack Community",
+    "transport": "http"
+  },
+  {
+    "name": "Monday.com Project Management",
+    "description": "Connect with Monday.com for project management, task tracking, and team collaboration workflows",
+    "url": "Available via WayStation",
+    "auth_required": true,
+    "category": "Project Management",
+    "provider": "Monday.com",
+    "access_method": "via_waystation",
+    "transport": "http"
+  },
+  {
+    "name": "Airtable Database Management",
+    "description": "Merges spreadsheet functionality with database power for flexible data management and collaboration",
+    "url": "Available via WayStation",
+    "auth_required": true,
+    "category": "Database/Productivity",
+    "provider": "Airtable",
+    "access_method": "via_waystation",
+    "transport": "http"
+  },
+  {
+    "name": "Firebase/Firestore Platform",
+    "description": "Google Firebase platform enabling Authentication, Firestore database operations, and Cloud Storage management",
+    "url": "Unknown - Community Implementation",
+    "auth_required": true,
+    "category": "Database/Cloud Platform",
+    "provider": "Google Firebase",
+    "transport": "http"
+  },
+  {
+    "name": "MongoDB Database Platform",
+    "description": "NoSQL database server for performing CRUD operations on MongoDB databases with document-based storage",
+    "url": "Unknown - Community Implementation",
+    "auth_required": true,
+    "category": "Database/NoSQL",
+    "provider": "MongoDB Community",
+    "transport": "http"
+  },
+  {
+    "name": "PostgreSQL Database Server",
+    "description": "Secure database access for PostgreSQL with credential management and SQL query capabilities",
+    "url": "Unknown - Community Implementation",
+    "auth_required": true,
+    "category": "Database/SQL",
+    "provider": "PostgreSQL Community",
+    "transport": "http"
+  }
+]
