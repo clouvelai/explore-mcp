@@ -6,7 +6,9 @@ These models provide type safety, validation, and better developer experience
 for working with discovery results from MCP servers.
 """
 
+import hashlib
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -113,6 +115,8 @@ class DiscoveryResult(BaseModel):
     prompts: List[MCPPrompt] = Field(default_factory=list, description="Discovered prompts")
     server_info: ServerInfo = Field(default_factory=ServerInfo, description="Server metadata")
     metadata: DiscoveryMetadata = Field(..., description="Discovery process metadata")
+    server_file_hash: Optional[str] = Field(None, description="MD5 hash of server file (local servers only)")
+    discovery_content_hash: Optional[str] = Field(None, description="MD5 hash of discovery content (tools, resources, prompts)")
 
     @field_validator('transport')
     @classmethod
@@ -160,8 +164,68 @@ class DiscoveryResult(BaseModel):
             f"  Resources: {self.resource_count}\n"
             f"  Prompts: {self.prompt_count}\n"
             f"  Cached: {self.is_cached}\n"
-            f"  Discovery time: {self.metadata.discovery_time_ms}ms"
+            f"  Discovery time: {self.metadata.discovery_time_ms}ms\n"
+            f"  Server file hash: {self.server_file_hash[:8] + '...' if self.server_file_hash else 'N/A'}\n"
+            f"  Discovery hash: {self.discovery_content_hash[:8] + '...' if self.discovery_content_hash else 'N/A'}"
         )
+
+    @staticmethod
+    def compute_file_hash(file_path: str) -> str:
+        """
+        Compute MD5 hash of a file.
+        
+        Args:
+            file_path: Path to the file to hash
+            
+        Returns:
+            MD5 hash as hex string
+            
+        Example:
+            hash = DiscoveryResult.compute_file_hash('server.py')
+            print(f"File hash: {hash}")
+        """
+        try:
+            with open(file_path, 'rb') as f:
+                return hashlib.md5(f.read()).hexdigest()
+        except (OSError, IOError) as e:
+            print(f"⚠️  Failed to compute hash for {file_path}: {e}")
+            return ""
+
+    @staticmethod
+    def compute_discovery_hash(tools: List[MCPTool], resources: List[MCPResource], prompts: List[MCPPrompt]) -> str:
+        """
+        Compute MD5 hash of discovery content (tools, resources, prompts).
+        
+        This hash captures the API contract of the MCP server - all tool schemas,
+        resource definitions, and prompt structures including descriptions.
+        Changes to any tool parameters, descriptions, or new/removed capabilities
+        will result in a different hash.
+        
+        Args:
+            tools: List of discovered tools
+            resources: List of discovered resources  
+            prompts: List of discovered prompts
+            
+        Returns:
+            MD5 hash as hex string
+            
+        Example:
+            hash = DiscoveryResult.compute_discovery_hash(tools, resources, prompts)
+            print(f"Discovery content hash: {hash}")
+        """
+        try:
+            discovery_content = {
+                "tools": [tool.model_dump() for tool in tools],
+                "resources": [resource.model_dump() for resource in resources],
+                "prompts": [prompt.model_dump() for prompt in prompts]
+            }
+            
+            # Sort keys for consistent hashing
+            content_json = json.dumps(discovery_content, sort_keys=True, separators=(',', ':'))
+            return hashlib.md5(content_json.encode('utf-8')).hexdigest()
+        except Exception as e:
+            print(f"⚠️  Failed to compute discovery content hash: {e}")
+            return ""
 
     def save(self, file_path: Union[str, Path]) -> Path:
         """
@@ -248,7 +312,9 @@ if __name__ == "__main__":
             "discovery_method": "mcp-inspector",
             "discovery_time_ms": 4500,
             "cache_hit": False
-        }
+        },
+        "server_file_hash": "ca05db014a452deb0af27b372af7f47a",
+        "discovery_content_hash": "4ff2cad11d4bd129c763c57d7aa15057"
     }
     
     # Test model creation and validation
