@@ -1,0 +1,234 @@
+{
+  "server_path": "mcp_servers/calculator/server.py",
+  "transport": "stdio",
+  "command": "uv run python mcp_servers/calculator/server.py",
+  "tools": [
+    {
+      "name": "add",
+      "description": "Add two numbers together.\n\nArgs:\n    a: The first number\n    b: The second number\n    \nReturns:\n    A message with the sum of the two numbers",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "number"
+          },
+          "b": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "x-fastmcp-wrap-result": true
+      },
+      "meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "sum",
+      "description": "Add two numbers together.\n\nArgs:\n    a: The first number\n    b: The second number\n    \nReturns:\n    A message with the sum of the two numbers",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "number"
+          },
+          "b": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "x-fastmcp-wrap-result": true
+      },
+      "meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "sum_many",
+      "description": "Add multiple numbers together.\n\nArgs:\n    numbers: A list of numbers to add together\n    \nReturns:\n    A message with the sum of all numbers",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "numbers": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "numbers"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "x-fastmcp-wrap-result": true
+      },
+      "meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "multiply",
+      "description": "Multiply two numbers together.\n\nArgs:\n    a: The first number\n    b: The second number\n    \nReturns:\n    A message with the product of the two numbers",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "number"
+          },
+          "b": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "x-fastmcp-wrap-result": true
+      },
+      "meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "divide",
+      "description": "Divide one number by another.\n\nArgs:\n    a: The dividend (number to be divided)\n    b: The divisor (number to divide by)\n    \nReturns:\n    A message with the quotient, or an error if dividing by zero",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "number"
+          },
+          "b": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "x-fastmcp-wrap-result": true
+      },
+      "meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "uri": "calculator://constants",
+      "name": "get_mathematical_constants",
+      "description": "Provides common mathematical constants used in calculations.\n\nReturns a formatted list of important mathematical constants\nwith their values and descriptions.",
+      "mimeType": "text/plain",
+      "meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    }
+  ],
+  "prompts": [
+    {
+      "name": "explain_calculation",
+      "description": "Explain how to perform a calculation step by step.\n\nArgs:\n    calculation: The calculation to explain (e.g. \"2 + 3 * 4\")",
+      "arguments": [
+        {
+          "name": "calculation",
+          "description": null,
+          "required": true
+        }
+      ],
+      "meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    }
+  ],
+  "server_info": {
+    "name": null,
+    "version": null,
+    "description": null,
+    "author": null,
+    "license": null
+  },
+  "metadata": {
+    "discovered_at": "2025-10-22 11:22:37.156614",
+    "discovery_method": "mcp-inspector",
+    "discovery_time_ms": 4691,
+    "cache_hit": false,
+    "cache_age_seconds": null,
+    "inspector_version": null
+  },
+  "server_file_hash": "ca05db014a452deb0af27b372af7f47a",
+  "discovery_content_hash": "4ff2cad11d4bd129c763c57d7aa15057"
+}
