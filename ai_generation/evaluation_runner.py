@@ -15,14 +15,15 @@ TODO: Next iteration improvements needed:
 - This would make the evaluation system useful for both mock testing and real server validation
 """
 
+import argparse
 import asyncio
 import json
 import os
 import sys
-import argparse
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Any, Dict, List, Tuple
+
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 

@@ -9,7 +9,7 @@ structured responses.
 import json
 import re
 import subprocess
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 
 class ClaudeError(Exception):

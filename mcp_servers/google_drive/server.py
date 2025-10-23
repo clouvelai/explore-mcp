@@ -6,13 +6,14 @@ This server provides tools to interact with Google Drive using the Google Drive 
 It requires OAuth authentication via environment variables.
 """
 
-import sys
 import os
+import sys
 
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from fastmcp import FastMCP
+
 from mcp_servers.google_drive.tools import register_tools
 
 # Create MCP instance

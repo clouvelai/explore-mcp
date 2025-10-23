@@ -4,11 +4,13 @@ MCP service for managing connections to MCP servers.
 
 import asyncio
 import os
+
 from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
 from mcp.client.sse import sse_client
-from backend.auth.token_store import TokenStore
+from mcp.client.stdio import stdio_client
+
 from backend.auth.oauth_handler import GoogleOAuthHandler
+from backend.auth.token_store import TokenStore
 
 
 class MCPService:

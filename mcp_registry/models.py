@@ -5,11 +5,12 @@ Clean, type-safe models following best practices for server configuration,
 discovery, and generation tracking.
 """
 
-from datetime import datetime
-from typing import Dict, List, Optional, Any, Literal, Union
-from pathlib import Path
-from pydantic import BaseModel, Field, validator, model_validator
 import os
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Literal, Optional, Union
+
+from pydantic import BaseModel, Field, model_validator, validator
 
 # Global configuration for server base path
 _SERVER_BASE_PATH = "mcp_registry/servers"

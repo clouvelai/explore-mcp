@@ -3,18 +3,19 @@ Main Flask application for the MCP chat backend.
 """
 
 import os
+
+from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
-from dotenv import load_dotenv
 
-from backend.auth.token_store import TokenStore
+from backend.api.auth import setup_auth_routes
+from backend.api.chat import setup_chat_routes
+from backend.api.servers import setup_servers_routes
+from backend.api.tools import setup_tools_routes
 from backend.auth.oauth_handler import GoogleOAuthHandler
+from backend.auth.token_store import TokenStore
 from backend.services.mcp_service import MCPService
 from backend.services.openai_service import OpenAIService
-from backend.api.chat import setup_chat_routes
-from backend.api.tools import setup_tools_routes
-from backend.api.servers import setup_servers_routes
-from backend.api.auth import setup_auth_routes
 
 # Load environment variables
 load_dotenv()

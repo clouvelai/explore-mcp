@@ -6,6 +6,7 @@ the air fryer server via HTTP transport.
 """
 
 import time
+
 from fastmcp import FastMCP
 
 

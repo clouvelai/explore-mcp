@@ -4,7 +4,9 @@ Chat API endpoints.
 
 import asyncio
 import json
-from flask import Blueprint, request, jsonify
+
+from flask import Blueprint, jsonify, request
+
 from backend.services.mcp_service import MCPService
 from backend.services.openai_service import OpenAIService
 

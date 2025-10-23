@@ -6,13 +6,15 @@ and managing Gmail messages.
 """
 
 import base64
+import os
+import sys
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Any, Dict, List
+
 from fastmcp import FastMCP
 from googleapiclient.errors import HttpError
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import sys
-import os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from mcp_servers.shared.google_auth import get_gmail_service

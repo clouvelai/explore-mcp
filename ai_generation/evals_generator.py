@@ -6,11 +6,10 @@ Uses AI to create intelligent test cases including edge cases and domain-specifi
 """
 
 import json
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 from .ai_service import AIService
 from .prompts import format_prompt
-
-
 
 
 def generate_ai_test_cases(tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -101,6 +100,7 @@ def _generate_per_tool_test_cases(tools_info: List[Dict[str, Any]]) -> List[Dict
 if __name__ == "__main__":
     # Test with sample tools
     import sys
+
     from .ai_service import test_claude_cli
     
     if not test_claude_cli():
