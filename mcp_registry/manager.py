@@ -174,17 +174,16 @@ class ServerManager:
         Returns:
             ServerSource configured for the installed npm package
         """
-        binary_name, binary_path, package_version = self._install_npm_package(package_name)
+        binary_path, package_version = self._install_npm_package(package_name)
         return ServerSource(
             type="npm",
             package_name=package_name,
             package_version=package_version,
-            binary_name=binary_name,
             binary_path=binary_path,
             transport="stdio"
         )
     
-    def _install_npm_package(self, package_name: str) -> tuple[str, str, str]:
+    def _install_npm_package(self, package_name: str) -> tuple[str, str]:
         """
         Install npm package globally and return binary info.
         
@@ -192,7 +191,7 @@ class ServerManager:
             package_name: npm package name to install
             
         Returns:
-            Tuple of (binary_name, binary_path, package_version)
+            Tuple of (binary_path, package_version)
             
         Raises:
             RuntimeError: If npm is not available or installation fails
@@ -213,19 +212,12 @@ class ServerManager:
             )
             print(f"✅ Package installed successfully")
             
-            # Get package info to find binary
-            pkg_info_result = subprocess.run(
-                ["npm", "list", "-g", "--json", package_name],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            
-            pkg_data = json.loads(pkg_info_result.stdout)
-            
-            # Extract binary name and get version
-            binary_name = self._extract_binary_name(package_name, pkg_data)
+            # Get version and derive binary name
             package_version = self._get_package_version(package_name)
+            
+            # Create temporary ServerSource to get binary name
+            temp_source = ServerSource(type="npm", package_name=package_name)
+            binary_name = temp_source.binary_name
             
             # Find binary in PATH
             binary_path = shutil.which(binary_name)
@@ -235,53 +227,13 @@ class ServerManager:
             print(f"🔍 Found binary: {binary_name} at {binary_path}")
             print(f"📋 Package version: {package_version}")
             
-            return binary_name, binary_path, package_version
+            return binary_path, package_version
             
         except subprocess.CalledProcessError as e:
             error_msg = f"npm installation failed: {e.stderr or e.stdout}"
             raise RuntimeError(error_msg)
-        except json.JSONDecodeError as e:
-            raise RuntimeError(f"Failed to parse npm package info: {e}")
         except Exception as e:
             raise RuntimeError(f"Unexpected error during npm installation: {e}")
-    
-    def _extract_binary_name(self, package_name: str, pkg_data: dict) -> str:
-        """
-        Extract binary name from npm package data.
-        
-        Args:
-            package_name: Name of the npm package
-            pkg_data: Package data from npm list command
-            
-        Returns:
-            Binary name
-        """
-        # Try to find binary in package data
-        dependencies = pkg_data.get("dependencies", {})
-        if package_name in dependencies:
-            # For scoped packages, try to infer binary name
-            if package_name.startswith("@"):
-                # Convert @modelcontextprotocol/server-memory -> mcp-server-memory
-                _, package_part = package_name.split("/", 1)
-                if package_part.startswith("server-"):
-                    return f"mcp-{package_part}"
-                else:
-                    return package_part
-            else:
-                # For non-scoped packages, assume binary name matches package name
-                return package_name
-        
-        # Fallback: try common patterns
-        if package_name.startswith("@modelcontextprotocol/server-"):
-            # @modelcontextprotocol/server-memory -> mcp-server-memory
-            server_name = package_name.split("/server-", 1)[1]
-            return f"mcp-server-{server_name}"
-        elif package_name.startswith("@"):
-            # @org/package -> package
-            return package_name.split("/", 1)[1]
-        else:
-            # Assume binary name matches package name
-            return package_name
     
     def _get_package_version(self, package_name: str) -> str:
         """Get package version using npm show command."""

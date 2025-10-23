@@ -32,7 +32,6 @@ class ServerSource(BaseModel):
     url: Optional[str] = None   # For remote servers
     package_name: Optional[str] = None    # For npm packages (e.g., "@modelcontextprotocol/server-memory")
     package_version: Optional[str] = None # For npm packages (e.g., "1.0.0")
-    binary_name: Optional[str] = None     # For npm packages (e.g., "mcp-server-memory")
     binary_path: Optional[str] = None     # For npm packages (e.g., "/usr/local/bin/mcp-server-memory")
     transport: str = "stdio"    # stdio, http, sse
     
@@ -46,6 +45,23 @@ class ServerSource(BaseModel):
         elif self.type == 'npm' and not self.package_name:
             raise ValueError('package_name is required for npm servers')
         return self
+    
+    @property
+    def binary_name(self) -> Optional[str]:
+        """Derive binary name from package name for npm packages."""
+        if self.type != "npm" or not self.package_name:
+            return None
+        
+        if self.package_name.startswith("@modelcontextprotocol/server-"):
+            # @modelcontextprotocol/server-memory -> mcp-server-memory
+            server_name = self.package_name.split("/server-", 1)[1]
+            return f"mcp-server-{server_name}"
+        elif self.package_name.startswith("@"):
+            # @org/package -> package
+            return self.package_name.split("/", 1)[1]
+        else:
+            # Assume binary name matches package name
+            return self.package_name
 
 
 class DiscoveryConfig(BaseModel):

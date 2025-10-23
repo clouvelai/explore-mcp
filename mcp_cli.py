@@ -75,22 +75,8 @@ class MCPRegistryCLI:
                 source_type=source_type_param
             )
             
-            if success:
-                # Get the server config to show proper info
-                config = self.manager.get_server(name)
-                if config:
-                    print(f"✅ Added server '{name}' to registry")
-                    print(f"   Type: {config.source.type}")
-                    if config.source.type == "npm":
-                        print(f"   Package: {config.source.package_name}")
-                        print(f"   Binary: {config.source.binary_path}")
-                    elif config.source.type == "remote":
-                        print(f"   URL: {config.source.url}")
-                    else:
-                        print(f"   Path: {config.source.path}")
-                    print(f"   Category: {config.metadata.category}")
-            else:
-                print(f"❌ Failed to add server '{name}'")
+            # Manager already prints success/failure details
+            pass
                 
         except Exception as e:
             handle_error(f"Failed to add server: {e}")
