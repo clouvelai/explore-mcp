@@ -49,18 +49,33 @@ Output Format:
     }
 """
 
+import hashlib
 import json
 import subprocess
-import hashlib
 import time
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Literal
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Literal, Optional
+
 try:
-    from .discovery_models import DiscoveryResult, DiscoveryMetadata, MCPTool, MCPResource, MCPPrompt, ServerInfo
+    from .discovery_models import (
+        DiscoveryMetadata,
+        DiscoveryResult,
+        MCPPrompt,
+        MCPResource,
+        MCPTool,
+        ServerInfo,
+    )
 except ImportError:
     # For direct execution
-    from discovery_models import DiscoveryResult, DiscoveryMetadata, MCPTool, MCPResource, MCPPrompt, ServerInfo
+    from discovery_models import (
+        DiscoveryMetadata,
+        DiscoveryResult,
+        MCPPrompt,
+        MCPResource,
+        MCPTool,
+        ServerInfo,
+    )
 
 # Type aliases for better type safety
 TransportType = Literal["auto", "stdio", "sse", "http"]

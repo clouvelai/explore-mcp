@@ -3,6 +3,7 @@ Servers API endpoints.
 """
 
 from flask import Blueprint, jsonify
+
 from backend.services.mcp_service import MCPService
 
 servers_bp = Blueprint('servers', __name__)

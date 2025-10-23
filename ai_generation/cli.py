@@ -41,21 +41,25 @@ Cache Control:
     for CI/production environments where performance matters more than freshness.
 """
 
+import argparse
 import json
 import sys
-import argparse
 from pathlib import Path
-from .discovery import DiscoveryEngine, DependencyError, DiscoveryError, Transport
-from .discovery_models import DiscoveryResult
-from .server_generator import generate_ai_mock_server
+
 from mcp_registry import (
-    ServerManager, ServerConfig, ServerSource,
-    MCPRegistryError, ServerNotFoundError, handle_error
+    MCPRegistryError,
+    ServerConfig,
+    ServerManager,
+    ServerNotFoundError,
+    ServerSource,
+    handle_error,
 )
-from .evals_generator import generate_ai_test_cases
+
 from .ai_service import test_claude_cli
-
-
+from .discovery import DependencyError, DiscoveryEngine, DiscoveryError, Transport
+from .discovery_models import DiscoveryResult
+from .evals_generator import generate_ai_test_cases
+from .server_generator import generate_ai_mock_server
 
 
 def extract_server_name(server_path: str) -> str:

@@ -5,14 +5,15 @@ Air Fryer MCP Server using FastMCP with HTTP (SSE) transport.
 This server provides air fryer tools via HTTP protocol.
 """
 
-import sys
 import os
+import sys
 
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from fastmcp import FastMCP
-from mcp_servers.air_fryer.tools import register_tools, register_resources
+
+from mcp_servers.air_fryer.tools import register_resources, register_tools
 
 # Create MCP instance
 mcp = FastMCP("Air Fryer")

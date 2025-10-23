@@ -4,7 +4,9 @@ Authentication API endpoints.
 
 import base64
 import json
-from flask import Blueprint, request, jsonify
+
+from flask import Blueprint, jsonify, request
+
 from backend.auth.oauth_handler import GoogleOAuthHandler
 from backend.auth.token_store import TokenStore
 

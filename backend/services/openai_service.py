@@ -3,6 +3,7 @@ OpenAI service for handling chat completions.
 """
 
 import json
+
 from openai import OpenAI
 
 

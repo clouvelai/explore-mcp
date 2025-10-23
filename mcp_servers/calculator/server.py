@@ -5,14 +5,15 @@ Calculator MCP Server using FastMCP.
 This server provides calculator tools for basic arithmetic operations.
 """
 
-import sys
 import os
+import sys
 
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from fastmcp import FastMCP
-from mcp_servers.calculator.tools import register_tools, register_resources
+
+from mcp_servers.calculator.tools import register_resources, register_tools
 
 # Create MCP instance
 mcp = FastMCP("Calculator")

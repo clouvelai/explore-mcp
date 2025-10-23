@@ -3,11 +3,13 @@ OAuth 2.0 authentication handler using google-auth library.
 Handles Google Drive and Gmail authentication with persistent token storage.
 """
 
-from google_auth_oauthlib.flow import Flow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
 import json
 from typing import Optional
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import Flow
+
 
 class GoogleOAuthHandler:
     """Handle OAuth 2.0 authentication for Google services"""

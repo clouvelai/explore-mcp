@@ -6,10 +6,11 @@ used by Gmail and Google Drive MCP servers.
 """
 
 import os
-from typing import Dict, Any
+from typing import Any, Dict
+
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build, Resource
+from googleapiclient.discovery import Resource, build
 
 
 class GoogleServiceManager:
