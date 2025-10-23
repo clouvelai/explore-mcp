@@ -30,9 +30,10 @@ class ServerSource(BaseModel):
     type: Literal["local", "remote", "npm"]
     path: Optional[str] = None  # For local servers
     url: Optional[str] = None   # For remote servers
-    package_name: Optional[str] = None  # For npm packages (e.g., "@modelcontextprotocol/server-memory")
-    binary_name: Optional[str] = None   # For npm packages (e.g., "mcp-server-memory")
-    binary_path: Optional[str] = None   # For npm packages (e.g., "/usr/local/bin/mcp-server-memory")
+    package_name: Optional[str] = None    # For npm packages (e.g., "@modelcontextprotocol/server-memory")
+    package_version: Optional[str] = None # For npm packages (e.g., "1.0.0")
+    binary_name: Optional[str] = None     # For npm packages (e.g., "mcp-server-memory")
+    binary_path: Optional[str] = None     # For npm packages (e.g., "/usr/local/bin/mcp-server-memory")
     transport: str = "stdio"    # stdio, http, sse
     
     @model_validator(mode='after')

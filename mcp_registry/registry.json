@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_updated": "2025-10-23 19:35:12.994173",
+  "last_updated": "2025-10-23 19:39:23.575787",
   "servers": [
     "microsoft-learn",
     "calculator",
@@ -8,7 +8,9 @@
     "gmail",
     "google_drive",
     "everything",
-    "memory-mvp"
+    "memory-mvp",
+    "filesystem",
+    "sequential"
   ],
   "categories": {
     "Documentation": [
@@ -24,13 +26,17 @@
       "gmail"
     ],
     "Storage": [
-      "google_drive"
+      "google_drive",
+      "filesystem"
     ],
     "Testing": [
       "everything"
     ],
     "Memory": [
       "memory-mvp"
+    ],
+    "AI": [
+      "sequential"
     ]
   }
 }

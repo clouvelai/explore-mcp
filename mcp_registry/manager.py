@@ -127,6 +127,10 @@ class ServerManager:
         else:
             # Use existing normalization for local/remote
             server_source = self._normalize_server_source(source)
+        # Set provider based on source type if not provided
+        if provider is None and server_source.type == "npm":
+            provider = "npm"
+        
         server_config = self._create_server_config(
             server_id, name, server_source, description, category, 
             provider, auth_required, auth_type, **kwargs
@@ -170,16 +174,17 @@ class ServerManager:
         Returns:
             ServerSource configured for the installed npm package
         """
-        binary_name, binary_path = self._install_npm_package(package_name)
+        binary_name, binary_path, package_version = self._install_npm_package(package_name)
         return ServerSource(
             type="npm",
             package_name=package_name,
+            package_version=package_version,
             binary_name=binary_name,
             binary_path=binary_path,
             transport="stdio"
         )
     
-    def _install_npm_package(self, package_name: str) -> tuple[str, str]:
+    def _install_npm_package(self, package_name: str) -> tuple[str, str, str]:
         """
         Install npm package globally and return binary info.
         
@@ -187,7 +192,7 @@ class ServerManager:
             package_name: npm package name to install
             
         Returns:
-            Tuple of (binary_name, binary_path)
+            Tuple of (binary_name, binary_path, package_version)
             
         Raises:
             RuntimeError: If npm is not available or installation fails
@@ -218,8 +223,9 @@ class ServerManager:
             
             pkg_data = json.loads(pkg_info_result.stdout)
             
-            # Extract binary name from package data
+            # Extract binary name and get version
             binary_name = self._extract_binary_name(package_name, pkg_data)
+            package_version = self._get_package_version(package_name)
             
             # Find binary in PATH
             binary_path = shutil.which(binary_name)
@@ -227,8 +233,9 @@ class ServerManager:
                 raise RuntimeError(f"Binary '{binary_name}' not found in PATH after installation")
             
             print(f"🔍 Found binary: {binary_name} at {binary_path}")
+            print(f"📋 Package version: {package_version}")
             
-            return binary_name, binary_path
+            return binary_name, binary_path, package_version
             
         except subprocess.CalledProcessError as e:
             error_msg = f"npm installation failed: {e.stderr or e.stdout}"
@@ -275,6 +282,19 @@ class ServerManager:
         else:
             # Assume binary name matches package name
             return package_name
+    
+    def _get_package_version(self, package_name: str) -> str:
+        """Get package version using npm show command."""
+        try:
+            result = subprocess.run(
+                ["npm", "show", package_name, "version"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return result.stdout.strip()
+        except subprocess.CalledProcessError:
+            return "unknown"
     
     def _create_server_config(
         self, 

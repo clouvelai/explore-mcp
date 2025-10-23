@@ -199,6 +199,11 @@ class MCPRegistryCLI:
             print(f"Type: {server.source.type}")
             if server.source.type == "local":
                 print(f"Path: {server.source.path}")
+            elif server.source.type == "npm":
+                print(f"Package: {server.source.package_name}")
+                print(f"Version: {server.source.package_version or 'unknown'}")
+                print(f"Binary: {server.source.binary_name}")
+                print(f"Binary Path: {server.source.binary_path}")
             else:
                 print(f"URL: {server.source.url}")
             print(f"Transport: {server.source.transport}")
