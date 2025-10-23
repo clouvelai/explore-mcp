@@ -7,6 +7,7 @@ Separates git server management from general server management for better modula
 import json
 import re
 import shutil
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -35,6 +36,51 @@ class GitServerManager:
         # Initialize git-specific components
         self.git_manager = GitManager()
         self.doc_discovery = DocumentationDiscovery()
+    
+    def _auto_build_if_needed(self, repo_path: Path) -> bool:
+        """
+        Automatically build Node.js projects if needed.
+        
+        Args:
+            repo_path: Path to the git repository
+            
+        Returns:
+            bool: True if build was successful or not needed, False if failed
+        """
+        package_json = repo_path / "package.json"
+        
+        if not package_json.exists():
+            return True  # Not a Node.js project, continue
+        
+        # Check if npm is available
+        if not shutil.which("npm"):
+            print(f"⚠️  npm not found, skipping build for {repo_path.name}")
+            return True
+        
+        print(f"📦 Installing dependencies for {repo_path.name}...")
+        
+        try:
+            result = subprocess.run(
+                ["npm", "install"],
+                cwd=repo_path,
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout
+            )
+            
+            if result.returncode == 0:
+                print(f"✅ Dependencies installed for {repo_path.name}")
+                return True
+            else:
+                print(f"⚠️  Dependency installation failed for {repo_path.name}: {result.stderr}")
+                return True  # Continue anyway - might still work
+                
+        except subprocess.TimeoutExpired:
+            print(f"⚠️  Dependency installation timeout for {repo_path.name}")
+            return True  # Continue anyway
+        except Exception as e:
+            print(f"⚠️  Dependency installation error for {repo_path.name}: {e}")
+            return True  # Continue anyway
     
     def add_git_server(
         self,
@@ -76,6 +122,9 @@ class GitServerManager:
             
             # Get current commit hash
             commit_hash = self.git_manager.get_current_commit(clone_path)
+            
+            # Auto-build if needed (npm install for Node.js projects)
+            self._auto_build_if_needed(clone_path)
             
             # Detect MCP servers in the repository
             print(f"🔍 Detecting MCP servers in repository...")

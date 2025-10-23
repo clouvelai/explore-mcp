@@ -178,7 +178,13 @@ This demonstrates that complex runtime detection could be dramatically simplifie
 
 ### High Priority (High Value, Low-Medium Complexity)
 1. ✅ **TypeScript/Node.js Runtime Support** - COMPLETED with elegant MCP Inspector integration
-2. **Multi-language runtime support** - Now trivial with file extension approach:
+2. ✅ **Universal Build Pipeline** - COMPLETED with automatic npm install
+3. **Published MCP Package Support** - Handle MCPs designed as npm packages vs source code:
+   - Detect when MCPs are intended as published packages (via `bin` field in package.json)
+   - Support installation via `npm install package-name` instead of git clone
+   - Handle configuration for published MCPs that need API keys or setup
+   - Examples: Magic-MCP (`@21st-dev/magic`) designed as publishable package
+4. **Multi-language runtime support** - Now trivial with file extension approach:
    - Go: `.go` → `go run file.go` 
    - Rust: `.rs` → `cargo run --bin file` (if Cargo.toml exists)
    - Python: `.py` → `python file.py` (already done)

@@ -136,6 +136,7 @@ class GitManager:
         servers = []
         
         # Common patterns for MCP servers
+        # IMPORTANT: Order matters - prefer built versions over source
         patterns = [
             # Python servers
             ("**/server.py", "python"),
@@ -143,18 +144,21 @@ class GitManager:
             ("**/*_server.py", "python"),
             ("**/main.py", "python"),
             
-            # TypeScript servers (prioritize over JS)
-            ("**/server.ts", "typescript"),
-            ("**/index.ts", "typescript"), 
+            # Built Node.js servers (prioritize over TypeScript source)
+            ("**/dist/index.js", "nodejs"),
+            ("**/build/index.js", "nodejs"),
+            ("**/dist/server.js", "nodejs"),
+            ("**/build/server.js", "nodejs"),
+            ("**/index.js", "nodejs"),
+            ("**/server.js", "nodejs"),
+            ("**/mcp_server.js", "nodejs"),
+            
+            # TypeScript servers (only if no built version found)
             ("**/src/index.ts", "typescript"),
             ("**/src/server.ts", "typescript"),
+            ("**/index.ts", "typescript"), 
+            ("**/server.ts", "typescript"),
             ("**/mcp_server.ts", "typescript"),
-            
-            # Node.js servers  
-            ("**/server.js", "nodejs"),
-            ("**/index.js", "nodejs"),
-            ("**/dist/index.js", "nodejs"),
-            ("**/mcp_server.js", "nodejs"),
         ]
         
         for pattern, server_type in patterns:

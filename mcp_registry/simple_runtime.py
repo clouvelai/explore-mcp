@@ -27,7 +27,7 @@ def get_execution_command(file_path: Path) -> Optional[List[str]]:
             return ["npx", "@modelcontextprotocol/inspector", str(file_path)]
         return None
     elif suffix == '.js':
-        # Node.js: Prefer MCP Inspector, fallback to node
+        # Node.js: Prefer MCP Inspector, fallback to node for simple servers
         if has_npx:
             return ["npx", "@modelcontextprotocol/inspector", str(file_path)]
         return ["node", str(file_path)]

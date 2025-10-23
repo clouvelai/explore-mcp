@@ -1,13 +1,13 @@
 {
   "version": "1.0.0",
-  "last_updated": "2025-10-23 14:50:51.371053",
+  "last_updated": "2025-10-23 18:09:38.990899",
   "servers": [
     "microsoft-learn",
     "calculator",
     "air_fryer",
     "gmail",
     "google_drive",
-    "gleanwork"
+    "gleanwork-local-mcp-server"
   ],
   "categories": {
     "Documentation": [
@@ -27,7 +27,7 @@
     ],
     "Testing": [],
     "Development": [
-      "gleanwork"
+      "gleanwork-local-mcp-server"
     ]
   }
 }

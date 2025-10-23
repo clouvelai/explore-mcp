@@ -1,0 +1,1545 @@
+{
+  "tools": [
+    {
+      "name": "before",
+      "description": "sending focus to the",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/focus-trap@7.6.5/node_modules/focus-trap/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "after",
+      "description": "focus has been sent to the",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/focus-trap@7.6.5/node_modules/focus-trap/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "not",
+      "description": "called if the `returnFocusOnDeactivate` configuration option",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/focus-trap@7.6.5/node_modules/focus-trap/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Note",
+      "description": "`search` was added in `CommonMark@0.31`.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/micromark-util-html-tag-name@2.0.1/node_modules/micromark-util-html-tag-name/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Modifiers",
+      "description": "- `filterOnly(\\\"ATTRIBUTE\\\")`. Allows the attribute to be used as a filter but doesn\\'t evaluate the facet values. - `searchable(\\\"ATTRIBUTE\\\")`. Allows searching for facet values. - `afterDisti",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+recommend@5.35.0/node_modules/@algolia/recommend/dist/worker.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Modifier",
+      "description": "- `virtual(\\\"REPLICA\\\")`. Create a virtual replica, Virtual replicas don\\'t increase the number of records and are optimized for [Relevant sorting](https://www.algolia.com/doc/guides/managing-resu",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+recommend@5.35.0/node_modules/@algolia/recommend/dist/worker.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "and",
+      "description": "all its words are optional, the number of matched words required for a record to be included in the search results increases for every 1,000 records: - If `optionalWords` has less than 10 words, the",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+recommend@5.35.0/node_modules/@algolia/recommend/dist/worker.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "skip",
+      "description": "task is skipped",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "only",
+      "description": "only this task and other tasks with `only` mode will run",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "todo",
+      "description": "task is marked as a todo, alias for `skip`",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "run",
+      "description": "task will run or already ran",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "queued",
+      "description": "task will start running next. It can only exist on the File",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "pass",
+      "description": "task ran successfully",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "fail",
+      "description": "task failed",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "test",
+      "description": "fixture will be set up before every test",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "worker",
+      "description": "fixture will be set up once per worker",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "file",
+      "description": "fixture will be set up once per file",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitest+runner@3.2.4/node_modules/@vitest/runner/dist/tasks.d-CkscK4of.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "constructable",
+      "description": "built-ins",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@phun-ky+typeof@2.0.3/node_modules/@phun-ky/typeof/dist/typeof.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "except",
+      "description": "the `bar` attribute. - Exclude attributes from arrays with `[i]`, where `i` is the index of the array element. For example, `foo.[0].bar` only excludes the `bar` attribute from the first element of",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+ingestion@1.35.0/node_modules/@algolia/ingestion/dist/worker.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "true",
+      "description": "if the `fn` function returns a",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vueuse+shared@12.8.2_typescript@5.9.3/node_modules/@vueuse/shared/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "truthy",
+      "description": "value for every element from the array. Otherwise,",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vueuse+shared@12.8.2_typescript@5.9.3/node_modules/@vueuse/shared/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "experimental",
+      "description": "), `true` in Vue 3.5+",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vitejs+plugin-vue@5.2.4_vite@5.4.19_@types+node@24.7.0__vue@3.5.20_typescript@5.9.3_/node_modules/@vitejs/plugin-vue/dist/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Not",
+      "description": "[standards compliant](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof).",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@tootallnate+quickjs-emscripten@0.23.0/node_modules/@tootallnate/quickjs-emscripten/dist/context.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "NOTE",
+      "description": "It is called _before_ the item has been fully removed",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/lru-cache@11.2.2/node_modules/lru-cache/dist/esm/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "must",
+      "description": "provide an explicit",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/lru-cache@11.2.2/node_modules/lru-cache/dist/esm/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Important",
+      "description": "only shows a message when the `development` condition is",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/devlop@1.1.0/node_modules/devlop/lib/development.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Danger",
+      "description": "only set this if you completely trust the content.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/hast-util-to-html@9.0.5/node_modules/hast-util-to-html/lib/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "ALL",
+      "description": "union members, where `DistributedOmit` allows you to omit keys that are present in",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/type-fest@4.41.0/node_modules/type-fest/source/distributed-omit.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "ANY",
+      "description": "union member.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/type-fest@4.41.0/node_modules/type-fest/source/distributed-omit.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "will",
+      "description": "get auto-completion for `dog` and `cat` literals.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/type-fest@4.41.0/node_modules/type-fest/source/literal-union.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "all",
+      "description": "union members, this type returns keys from",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/type-fest@4.41.0/node_modules/type-fest/source/keys-of-union.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "NOT",
+      "description": "be stored with the derived key. This is known as pepper in",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@types+node@24.7.0/node_modules/@types/node/crypto.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Warning",
+      "description": "_: The global console object's methods are neither consistently",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@types+node@24.7.0/node_modules/@types/node/console.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "both",
+      "description": "criteria to be included in the coverage report.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@types+node@24.7.0/node_modules/@types/node/test.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "This launches a process with the snapshot",
+      "description": "* $ node --snapshot-blob snapshot.blob",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@types+node@24.7.0/node_modules/@types/node/v8.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Caveat",
+      "description": "only present on `file:` modules.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@types+node@24.7.0/node_modules/@types/node/module.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Caveats",
+      "description": "",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@types+node@24.7.0/node_modules/@types/node/module.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Default",
+      "description": "A function that returns `SQLITE_CHANGESET_ABORT`.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@types+node@24.7.0/node_modules/@types/node/sqlite.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Example encrypting a secret using Python",
+      "description": "*",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Example encrypting a secret using Ruby",
+      "description": "*",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Print the base64 encoded secret",
+      "description": "* puts Base64.strict_encode64(encrypted_secret)",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Timeline",
+      "description": "The GitHub global public timeline",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "User",
+      "description": "The public timeline for any user, using `uri_template`. For more information, see \"[Hypermedia](https://docs.github.com/rest/using-the-rest-api/getting-started-with-the-rest-api#hypermedia).\"",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Security",
+      "description": "tab for your repository. For more information, see \"[Managing code scanning alerts for your repository](/code-security/secure-coding/managing-code-scanning-alerts-for-your-repository#viewing-the-alert",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Deprecated",
+      "description": "Use `repos.compareCommitsWithBasehead()` (`GET /repos/{owner}/{repo}/compare/{basehead}`) instead. Both `:base` and `:head` must be branch names in `:repo`. To compare branches across other repositori",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "failure",
+      "description": "if any of the contexts report as `error` or `failure`",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "pending",
+      "description": "if there are no statuses or a context is `pending`",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "success",
+      "description": "if the latest status for all contexts is `success`",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "content",
+      "description": "and file",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "path",
+      "description": "fields when you pass the `text-match` media type. For more details about how to receive highlighted search results, see [Text match metadata](https://docs.github.com/rest/search/search#text-match-meta",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "message",
+      "description": "field when you provide the `text-match` media type. For more details about how to receive highlighted search results, see [Text match",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "description",
+      "description": "fields when you pass the `text-match` media type. For more details about how to receive highlighted search results, see [Text match metadata](https://docs.github.com/rest/search/search#text-match-meta",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "name",
+      "description": "fields when you pass the `text-match` media type. For more details about highlighting search results, see [Text match metadata](https://docs.github.com/rest/search/search#text-match-metadata). For mor",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@16.1.0_@octokit+core@7.0.5/node_modules/@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "All",
+      "description": "events must be valid, otherwise the API returns an error.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+client-insights@5.35.0/node_modules/@algolia/client-insights/dist/worker.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "IMPORTANT",
+      "description": "- Immutable!",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@shikijs+vscode-textmate@10.0.2/node_modules/@shikijs/vscode-textmate/dist/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Null",
+      "description": "means there were no queries: since Algolia didn\\'t receive any events, the add-to-cart rate is null. -",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+client-analytics@5.35.0/node_modules/@algolia/client-analytics/dist/worker.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "inline",
+      "description": "style declaration only.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "exception",
+      "description": ") that occurs as a result of calling a method or accessing a property of a web API.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "DOMPointReadOnly",
+      "description": "method `fromPoint()` creates and returns a new `DOMPointReadOnly` object given a source point.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Boolean",
+      "description": "value indicating whether the specified element has the specified attribute or not.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "IdleDeadline",
+      "description": "interface is a Boolean value which indicates whether or not the idle callback is being invoked because the timeout interval specified when Window.requestIdleCallback() was called has expired.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "OES_vertex_array_object",
+      "description": "extension is part of the WebGL API and provides vertex array objects (VAOs) which encapsulate vertex array states.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "PaymentRequest",
+      "description": "interface's",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "PerformanceObserver",
+      "description": "interface is used to specify the set of performance entry types to observe.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "RTCCertificate",
+      "description": "interface is used to get an array of certificate fingerprints.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "DTLS",
+      "description": ") transport over which a RTCPeerConnection's RTP and RTCP packets are sent and received by its RTCRtpSender and RTCRtpReceiver objects.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "RTCDtlsTransport",
+      "description": "interface contains a reference to the underlying RTCIceTransport.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "RTCIceCandidate",
+      "description": "interface's read-only",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "RTCIceCandidatePair",
+      "description": "dictionary specifies the RTCIceCandidate which describes the configuration of the local end of a viable WebRTC connection.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "RTCRtpSender",
+      "description": "interface returns a over the RTCPeerConnection.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "SCTP",
+      "description": ") transport.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Request",
+      "description": "interface returns a string describing the type of content being requested.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "TextTrackList",
+      "description": "property",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WEBGL_lose_context",
+      "description": "extension is part of the WebGL API and exposes functions to simulate losing and restoring a WebGLRenderingContext.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGL2RenderingContext",
+      "description": "interface provides the OpenGL ES 3.0 rendering context for the drawing surface of an HTML canvas element.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGLActiveInfo",
+      "description": "interface is part of the WebGL API and represents the information returned by calling the WebGLRenderingContext.getActiveAttrib() and WebGLRenderingContext.getActiveUniform() methods.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGLBuffer",
+      "description": "interface is part of the WebGL API and represents an opaque buffer object storing data such as vertices or colors.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGLContextEvent",
+      "description": "interface is part of the WebGL API and is an interface for an event that is generated in response to a status change to the WebGL rendering context.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGLFramebuffer",
+      "description": "interface is part of the WebGL API and represents a collection of buffers that serve as a rendering destination.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGLRenderbuffer",
+      "description": "interface is part of the WebGL API and represents a buffer that can contain an image, or that can be a source or target of a rendering operation.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGLShader",
+      "description": "is part of the WebGL API and can either be a vertex or a fragment shader.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGLShaderPrecisionFormat",
+      "description": "interface is part of the WebGL API and represents the information returned by calling the WebGLRenderingContext.getShaderPrecisionFormat() method.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGLTexture",
+      "description": "interface is part of the WebGL API and represents an opaque texture object providing storage and state for texturing operations.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WebGLUniformLocation",
+      "description": "interface is part of the WebGL API and represents the location of a uniform variable in a shader program.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "XMLDocument",
+      "description": "interface represents an XML document.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "hello",
+      "description": "world",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/zod@3.25.76/node_modules/zod/src/v4/classic/tests/registries.test.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "number",
+      "description": "number",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/zod@3.25.76/node_modules/zod/src/v4/classic/tests/registries.test.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "I",
+      "description": "A recursive type",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/zod@3.25.76/node_modules/zod/src/v4/classic/tests/recursive-types.test.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Debugging",
+      "description": "](https://www.algolia.com/doc/ui-libraries/autocomplete/guides/debugging/) for more information.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+autocomplete-shared@1.17.7_@algolia+client-search@5.35.0_algoliasearch@5.35.0/node_modules/@algolia/autocomplete-shared/dist/esm/core/AutocompleteOptions.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Plugins",
+      "description": "](https://www.algolia.com/doc/ui-libraries/autocomplete/core-concepts/plugins/) for more information.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+autocomplete-shared@1.17.7_@algolia+client-search@5.35.0_algoliasearch@5.35.0/node_modules/@algolia/autocomplete-shared/dist/esm/core/AutocompleteOptions.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Context",
+      "description": "](https://www.algolia.com/doc/ui-libraries/autocomplete/core-concepts/context/).",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+autocomplete-shared@1.17.7_@algolia+client-search@5.35.0_algoliasearch@5.35.0/node_modules/@algolia/autocomplete-shared/dist/esm/core/AutocompleteSetters.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "WARNING",
+      "description": "Only use this with observables you",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/Observable.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "start",
+      "description": "of the \"throttling\" process (when starting an",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/operators/throttle.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "end",
+      "description": "of the \"throttling\" process (when ending an internal",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/operators/throttle.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "ONLY",
+      "description": "exists to support the strange behavior of {@link groupBy}, where unsubscription",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/operators/OperatorSubscriber.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Example",
+      "description": "* Schedule div height animation",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/scheduler/animationFrame.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Examples",
+      "description": "* Schedule recursively first, then do something",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/scheduler/queue.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "deserializer",
+      "description": ", the default for this property is `JSON.parse` but since there are just two options",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/observable/dom/WebSocketSubject.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "serializer",
+      "description": "allows us to apply custom serialization strategy but for the outgoing messages.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/observable/dom/WebSocketSubject.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "closeObserver",
+      "description": "allows us to set a custom error when an error raises up.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/observable/dom/WebSocketSubject.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "openObserver",
+      "description": ", Let's say we need to make some kind of init task before sending/receiving msgs to the",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/rxjs@7.8.2/node_modules/rxjs/dist/types/internal/observable/dom/WebSocketSubject.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "_will_",
+      "description": "throw if it is not available.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@typescript-eslint+utils@8.46.0_eslint@9.37.0_jiti@2.6.1__typescript@5.9.3/node_modules/@typescript-eslint/utils/dist/eslint-utils/getParserServices.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "impossible",
+      "description": "to match against paths",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/glob@11.0.3/node_modules/glob/dist/esm/glob.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "internal",
+      "description": "- i.e. the resolved props received by",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vue+runtime-core@3.5.20/node_modules/@vue/runtime-core/dist/runtime-core.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "public",
+      "description": "- i.e. the expected props that can be",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@vue+runtime-core@3.5.20/node_modules/@vue/runtime-core/dist/runtime-core.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Object files",
+      "description": "* *.o",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+openapi-types@26.0.0/node_modules/@octokit/openapi-types/types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Libraries",
+      "description": "* *.lib",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+openapi-types@26.0.0/node_modules/@octokit/openapi-types/types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Executables",
+      "description": "* *.exe",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+openapi-types@26.0.0/node_modules/@octokit/openapi-types/types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Required",
+      "description": "unless `target_id` is specified.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+openapi-types@26.0.0/node_modules/@octokit/openapi-types/types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "position",
+      "description": "parameter instead. Line number in the file to comment on.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@octokit+openapi-types@26.0.0/node_modules/@octokit/openapi-types/types.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Electronics",
+      "description": "Type",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/zod@4.1.12/node_modules/zod/src/v4/classic/tests/recursive-types.test.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "flags",
+      "description": "object, which contains the flags converted to camel-case excluding aliases.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/meow@13.2.0/node_modules/meow/build/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "input",
+      "description": "string array, which contains the non-flag arguments.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/meow@13.2.0/node_modules/meow/build/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "passed",
+      "description": "Test passed successfully",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vitest@3.2.4_@types+debug@4.1.12_@types+node@24.7.0_jiti@2.6.1_msw@2.11.5_@types+node@2_69a809a51807f469b1ebf5f707cb022d/node_modules/vitest/dist/chunks/reporters.d.BFLkQcL6.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "failed",
+      "description": "Test failed to execute",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vitest@3.2.4_@types+debug@4.1.12_@types+node@24.7.0_jiti@2.6.1_msw@2.11.5_@types+node@2_69a809a51807f469b1ebf5f707cb022d/node_modules/vitest/dist/chunks/reporters.d.BFLkQcL6.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "skipped",
+      "description": "Test was skipped during collection or dynamically with `ctx.skip()`.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vitest@3.2.4_@types+debug@4.1.12_@types+node@24.7.0_jiti@2.6.1_msw@2.11.5_@types+node@2_69a809a51807f469b1ebf5f707cb022d/node_modules/vitest/dist/chunks/reporters.d.BFLkQcL6.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Copy",
+      "description": "- Copying a source index that doesn\\'t exist creates a new index with 0 records and default settings. - The API keys of the source index are merged with the existing keys in the destination index. - Y",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+client-search@5.35.0/node_modules/@algolia/client-search/dist/worker.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Move",
+      "description": "- Moving a source index that doesn\\'t exist is ignored without returning an error. - When moving an index, the analytics data keeps its original name, and a new set of analytics data is started for th",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+client-search@5.35.0/node_modules/@algolia/client-search/dist/worker.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "if",
+      "description": "`createIfNotExists` is true. - If the index doesn\\'t exist yet, this method creates a new index. - You can use any first-level attribute but not nested attributes. If you specify a nested attribute,",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@algolia+client-search@5.35.0/node_modules/@algolia/client-search/dist/worker.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Rate Limits",
+      "description": "* This endpoint is rate-limited to one usage every 3 hours. Exceeding this limit results in a 429 response code. Here's how the rate limit works:",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@gleanwork+api-client@0.11.2/node_modules/@gleanwork/api-client/dist/esm/react-query/indexingDocumentsProcessAll.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Google",
+      "description": "fumigate convection though zowie",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@gleanwork+api-client@0.11.2/node_modules/@gleanwork/api-client/src/__tests__/collections.test.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "user",
+      "description": "physical queasily provision towards frightfully meh",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@gleanwork+api-client@0.11.2/node_modules/@gleanwork/api-client/src/__tests__/search.test.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "Syntax",
+      "description": "`auto | <color>`",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/csstype@3.1.3/node_modules/csstype/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "preview",
+      "description": "| No | n/a | No |",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/csstype@3.1.3/node_modules/csstype/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "container",
+      "description": "shorthand CSS property establishes the element as a query container and specifies the name or name for the containment context used in a container query.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/csstype@3.1.3/node_modules/csstype/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "NLR",
+      "description": ") or if `reverse` is given, in",
+      "parameters": null,
+      "source": "code:node_modules/unist-util-visit-parents/lib/index.d.ts",
+      "confidence": 0.9
+    },
+    {
+      "name": "any",
+      "description": "of the given glob `patterns` match the specified `string`.",
+      "parameters": null,
+      "source": "code:node_modules/tinyglobby/node_modules/picomatch/lib/picomatch.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "quotes",
+      "description": "Enforce the consistent use of either backticks, double, or single quotes",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/eslint@9.37.0_jiti@2.6.1/node_modules/eslint/lib/rules/quotes.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "semi",
+      "description": "Require or disallow semicolons instead of ASI",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/eslint@9.37.0_jiti@2.6.1/node_modules/eslint/lib/rules/semi.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "indent",
+      "description": "Enforce consistent indentation",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/eslint@9.37.0_jiti@2.6.1/node_modules/eslint/lib/rules/indent.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGHUP",
+      "description": "Terminal closed",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGINT",
+      "description": "User interruption with CTRL-C",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGQUIT",
+      "description": "User interruption with CTRL-\\\\",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGILL",
+      "description": "Invalid machine instruction",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGTRAP",
+      "description": "Debugger breakpoint",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGABRT",
+      "description": "Aborted",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGIOT",
+      "description": "Aborted",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGBUS",
+      "description": "Bus error due to misaligned, non-existing address or paging error",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGEMT",
+      "description": "Command should be emulated but is not implemented",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGFPE",
+      "description": "Floating point arithmetic error",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGKILL",
+      "description": "Forced termination",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGUSR1",
+      "description": "Application-specific signal",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGSEGV",
+      "description": "Segmentation fault",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGUSR2",
+      "description": "Application-specific signal",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGPIPE",
+      "description": "Broken pipe or socket",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGALRM",
+      "description": "Timeout or timer",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGTERM",
+      "description": "Termination",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGSTKFLT",
+      "description": "Stack is empty or overflowed",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGCHLD",
+      "description": "Child process terminated, paused or unpaused",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGCLD",
+      "description": "Child process terminated, paused or unpaused",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGCONT",
+      "description": "Unpaused",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGSTOP",
+      "description": "Paused",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGTSTP",
+      "description": "Paused using CTRL-Z or \\",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGTTIN",
+      "description": "Background process cannot read terminal input",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGBREAK",
+      "description": "User interruption with CTRL-BREAK",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGTTOU",
+      "description": "Background process cannot write to terminal output",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGURG",
+      "description": "Socket received out-of-band data",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGXCPU",
+      "description": "Process timed out",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGXFSZ",
+      "description": "File too big",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGVTALRM",
+      "description": "Timeout or timer",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGPROF",
+      "description": "Timeout or timer",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGWINCH",
+      "description": "Terminal window size changed",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGIO",
+      "description": "I/O is available",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGPOLL",
+      "description": "Watched event",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGINFO",
+      "description": "Request for process information",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGPWR",
+      "description": "Device running out of power",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGSYS",
+      "description": "Invalid system call",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "SIGUNUSED",
+      "description": "Invalid system call",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals/build/src/core.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Int",
+      "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/scalars.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Float",
+      "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/scalars.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "String",
+      "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/scalars.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "ID",
+      "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/scalars.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "include",
+      "description": "Directs the executor to include this field or fragment only when the `if` argument is true.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/directives.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "deprecated",
+      "description": "Marks an element of a GraphQL schema as no longer supported.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/directives.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "specifiedBy",
+      "description": "Exposes a URL that specifies the behavior of this scalar.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/directives.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "oneOf",
+      "description": "Indicates exactly one field must be supplied and this field must not be `null`.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/directives.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__Schema",
+      "description": "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__Directive",
+      "description": "A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.\\n\\nIn some cases, you need to provide options to alter GraphQL",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__DirectiveLocation",
+      "description": "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__Type",
+      "description": "The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.\\n\\nDepending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name, description and optional `specifiedByURL`, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__Field",
+      "description": "Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__InputValue",
+      "description": "Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__EnumValue",
+      "description": "One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__TypeKind",
+      "description": "An enum describing what kind of type a given `__Type` is.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__schema",
+      "description": "Access the current type schema of this server.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "__type",
+      "description": "Request the type information of a single type.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/graphql@16.11.0/node_modules/graphql/type/introspection.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Character categories",
+      "description": "var nonASCIIidentifierStart = new RegExp(\"[\" + nonASCIIidentifierStartChars + \"]\");",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/acorn@8.15.0/node_modules/acorn/dist/acorn.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Token types",
+      "description": "// The assignment of fine-grained, information-carrying type objects",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/acorn@8.15.0/node_modules/acorn/dist/acorn.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Parser utilities",
+      "description": "var literal = /^(?:'((?:\\\\[^]|[^'\\\\])*?)'|\"((?:\\\\[^]|[^\"\\\\])*?)\")/;",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/acorn@8.15.0/node_modules/acorn/dist/acorn.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Statement parsing",
+      "description": "// Parse a program. Initializes the parser, reads any number of",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/acorn@8.15.0/node_modules/acorn/dist/acorn.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Expression parsing",
+      "description": "// These nest, from the most general expression type at the top to",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/acorn@8.15.0/node_modules/acorn/dist/acorn.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Tokenizer",
+      "description": "var pp = Parser.prototype;",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/acorn@8.15.0/node_modules/acorn/dist/acorn.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Token reading",
+      "description": "// This is the function that is called to fetch the next token. It",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/acorn@8.15.0/node_modules/acorn/dist/acorn.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "ahead of text",
+      "description": "for (const row of rows) {",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/jackspeak@4.1.1/node_modules/jackspeak/dist/esm/index.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "alias",
+      "description": "restart the server",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vite@5.4.19_@types+node@24.7.0/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "shouldnt be followed by parenthesis",
+      "description": "// * (\\{?)",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vite@5.4.19_@types+node@24.7.0/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "first brace wrap opening",
+      "description": "// * ([\\w.]+)",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vite@5.4.19_@types+node@24.7.0/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "key",
+      "description": "// * (?::-((?:\\$\\{(?:\\$\\{(?:\\$\\{[^}]*\\}|[^}])*}|[^}])*}|[^}])+))?",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vite@5.4.19_@types+node@24.7.0/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "optional default nested 3 times",
+      "description": "// * (\\}?)",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vite@5.4.19_@types+node@24.7.0/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "id",
+      "description": "Not Found",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vitepress@1.6.4_@algolia+client-search@5.35.0_@types+node@24.7.0_postcss@8.5.6_search-insights@2.17.3_typescript@5.9.3/node_modules/vitepress/dist/node/chunk-D3CUZ4fa.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "tables",
+      "description": ", placeholder:",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vitepress@1.6.4_@algolia+client-search@5.35.0_@types+node@24.7.0_postcss@8.5.6_search-insights@2.17.3_typescript@5.9.3/node_modules/vitepress/dist/node/chunk-D3CUZ4fa.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "typedef",
+      "description": "Require type annotations in certain places",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.46.0_@typescript-eslint+parser@8.46.0_eslint@9.37.0__e9c886bdca89c3a1eed2e7c9f5e7539d/node_modules/@typescript-eslint/eslint-plugin/dist/rules/typedef.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "and JS",
+      "description": "illegal: '(^using\\\\s+[A-Za-z0-9_\\\\.]+;$|\\\\bfunction\\\\s*[^\\\\(])',",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/highlight.js@10.7.3/node_modules/highlight.js/lib/languages/angelscript.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Numeric Identifier",
+      "description": "// A single `0`, or a non-zero digit followed by zero or more digits.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/re.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Main Version",
+      "description": "// Three dot-separated numeric identifiers.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/re.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Build Metadata Identifier",
+      "description": "// Any combination of digits, letters, or hyphens.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/re.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Build Metadata",
+      "description": "// Plus sign, followed by one or more period-separated build metadata",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/re.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Full Version String",
+      "description": "// A main version, followed optionally by a pre-release version and",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/semver@7.7.2/node_modules/semver/internal/re.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Details about vacuuming",
+      "description": "*",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/minisearch@7.1.2/node_modules/minisearch/dist/umd/index.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Wildcard query",
+      "description": "*",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/minisearch@7.1.2/node_modules/minisearch/dist/umd/index.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Angular",
+      "description": "Print spaces between brackets.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/prettier@3.6.2/node_modules/prettier/plugins/html.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "CSS",
+      "description": "Print spaces between brackets.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/prettier@3.6.2/node_modules/prettier/plugins/postcss.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "GraphQL",
+      "description": "Print spaces between brackets.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/prettier@3.6.2/node_modules/prettier/plugins/graphql.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "YAML",
+      "description": "Print spaces between brackets.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/prettier@3.6.2/node_modules/prettier/plugins/yaml.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Markdown",
+      "description": "Print spaces between brackets.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/prettier@3.6.2/node_modules/prettier/plugins/markdown.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "JavaScript",
+      "description": "Print spaces between brackets.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/prettier@3.6.2/node_modules/prettier/plugins/estree.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "aa",
+      "description": "* ^",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/micromark-core-commonmark@2.0.3/node_modules/micromark-core-commonmark/lib/heading-atx.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Assets",
+      "description": "restart the server",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vite@6.3.5_@types+node@24.7.0_jiti@2.6.1_tsx@4.20.3_yaml@2.8.0/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js",
+      "confidence": 0.9
+    },
+    {
+      "name": "Vitest",
+      "description": "No framework, just plain JavaScript or TypeScript.",
+      "parameters": null,
+      "source": "code:node_modules/.pnpm/vitest@3.2.4_@types+debug@4.1.12_@types+node@24.7.0_jiti@2.6.1_msw@2.11.5_@types+node@2_69a809a51807f469b1ebf5f707cb022d/node_modules/vitest/dist/chunks/creator.GK6I-cL4.js",
+      "confidence": 0.9
+    }
+  ],
+  "resources": [],
+  "prompts": [],
+  "description": null,
+  "version": "0.8.0",
+  "author": null,
+  "repository_url": "git+ssh://git@github.com/gleanwork/mcp-server.git",
+  "language": "javascript",
+  "discovered_at": "2025-10-23 18:10:03.470384"
+}
