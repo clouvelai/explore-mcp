@@ -99,7 +99,7 @@ Your chat app now has:
 ## Next Steps
 
 - See [SETUP.md](./SETUP.md) for detailed Google OAuth setup
-- See [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) for technical details
+- See [IMPLEMENTATION_SUMMARY.md](../../development_notes/IMPLEMENTATION_SUMMARY.md) for technical details
 - Add more MCP servers by editing `MCP_SERVERS` in `chat_backend.py`
 
 ## Troubleshooting
@@ -120,5 +120,5 @@ Your chat app now has:
 
 **Need help?** Check the detailed guides:
 - [SETUP.md](./SETUP.md) - Complete setup guide
-- [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) - Technical details
+- [IMPLEMENTATION_SUMMARY.md](../../development_notes/IMPLEMENTATION_SUMMARY.md) - Technical details
 
