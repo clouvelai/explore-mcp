@@ -195,7 +195,7 @@ gunicorn backend.app:create_app() --bind 0.0.0.0:5001
 
 ## Future Enhancements
 
-See `BACKEND_IMPROVEMENTS.md` for planned improvements including:
+See `development_notes/BACKEND_IMPROVEMENTS.md` for planned improvements including:
 - Async/await throughout
 - Redis caching layer
 - WebSocket support for streaming

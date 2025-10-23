@@ -70,7 +70,7 @@ You → React UI → Flask Backend → OpenAI GPT-4
 
 ## Need Help?
 
-See detailed guide: [CHAT_SETUP.md](CHAT_SETUP.md)
+See detailed guide: [CHAT_SETUP.md](development_notes/CHAT_SETUP.md)
 
 ## Common Issues
 
