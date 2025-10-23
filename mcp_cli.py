@@ -33,10 +33,7 @@ Examples:
     # Add a remote server
     mcp add microsoft-docs https://learn.microsoft.com/api/mcp --category Documentation
     
-    # Add an npm package (auto-detected)
-    mcp add memory @modelcontextprotocol/server-memory --category Memory
-    
-    # Add an npm package (explicit)
+    # Add an npm package (EXPLICIT --source npm REQUIRED)
     mcp add memory @modelcontextprotocol/server-memory --source npm --category Memory
     
     # Run full CI/CD sync
@@ -64,16 +61,18 @@ class MCPRegistryCLI:
     
     def add_server(self, name: str, source: str, category: Optional[str] = None, 
                    description: Optional[str] = None, transport: str = "stdio", source_type: str = "auto"):
-        """Add a server to the registry (supports local, remote, and npm sources)."""
+        """Add a server to the registry (supports local, remote, and explicit npm sources)."""
         try:
-            # Let the manager handle source normalization automatically
-            # It will detect npm packages, remote URLs, and local paths
+            # Handle explicit source types only - no auto-detection
+            source_type_param = None if source_type == "auto" else source_type
+            
             success = self.manager.add_server(
                 server_id=name,
                 name=name,
-                source=source,  # Pass raw string, manager will normalize
+                source=source,
                 description=description or f"{name} MCP server",
-                category=category or "General"
+                category=category or "General",
+                source_type=source_type_param
             )
             
             if success:
@@ -436,7 +435,7 @@ def main():
     add_parser.add_argument("--category", help="Server category")
     add_parser.add_argument("--description", help="Server description")
     add_parser.add_argument("--transport", default="stdio", choices=["stdio", "http", "sse"], help="Transport protocol")
-    add_parser.add_argument("--source", dest="source_type", choices=["local", "remote", "npm", "auto"], default="auto", help="Source type (auto-detected if not specified)")
+    add_parser.add_argument("--source", dest="source_type", choices=["local", "remote", "npm", "auto"], default="auto", help="Source type (explicit --source npm required for npm packages)")
     
     remove_parser = subparsers.add_parser("remove", help="Remove a server from the registry")
     remove_parser.add_argument("name", help="Server name to remove")

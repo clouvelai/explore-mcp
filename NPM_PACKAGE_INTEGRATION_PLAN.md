@@ -30,9 +30,9 @@ Use: `npm install → discover binary → run` (same as local servers)
 
 ## Technical Architecture
 
-### Core Workflow
+### Core Workflow (MVP - Explicit Only)
 ```bash
-# User command
+# User command (EXPLICIT --source npm REQUIRED)
 ./mcp add memory @modelcontextprotocol/server-memory --source npm
 
 # System actions
@@ -40,6 +40,10 @@ Use: `npm install → discover binary → run` (same as local servers)
 2. Detect binary: mcp-server-memory  
 3. Create ServerSource(type="npm", package_name="@modelcontextprotocol/server-memory", binary_path="/usr/local/bin/mcp-server-memory")
 4. Use existing discovery/generation pipeline (same as local servers)
+
+# NO AUTO-DETECTION IN MVP
+# NO CLI SEMANTICS COMPLEXITY
+# JUST EXPLICIT npm SUPPORT
 ```
 
 ### Current Codebase Integration Points
@@ -57,52 +61,42 @@ Use: `npm install → discover binary → run` (same as local servers)
    - Discovery engine integration ready
    - No npm-specific logic yet
 
-### Updated Integration Points (Based on Current Codebase)
+### MVP Integration Points (Explicit npm Only)
 
 ```python
-# 1. Extend ServerSource model (mcp_registry/models.py:28-42)
-class ServerSource(BaseModel):
-    type: Literal["local", "remote", "npm"]
-    path: Optional[str] = None              # For local servers
-    url: Optional[str] = None               # For remote servers
-    package_name: Optional[str] = None      # For npm: "@modelcontextprotocol/server-memory"
-    binary_name: Optional[str] = None       # For npm: "mcp-server-memory"  
-    binary_path: Optional[str] = None       # For npm: "/usr/local/bin/mcp-server-memory"
-    transport: str = "stdio"
+# 1. ServerSource model - ALREADY DONE
+# Keep the npm fields, just remove auto-detection
 
-# 2. Update validation in ServerSource
-@model_validator(mode='after')
-def validate_source(self):
-    if self.type == 'local' and not self.path:
-        raise ValueError('path is required for local servers')
-    elif self.type == 'remote' and not self.url:
-        raise ValueError('url is required for remote servers')
-    elif self.type == 'npm' and not self.package_name:
-        raise ValueError('package_name is required for npm servers')
-    return self
-
-# 3. Add npm installation to ServerManager (mcp_registry/manager.py:134-150)
+# 2. ServerManager - REMOVE AUTO-DETECTION COMPLEXITY
 def _normalize_server_source(self, source: Union[str, ServerSource]) -> ServerSource:
+    """Simple normalization - NO auto-detection."""
     if isinstance(source, str):
-        if source.startswith("@") or self._is_npm_package(source):
-            return self._create_npm_source(source)
-        elif source.startswith(("http://", "https://")):
+        # Only handle basic cases, no npm auto-detection
+        if source.startswith(("http://", "https://")):
             return ServerSource(type="remote", url=source, transport="http")
         else:
             return ServerSource(type="local", path=source, transport="stdio")
     else:
         return source
 
-def _create_npm_source(self, package_name: str) -> ServerSource:
-    """Install npm package and create ServerSource."""
-    binary_name, binary_path = self._install_npm_package(package_name)
-    return ServerSource(
-        type="npm",
-        package_name=package_name,
-        binary_name=binary_name,
-        binary_path=binary_path,
-        transport="stdio"
-    )
+# 3. add_server method - EXPLICIT npm handling only
+def add_server(self, server_id: str, name: str, source: Union[str, ServerSource], 
+               source_type: Optional[str] = None, **kwargs) -> str:
+    
+    # Handle explicit npm source type
+    if source_type == "npm":
+        if isinstance(source, str):
+            source = self._create_npm_source(source)
+        elif source.type != "npm":
+            raise ValueError("source_type npm requires npm package name")
+    else:
+        # Use existing normalization for local/remote
+        source = self._normalize_server_source(source)
+    
+    # Rest of method unchanged...
+
+# 4. Keep _install_npm_package and _create_npm_source methods as-is
+# They work perfectly
 ```
 
 ## Implementation Steps

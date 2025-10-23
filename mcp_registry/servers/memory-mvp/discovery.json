@@ -293,9 +293,9 @@
     "license": null
   },
   "metadata": {
-    "discovered_at": "2025-10-23 19:26:23.314713",
+    "discovered_at": "2025-10-23 19:35:18.960270",
     "discovery_method": "mcp-inspector",
-    "discovery_time_ms": 4024,
+    "discovery_time_ms": 4019,
     "cache_hit": false,
     "cache_age_seconds": null,
     "inspector_version": null

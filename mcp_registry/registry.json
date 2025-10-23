@@ -1,13 +1,14 @@
 {
   "version": "1.0.0",
-  "last_updated": "2025-10-23 19:26:12.886423",
+  "last_updated": "2025-10-23 19:35:12.994173",
   "servers": [
     "microsoft-learn",
     "calculator",
     "air_fryer",
     "gmail",
     "google_drive",
-    "memory-test"
+    "everything",
+    "memory-mvp"
   ],
   "categories": {
     "Documentation": [
@@ -25,9 +26,11 @@
     "Storage": [
       "google_drive"
     ],
-    "Testing": [],
+    "Testing": [
+      "everything"
+    ],
     "Memory": [
-      "memory-test"
+      "memory-mvp"
     ]
   }
 }

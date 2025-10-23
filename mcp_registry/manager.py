@@ -96,6 +96,7 @@ class ServerManager:
         provider: Optional[str] = None,
         auth_required: bool = False,
         auth_type: Optional[str] = None,
+        source_type: Optional[str] = None,
         **kwargs
     ) -> str:
         """
@@ -115,8 +116,17 @@ class ServerManager:
         Returns:
             Server ID
         """
-        # Normalize and create server configuration
-        server_source = self._normalize_server_source(source)
+        # Handle explicit npm source type
+        if source_type == "npm":
+            if isinstance(source, str):
+                server_source = self._create_npm_source(source)
+            elif isinstance(source, ServerSource) and source.type != "npm":
+                raise ValueError("source_type 'npm' requires npm package name string or npm ServerSource")
+            else:
+                server_source = source
+        else:
+            # Use existing normalization for local/remote
+            server_source = self._normalize_server_source(source)
         server_config = self._create_server_config(
             server_id, name, server_source, description, category, 
             provider, auth_required, auth_type, **kwargs
@@ -143,31 +153,12 @@ class ServerManager:
             ServerSource object
         """
         if isinstance(source, str):
-            if source.startswith("@") or self._is_npm_package(source):
-                return self._create_npm_source(source)
-            elif source.startswith(("http://", "https://")):
+            if source.startswith(("http://", "https://")):
                 return ServerSource(type="remote", url=source, transport="http")
             else:
                 return ServerSource(type="local", path=source, transport="stdio")
         else:
             return source
-    
-    def _is_npm_package(self, source: str) -> bool:
-        """
-        Check if a source string is likely an npm package name.
-        
-        Args:
-            source: Source string to check
-            
-        Returns:
-            True if this looks like an npm package name
-        """
-        # Simple heuristics for npm package names
-        if source.startswith("@"):
-            return True
-        # Could add more sophisticated checks like hitting npm registry API
-        # For now, assume anything that's not a path or URL might be an npm package
-        return not ("/" in source and not source.startswith("@"))
     
     def _create_npm_source(self, package_name: str) -> ServerSource:
         """

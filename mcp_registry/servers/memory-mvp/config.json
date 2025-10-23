@@ -1,0 +1,39 @@
+{
+  "id": "memory-mvp",
+  "name": "memory-mvp",
+  "source": {
+    "type": "npm",
+    "path": null,
+    "url": null,
+    "package_name": "@modelcontextprotocol/server-memory",
+    "binary_name": "mcp-server-memory",
+    "binary_path": "/Users/samuelclark/.npm-global/bin/mcp-server-memory",
+    "transport": "stdio"
+  },
+  "discovery": {
+    "enabled": true,
+    "cache_ttl": 3600,
+    "timeout": 30,
+    "retry_attempts": 3,
+    "auth_headers": null,
+    "last_discovered": "2025-10-23 19:35:22.982595"
+  },
+  "generation": {
+    "enabled": true,
+    "output_dir": "generated",
+    "include_resources": true,
+    "include_prompts": true,
+    "mock_data_enabled": true,
+    "last_generated": "2025-10-23 19:35:29.326006"
+  },
+  "metadata": {
+    "created_at": "2025-10-23 19:35:12.992877",
+    "updated_at": "2025-10-23 19:35:29.326122",
+    "version": "1.0.0",
+    "description": "memory-mvp MCP server",
+    "category": "Memory",
+    "provider": null,
+    "auth_required": false,
+    "auth_type": null
+  }
+}
