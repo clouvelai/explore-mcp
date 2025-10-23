@@ -9,6 +9,19 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any, Literal, Union
 from pathlib import Path
 from pydantic import BaseModel, Field, validator, model_validator
+import os
+
+# Global configuration for server base path
+_SERVER_BASE_PATH = "mcp_registry/servers"
+
+def set_server_base_path(path: str):
+    """Set the base path for server configurations."""
+    global _SERVER_BASE_PATH
+    _SERVER_BASE_PATH = path
+
+def get_server_base_path() -> str:
+    """Get the current server base path."""
+    return _SERVER_BASE_PATH
 
 
 class ServerSource(BaseModel):
@@ -79,17 +92,17 @@ class ServerConfig(BaseModel):
     @property
     def generated_path(self) -> Path:
         """Get the path to generated files."""
-        return Path("mcp_registry/servers") / self.id / self.generation.output_dir
+        return Path(get_server_base_path()) / self.id / self.generation.output_dir
     
     @property
     def config_path(self) -> Path:
         """Get the path to server config file."""
-        return Path("mcp_registry/servers") / self.id / "config.json"
+        return Path(get_server_base_path()) / self.id / "config.json"
     
     @property
     def discovery_path(self) -> Path:
         """Get the path to discovery results."""
-        return Path("mcp_registry/servers") / self.id / "discovery.json"
+        return Path(get_server_base_path()) / self.id / "discovery.json"
     
     @classmethod
     def generate_template(cls) -> str:
