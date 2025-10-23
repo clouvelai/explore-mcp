@@ -24,16 +24,15 @@ The platform automatically generates safe, side-effect-free test environments fr
 ### AI Generation (Core Platform Feature)
 ```bash
 # Generate mock server + evaluations from local MCP server
-uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
+./mcp publish mcp_servers/calculator/server.py
 
-# Generate from public MCP server (Microsoft Learn documentation)
-uv run python -m ai_generation.cli --server https://learn.microsoft.com/api/mcp --name microsoft-docs
+# Generate from public MCP server (Microsoft Learn documentation)  
+./mcp add microsoft-docs https://learn.microsoft.com/api/mcp --category Documentation
+./mcp discover microsoft-docs && ./mcp generate microsoft-docs
 
-# Generate from local HTTP MCP server
-uv run python -m ai_generation.cli --server http://localhost:8080/sse --name my-server
-
-# Custom output location
-uv run python -m ai_generation.cli --server <path> --name custom --output-dir custom_output
+# Add and generate from local server
+./mcp add my-server ./my-server.py --category Utilities
+./mcp discover my-server && ./mcp generate my-server
 ```
 
 **Change Detection**: Discovery automatically tracks two hash types for schema intelligence:
@@ -43,7 +42,7 @@ uv run python -m ai_generation.cli --server <path> --name custom --output-dir cu
 ### Evaluation Runner
 ```bash
 # Run generated test suite against mock server
-uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
+./mcp test calculator
 ```
 
 ### Backend Development
@@ -64,6 +63,45 @@ uv run python client.py
 uv run python mcp_servers/calculator/server.py
 ```
 
+### MCP Registry CLI (npm/docker-style)
+**NEW**: Unified CLI for managing MCP servers like npm/docker registry:
+
+```bash
+# Server Management
+./mcp add calculator mcp_servers/calculator/server.py --category Utilities
+./mcp add microsoft-docs https://learn.microsoft.com/api/mcp --category Documentation
+./mcp list
+./mcp list --category Utilities
+./mcp search "math calculator"
+./mcp inspect calculator
+./mcp remove old-server
+
+# Operations
+./mcp discover calculator
+./mcp discover --all
+./mcp generate calculator --force
+./mcp test calculator
+
+# CI/CD Workflows
+./mcp sync                    # Discover all + regenerate if changed
+./mcp status                  # Registry health overview
+./mcp publish ./my-server.py  # Easy server addition with auto-discovery
+```
+
+**Key Features**:
+- **npm-like commands**: `add`, `remove`, `list`, `search`, `inspect`
+- **docker-like operations**: `sync`, `status` for CI/CD health monitoring
+- **Auto-discovery**: `publish` command auto-detects and configures servers
+- **Category management**: Organize servers by function (Utilities, Communication, etc.)
+- **Batch operations**: `--all` flag for discover/generate/test across all servers
+
+**Usage**: Use the `./mcp` wrapper script for all commands:
+```bash
+./mcp list                          # List all servers
+./mcp status                        # Registry health overview
+./mcp sync && ./mcp test --all      # CI/CD pipeline
+```
+
 ## Architecture
 
 ### Backend Structure (`backend/`)
@@ -78,10 +116,10 @@ uv run python mcp_servers/calculator/server.py
 - **`google_drive/`**: File operations (list, search, read, create, sheets)
 
 ### AI Generation (`ai_generation/`)
-- **`cli.py`**: Main orchestrator for discovery and generation
 - **`server_generator.py`**: Creates mock MCP servers with realistic responses
 - **`evals_generator.py`**: Generates comprehensive test suites
 - **`evaluation_runner.py`**: Executes tests and generates reports
+- **`discovery.py`**: MCP server discovery engine
 
 ## Environment Setup
 
@@ -180,10 +218,11 @@ The platform supports discovering and generating mocks from **any public MCP ser
 Microsoft provides a public MCP server with documentation tools:
 ```bash
 # Discover Microsoft Learn MCP server
-uv run python -m ai_generation.discovery https://learn.microsoft.com/api/mcp
+./mcp add microsoft-docs https://learn.microsoft.com/api/mcp --category Documentation
+./mcp discover microsoft-docs
 
 # Generate complete mock + evaluations
-uv run python -m ai_generation.cli --server https://learn.microsoft.com/api/mcp --name microsoft-docs
+./mcp generate microsoft-docs
 
 # Available tools:
 # - microsoft_docs_search: Search official Microsoft/Azure documentation
@@ -207,10 +246,10 @@ curl http://localhost:5001/api/tools
 curl -X POST http://localhost:5001/api/clear
 
 # Test with local server
-uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
-uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
+./mcp publish mcp_servers/calculator/server.py
+./mcp test calculator
 
 # Test with public server  
-uv run python -m ai_generation.cli --server https://learn.microsoft.com/api/mcp --name microsoft-docs
-uv run python -m ai_generation.evaluation_runner --evaluations generated/microsoft-docs/evaluations.json --mock-server generated/microsoft-docs/server.py
+./mcp add microsoft-docs https://learn.microsoft.com/api/mcp --category Documentation
+./mcp sync && ./mcp test microsoft-docs
 ```

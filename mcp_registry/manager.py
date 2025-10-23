@@ -689,3 +689,57 @@ class ServerManager:
             print(f"\n✅ Successfully added {len(added_servers)} local servers to registry")
         
         return added_servers
+    
+    def test_server(self, server_id: str) -> bool:
+        """
+        Run evaluation tests for a specific server.
+        
+        Args:
+            server_id: Server ID to test
+            
+        Returns:
+            True if tests passed, False otherwise
+        """
+        config = self.get_server(server_id)
+        if not config:
+            print(f"❌ Server not found: {server_id}")
+            return False
+        
+        # Check if generated server and evaluations exist
+        generated_dir = self.servers_dir / server_id / "generated"
+        mock_server_path = generated_dir / "server.py"
+        evaluations_path = generated_dir / "evaluations.json"
+        
+        if not mock_server_path.exists():
+            print(f"❌ No generated mock server found for {server_id}. Run generation first.")
+            return False
+            
+        if not evaluations_path.exists():
+            print(f"❌ No evaluations found for {server_id}. Run generation first.")
+            return False
+        
+        print(f"🧪 Running tests for server: {config.name}")
+        
+        try:
+            # Import and run the evaluation runner
+            from ai_generation.evaluation_runner import run_evaluations
+            
+            # Run evaluations
+            result = run_evaluations(
+                evaluations_file=str(evaluations_path),
+                mock_server_file=str(mock_server_path)
+            )
+            
+            if result:
+                print(f"✅ All tests passed for {server_id}")
+                return True
+            else:
+                print(f"❌ Some tests failed for {server_id}")
+                return False
+                
+        except ImportError:
+            print(f"❌ Evaluation runner not available. Install required dependencies.")
+            return False
+        except Exception as e:
+            print(f"❌ Test execution failed: {e}")
+            return False
