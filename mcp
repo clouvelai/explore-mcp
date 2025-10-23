@@ -1,0 +1,5 @@
+#!/bin/bash
+# MCP Registry CLI - Simple wrapper script
+# Usage: ./mcp <command> [args...]
+
+exec uv run python mcp_cli.py "$@"

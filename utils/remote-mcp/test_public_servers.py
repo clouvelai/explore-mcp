@@ -81,14 +81,26 @@ class PublicServerTester:
         print(f"  Running generation for {server_name}...")
         
         try:
-            cmd = [
-                'uv', 'run', 'python', '-m', 'ai_generation.cli',
-                '--server', server_url,
-                '--name', server_name
-            ]
+            # Add server first, then sync  
+            add_cmd = ['./mcp', 'add', server_name, server_url]
+            sync_cmd = ['./mcp', 'sync']
             
+            # Add server
             result = subprocess.run(
-                cmd,
+                add_cmd,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            
+            if result.returncode != 0:
+                error_msg = result.stderr.strip() or result.stdout.strip()
+                print(f"    ✗ Add failed: {error_msg}")
+                return False, error_msg
+            
+            # Sync (discover + generate)
+            result = subprocess.run(
+                sync_cmd,
                 capture_output=True,
                 text=True,
                 timeout=300  # 5 minute timeout for generation

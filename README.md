@@ -1,337 +1,187 @@
-# MCP Learning Project
+# MCP CI/CD Automation Platform
 
-Multi-server MCP implementation with chat interface and AI-powered evaluation system for testing any MCP server.
+**AI-powered mock server generation and testing for MCP servers**
 
+Automatically generates safe, side-effect-free test environments from any MCP server implementation using Claude AI.
 
-## 🤖 MCP Evaluation Agent
+## Quick Start
 
-**Auto-generates evaluation suites and mock servers from any MCP implementation using Claude AI**
+```bash
+# Setup
+uv sync && cp ENV_TEMPLATE .env
+# Add your OPENAI_API_KEY to .env
+
+# Add and test a server
+./mcp publish mcp_servers/calculator/server.py
+./mcp test calculator
+
+# Check registry status
+./mcp status
+```
+
+## Core Workflow
+
+```
+Real MCP Server → AI Discovery → Mock Server + Evaluations → CI/CD Testing
+```
+
+## Key Features
+
+### 🤖 **AI-Powered Generation**
+- **Zero Setup**: Point at any MCP server, get instant evaluation suite
+- **Smart Mocks**: Claude generates realistic responses with no side effects
+- **Comprehensive Tests**: Auto-generated test cases for validation, edge cases, and errors
+
+### 🛠️ **npm/docker-style Registry**
+```bash
+# Server Management
+./mcp add calculator mcp_servers/calculator/server.py --category Utilities
+./mcp list
+./mcp inspect calculator
+./mcp remove old-server
+
+# Operations  
+./mcp discover --all
+./mcp generate --all
+./mcp test --all
+
+# CI/CD Workflows
+./mcp sync                    # Discover + regenerate if changed
+./mcp status                  # Registry health overview
+```
+
+### 🌐 **Multi-Transport Support**
+- **Local servers**: stdio transport
+- **Remote servers**: HTTP/SSE auto-detection
+- **Public APIs**: Microsoft Learn, custom endpoints
+
+## Examples
+
+### Local Server
+```bash
+./mcp publish mcp_servers/calculator/server.py
+./mcp test calculator
+```
+
+### Remote Server
+```bash
+./mcp add microsoft-docs https://learn.microsoft.com/api/mcp --category Documentation
+./mcp sync && ./mcp test microsoft-docs
+```
+
+### Batch Operations
+```bash
+./mcp add gmail mcp_servers/gmail/server.py --category Communication
+./mcp add google-drive mcp_servers/google_drive/server.py --category Storage
+./mcp sync && ./mcp test --all
+```
+
+## Chat Interface
+
+Interactive testing with GPT-4 integration:
+
+```bash
+# Terminal 1: Backend
+uv run python main.py
+
+# Terminal 2: Frontend
+cd chat-frontend && npm install && npm start
+# Opens http://localhost:3000
+```
+
+Try: *"What's 25 + 17?"* - Watch GPT-4 automatically use your MCP tools!
+
+## Architecture
 
 ```
 ┌─────────────────┐    Discovery    ┌──────────────────┐    Generation    ┌─────────────────┐
-│   Real MCP      │ ─────────────►  │  Eval Generator  │ ─────────────►  │  Generated      │
-│   Server        │   initialize()  │                  │                 │  Outputs        │
-│ ┌─────────────┐ │   list_tools()  │ ┌──────────────┐ │                 │ ┌─────────────┐ │
+│   Real MCP      │ ─────────────►  │  AI Generator    │ ─────────────►  │  Generated      │
+│   Server        │                 │                  │                 │  Outputs        │
+│ ┌─────────────┐ │                 │ ┌──────────────┐ │                 │ ┌─────────────┐ │
 │ │• tool_alpha │ │                 │ │ Discovers    │ │                 │ │ Mock Server │ │
 │ │• tool_beta  │ │◄────────────────│ │ Tools &      │ │────────────────►│ │ - Same APIs │ │
 │ │• tool_gamma │ │                 │ │ Schemas      │ │                 │ │ - No Effects│ │
-│ │• tool_delta │ │                 │ │              │ │                 │ │ - Realistic │ │
-│ └─────────────┘ │                 │ └──────────────┘ │                 │ │   Responses │ │
-└─────────────────┘                 │                  │                 │ └─────────────┘ │
-                                    │ ┌──────────────┐ │                 │                 │
-                                    │ │ Generates    │ │                 │ ┌─────────────┐ │
-                                    │ │ Test Cases   │ │────────────────►│ │ Eval Suite  │ │
-                                    │ │ from Schemas │ │                 │ │ - Valid     │ │
-                                    │ └──────────────┘ │                 │ │ - Invalid   │ │
-                                    └──────────────────┘                 │ │ - Edge      │ │
-                                                                         │ │ - Missing   │ │
+│ └─────────────┘ │                 │ └──────────────┘ │                 │ │ - Realistic │ │
+└─────────────────┘                 │                  │                 │ │   Responses │ │
+                                    │ ┌──────────────┐ │                 │ └─────────────┘ │
+                                    │ │ Generates    │ │                 │                 │
+                                    │ │ Test Cases   │ │────────────────►│ ┌─────────────┐ │
+                                    │ └──────────────┘ │                 │ │ Eval Suite  │ │
+                                    └──────────────────┘                 │ │ - Valid     │ │
+                                                                         │ │ - Invalid   │ │
+                                                                         │ │ - Edge      │ │
                                                                          │ └─────────────┘ │
                                                                          └─────────────────┘
-                                                ▼
-┌─────────────────┐    Executes    ┌──────────────────┐    Connects     ┌─────────────────┐
-│   Any LLM/      │ ─────────────► │  Eval Runner     │ ─────────────►  │  Mock Server    │
-│   Agent         │                │                  │                 │                 │
-│                 │◄───────────────│ ┌──────────────┐ │◄────────────────│ ┌─────────────┐ │
-│ ┌─────────────┐ │    Results     │ │ Loads Tests  │ │   Tool Calls    │ │ Returns     │ │
-│ │ GPT-4       │ │                │ │ Calls Tools  │ │                 │ │ Mock Data   │ │
-│ │ Claude      │ │                │ │ Verifies     │ │                 │ │ No Side     │ │
-│ │ Custom Bot  │ │                │ │ Responses    │ │                 │ │ Effects     │ │
-│ └─────────────┘ │                │ └──────────────┘ │                 │ └─────────────┘ │
-└─────────────────┘                └──────────────────┘                 └─────────────────┘
-                                                ▼
-                                   ┌──────────────────┐
-                                   │   Markdown       │
-                                   │   Report         │
-                                   │ ┌──────────────┐ │
-                                   │ │ Pass/Fail    │ │
-                                   │ │ Metrics      │ │
-                                   │ │ Error        │ │
-                                   │ │ Details      │ │
-                                   │ │ Suggestions  │ │
-                                   │ └──────────────┘ │
-                                   └──────────────────┘
 ```
 
-### Quick Start
+## Platform Components
+
+- **MCP Registry CLI** (`./mcp`): npm/docker-style server management
+- **AI Generation** (`ai_generation/`): Claude-powered mock & test generation  
+- **Backend API** (`backend/`): Flask app bridging GPT-4 with MCP servers
+- **Chat Interface** (`chat-frontend/`): React frontend for interactive testing
+- **Example Servers** (`mcp_servers/`): Calculator, Gmail, Google Drive implementations
+
+## Environment Setup
 
 ```bash
-# Generate evaluations for any MCP server
-uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
+# Dependencies
+uv sync
+cd chat-frontend && npm install
 
-# Run the generated evaluations
-uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
-```
-
-### Key Benefits
-- **AI-Powered**: Claude generates intelligent tests and realistic mock responses
-- **Zero Setup**: Point at any MCP server, get instant evaluation suite
-- **Safe Testing**: Mock servers with no side effects or external dependencies
-- **Domain Agnostic**: Works with any MCP server regardless of purpose
-
-## Chat Interface Architecture
-
-```
-┌─────────────────┐    ┌──────────────────────────────────┐    ┌─────────────────┐
-│  React Frontend │    │       Flask Backend (backend/)   │    │   OpenAI GPT-4  │
-│   (port 3000)   │◄──►│         (port 5001)              │◄──►│                 │
-└─────────────────┘    │                                  │    └─────────────────┘
-                       │  ┌────────────────────────────┐  │
-                       │  │ API Layer (backend/api/)   │  │
-                       │  │ • /api/chat                │  │
-                       │  │ • /api/tools               │  │
-                       │  │ • /api/servers             │  │
-                       │  │ • /api/oauth/*             │  │
-                       │  └────────────────────────────┘  │
-                       │                                  │
-                       │  ┌────────────────────────────┐  │
-                       │  │ Services (backend/services/)│  │
-                       │  │ • MCPService               │  │
-                       │  │ • OpenAIService            │  │
-                       │  └────────────────────────────┘  │
-                       │                                  │
-                       │  ┌────────────────────────────┐  │
-                       │  │ Auth (backend/auth/)       │  │
-                       │  │ • GoogleOAuthHandler       │  │
-                       │  │ • TokenStore               │  │
-                       │  └────────────────────────────┘  │
-                       └──────────────────────────────────┘
-                                        │
-                                        ▼
-                       ┌──────────────────────────────────┐
-                       │      MCP Servers (mcp_servers/)  │
-                       │                                  │
-                       │ ┌──────────────┐                 │
-                       │ │ Calculator   │                 │
-                       │ │ - add()      │                 │
-                       │ │ - multiply() │                 │
-                       │ │ - divide()   │                 │
-                       │ │ - sum_many() │                 │
-                       │ └──────────────┘                 │
-                       │                                  │
-                       │ ┌──────────────┐                 │
-                       │ │ Gmail        │                 │
-                       │ │ - list_msgs  │                 │
-                       │ │ - search     │                 │
-                       │ │ - read_msg   │                 │
-                       │ │ - mark_read  │                 │
-                       │ │ - create_drf │                 │
-                       │ └──────────────┘                 │
-                       │                                  │
-                       │ ┌──────────────┐                 │
-                       │ │ Google Drive │                 │
-                       │ │ - list_files │                 │
-                       │ │ - search     │                 │
-                       │ │ - read_file  │                 │
-                       │ │ - create_txt │                 │
-                       │ │ - sheets_ops │                 │
-                       │ └──────────────┘                 │
-                       └──────────────────────────────────┘
-```
-
-## Backend Architecture
-
-The Flask backend has been refactored into a modular, maintainable structure:
-
-### Module Overview
-
-- **`backend/app.py`**: Main Flask application factory and configuration
-- **`backend/api/`**: RESTful API endpoints
-  - `chat.py`: Handles chat messages, OpenAI integration, and tool execution
-  - `tools.py`: Discovers and lists available MCP tools
-  - `servers.py`: Reports MCP server status and authentication state
-  - `auth.py`: Manages OAuth flow for Google services
-- **`backend/services/`**: Business logic and external integrations
-  - `mcp_service.py`: Manages MCP server connections, tool discovery, and execution
-  - `openai_service.py`: Handles OpenAI API calls and chat completions
-- **`backend/auth/`**: Authentication and security
-  - `oauth_handler.py`: Google OAuth 2.0 flow implementation
-  - `token_store.py`: SQLite-based secure token persistence
-
-### API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/chat` | POST | Send message to OpenAI with MCP tools |
-| `/api/tools` | GET | List all available MCP tools |
-| `/api/servers` | GET | Get MCP server status and auth state |
-| `/api/history` | GET | Retrieve conversation history |
-| `/api/clear` | POST | Clear conversation history |
-| `/api/oauth/start/<server>` | GET | Initiate OAuth flow |
-| `/api/oauth/callback` | GET | Handle OAuth callback |
-| `/api/oauth/disconnect/<server>` | POST | Revoke OAuth tokens |
-
-## MCP Servers & Tools
-
-### Calculator Server (`mcp_servers/calculator/`)
-- **add(a, b)** - Add two numbers
-- **multiply(a, b)** - Multiply two numbers  
-- **divide(a, b)** - Divide with zero check
-- **sum_many(numbers)** - Add multiple numbers
-- **explain_calculation** - Educational prompt
-
-### Gmail Server (`mcp_servers/gmail/`)
-- **list_messages** - List inbox messages with unread indicators
-- **search_messages** - Search with Gmail query syntax
-- **read_message** - Get full message content
-- **get_unread_count** - Count unread messages
-- **create_draft** - Create email draft
-- **mark_as_read/unread** - Update message status
-- **list_labels** - Show all Gmail labels
-
-### Google Drive Server (`mcp_servers/google_drive/`)
-- **list_files** - List Drive files
-- **search_files** - Search with natural language or API format
-- **get_file_info** - Detailed file metadata
-- **list_folders** - Show folders only
-- **recent_files** - Files modified in last N days
-- **read_file** - Read/export file content
-- **create_text_file** - Upload new text file
-- **read_spreadsheet_cells** - Read Google Sheets data
-- **update_spreadsheet_cells** - Write to Google Sheets
-
-## Prompt Management
-
-### Version Control Rules for AI Prompts
-
-The AI generation system uses JSON-based prompts in `ai_generation/prompts/`. When modifying prompts:
-
-1. **Isolated Commits**: Each prompt change MUST be in its own commit
-2. **Version Updates**: Always increment the `version` field in the JSON file
-3. **Semantic Versioning**: Use semantic versioning (major.minor.patch):
-   - **Major**: Breaking changes to prompt structure or expected output format
-   - **Minor**: New features or significant improvements to prompt quality
-   - **Patch**: Bug fixes or minor tweaks to wording
-4. **Commit Format**: Use `prompt: update [prompt_name] to v[version] - [description]`
-
-Example:
-```bash
-# Edit prompt
-vi ai_generation/prompts/mock_responses.json
-# Change "version": "1.0.0" to "version": "1.0.1"
-
-# Commit ONLY the prompt change
-git add ai_generation/prompts/mock_responses.json
-git commit -m "prompt: update mock_responses to v1.0.1 - improve response realism"
-```
-
-## Project Structure
-
-```
-explore-mcp/
-├── backend/                # Organized Flask backend application
-│   ├── __init__.py
-│   ├── app.py             # Main Flask application setup
-│   ├── auth/              # Authentication & token management
-│   │   ├── __init__.py
-│   │   ├── oauth_handler.py  # Google OAuth 2.0 handler
-│   │   └── token_store.py    # SQLite token persistence
-│   ├── api/               # API endpoint definitions
-│   │   ├── __init__.py
-│   │   ├── auth.py        # OAuth endpoints (/api/oauth/*)
-│   │   ├── chat.py        # Chat endpoints (/api/chat)
-│   │   ├── servers.py     # Server status (/api/servers)
-│   │   └── tools.py       # Tool discovery (/api/tools)
-│   └── services/          # Business logic layer
-│       ├── __init__.py
-│       ├── mcp_service.py    # MCP server connection management
-│       └── openai_service.py # OpenAI API integration
-├── ai_generation/         # AI-powered MCP evaluation system
-│   ├── cli.py            # Main command-line interface
-│   ├── ai_service.py     # Claude CLI interface
-│   ├── server_generator.py # Mock server generation
-│   ├── evals_generator.py  # Test case generation
-│   ├── evaluation_runner.py # Evaluation execution
-│   └── prompts/          # JSON-based AI prompt templates
-│       ├── schema.json   # Validation schema for prompts
-│       ├── mock_responses.json # Mock response generation
-│       └── test_cases.json # Test case generation
-├── mcp_servers/           # MCP server implementations
-│   ├── calculator/       # Calculator MCP server
-│   │   ├── server.py     # FastMCP server setup
-│   │   └── tools.py      # Calculator tool implementations
-│   ├── gmail/           # Gmail MCP server  
-│   │   ├── server.py    # FastMCP server setup
-│   │   └── tools.py     # Gmail tool implementations
-│   ├── google_drive/    # Google Drive MCP server
-│   │   ├── server.py    # FastMCP server setup
-│   │   └── tools.py     # Drive tool implementations
-│   └── shared/          # Shared utilities
-│       └── google_auth.py # Google API authentication
-├── chat-frontend/       # React chat interface
-├── generated/           # AI-generated mock servers & tests
-├── main.py             # Backend entry point (backward compatible)
-├── client.py           # Test client for MCP servers
-└── README.md           # This file
-```
-
-## 🚀 Setup & Usage
-
-### Prerequisites
-```bash
-pip install claude-cli  # For AI generation
-uv sync                 # Python dependencies
-cd chat-frontend && npm install  # Frontend (optional)
-```
-
-### Environment Setup
-```bash
+# Environment
 cp ENV_TEMPLATE .env
-# Edit .env with OPENAI_API_KEY and Google OAuth credentials
+# Add OPENAI_API_KEY and Google OAuth credentials
 ```
 
-### Generate MCP Evaluations
+## Registry Status
+
+Check your current registry:
 ```bash
-# Generate with Claude AI for calculator
-uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py
-
-# For other servers  
-uv run python -m ai_generation.cli --server mcp_servers/gmail/server.py
-uv run python -m ai_generation.cli --server mcp_servers/google_drive/server.py
-
-# Custom name and output directory
-uv run python -m ai_generation.cli --server mcp_servers/calculator/server.py --name custom_calc --output-dir custom_output
+./mcp status
 ```
 
+Example output:
+```
+📊 MCP Registry Status
+==================================================
+Total servers: 5
+Discovered: 3/5
+Generated: 3/5
 
-### Run Evaluations
+📂 By Category:
+  Communication: 1
+  Documentation: 1  
+  Storage: 1
+  Utilities: 2
+```
+
+## Development
+
+### Adding New Tools
+```python
+# mcp_servers/{server}/tools.py
+@mcp.tool()
+def your_tool(param: str) -> str:
+    """Tool description."""
+    return "result"
+```
+
+### Testing Changes
 ```bash
-# Execute generated test suite
-uv run python -m ai_generation.evaluation_runner --evaluations generated/calculator/evaluations.json --mock-server generated/calculator/server.py
+./mcp discover calculator  # Rediscover after changes
+./mcp generate calculator  # Regenerate mocks
+./mcp test calculator      # Run evaluations
 ```
 
+## Key Benefits
 
-### Run Chat Interface
-```bash
-# Terminal 1: Start backend
-uv run python main.py
+- **Safe Testing**: Mock servers with no side effects or external dependencies
+- **Domain Agnostic**: Works with any MCP server regardless of purpose  
+- **CI/CD Ready**: Registry management with health monitoring and batch operations
+- **AI-Powered**: Claude generates intelligent tests and realistic responses
+- **Developer Friendly**: npm/docker-style commands developers already know
 
-# Terminal 2: Start frontend  
-cd chat-frontend && npm start
+---
 
-# Access at http://localhost:3000
-```
-
-### Test MCP Servers
-```bash
-# Test with client
-uv run python client.py
-
-# Run individual servers
-uv run python mcp_servers/calculator/server.py
-```
-
-
-## Dependencies
-
-- `uv` - Python package manager
-- `claude` CLI - For AI generation
-- `mcp>=1.0.0`, `fastmcp>=0.2.0` - MCP protocol
-- `openai>=1.0.0`, `flask>=3.0.0` - Chat backend
-- `google-api-python-client>=2.0.0` - Google APIs
-- React 18.2.0 - Frontend
-
-## Ports
-- Frontend: `localhost:3000`
-- Backend: `localhost:5001`
-
-
+**Get started**: `./mcp publish mcp_servers/calculator/server.py && ./mcp test calculator`

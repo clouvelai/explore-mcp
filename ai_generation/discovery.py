@@ -632,7 +632,7 @@ if __name__ == "__main__":
         print("  python discovery.py server.py  # Fresh discovery, no cache")
         print("")
         print("For more options, use the main CLI:")
-        print("  python -m ai_generation.cli --help")
+        print("  ./mcp --help")
         sys.exit(1)
     
     engine = DiscoveryEngine()
