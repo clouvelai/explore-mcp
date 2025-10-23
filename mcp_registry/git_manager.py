@@ -20,7 +20,7 @@ class GitServerInfo:
     """Information about an MCP server found in a git repository."""
     name: str
     entry_point: str  # Relative path to server file from repo root
-    server_type: str  # "python", "nodejs", "other"
+    server_type: str  # "python", "typescript", "nodejs", "other"
     description: Optional[str] = None
     category: str = "General"
     transport: str = "stdio"
@@ -143,15 +143,18 @@ class GitManager:
             ("**/*_server.py", "python"),
             ("**/main.py", "python"),
             
+            # TypeScript servers (prioritize over JS)
+            ("**/server.ts", "typescript"),
+            ("**/index.ts", "typescript"), 
+            ("**/src/index.ts", "typescript"),
+            ("**/src/server.ts", "typescript"),
+            ("**/mcp_server.ts", "typescript"),
+            
             # Node.js servers  
             ("**/server.js", "nodejs"),
             ("**/index.js", "nodejs"),
             ("**/dist/index.js", "nodejs"),
-            
-            # TypeScript
-            ("**/server.ts", "nodejs"),
-            ("**/index.ts", "nodejs"),
-            ("**/src/index.ts", "nodejs"),
+            ("**/mcp_server.js", "nodejs"),
         ]
         
         for pattern, server_type in patterns:
@@ -202,7 +205,7 @@ class GitManager:
             return False
     
     def _create_server_info(self, file_path: Path, relative_path: Path, server_type: str) -> Optional[GitServerInfo]:
-        """Create server info from a detected file."""
+        """Create server info from a detected file - simplified approach."""
         try:
             # Generate name from path
             if file_path.parent.name in ['src', 'dist', 'build']:
@@ -224,6 +227,7 @@ class GitManager:
             # Determine category based on path/content
             category = self._determine_category(file_path, description)
             
+            # Simple server info - clean and minimal
             return GitServerInfo(
                 name=name,
                 entry_point=str(relative_path),
@@ -279,6 +283,8 @@ class GitManager:
                     return category
         
         return "General"
+    
+    # Removed complex runtime detection - using simple file extension approach
     
     def get_package_info(self, repo_path: Path) -> Dict:
         """Extract package information from repository."""

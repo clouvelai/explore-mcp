@@ -6,6 +6,7 @@ Separates git server management from general server management for better modula
 
 import json
 import re
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -14,6 +15,7 @@ from .doc_discovery import DocumentationDiscovery
 from .exceptions import FileOperationError, handle_error
 from .git_manager import GitManager
 from .models import ServerConfig, ServerSource
+from .simple_runtime import get_execution_command, can_execute, get_runtime_type
 
 
 class GitServerManager:
@@ -118,6 +120,15 @@ class GitServerManager:
                 print(f"   ✅ Added: {server_info.name} ({server_id})")
                 print(f"      Entry point: {server_info.entry_point}")
                 print(f"      Type: {server_info.server_type}")
+                
+                # Simple runtime verification
+                entry_path = clone_path / server_info.entry_point
+                if can_execute(entry_path):
+                    cmd = get_execution_command(entry_path)
+                    print(f"      Execution: {' '.join(cmd)}")
+                    print(f"✅ Runtime verified")
+                else:
+                    print(f"⚠️ Runtime verification failed")
                 
                 # Automatically run documentation discovery for git servers
                 print(f"📚 Running documentation discovery for {server_id}...")
@@ -370,3 +381,5 @@ class GitServerManager:
             return self.git_manager.remove_repo(clone_name)
         
         return True
+    
+    # Removed complex runtime preparation - using simple file extension approach

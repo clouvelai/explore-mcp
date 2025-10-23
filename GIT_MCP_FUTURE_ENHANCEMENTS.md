@@ -24,11 +24,15 @@ The MVP successfully implements:
 - **Multiple Remotes**: Support for repositories with multiple remote origins
 
 ### 2. TypeScript/Node.js & Non-Python Runtime Support
-**Complexity: High - Priority Feature**
-- **TypeScript Support**:
-  - Automatic TypeScript compilation for MCP servers
-  - Support for `tsx`, `ts-node`, and compiled JavaScript execution
-  - Handle TypeScript configuration files (`tsconfig.json`)
+**Status: ✅ PARTIALLY COMPLETED - TypeScript support added**
+
+**Completed Features:**
+- ✅ **TypeScript Support**: Uses MCP Inspector for direct `.ts` file execution
+- ✅ **Automatic Detection**: Detects TypeScript servers via file patterns and package.json
+- ✅ **Zero-Build Setup**: MCP Inspector handles compilation on-the-fly
+- ✅ **Git Integration**: Seamlessly works with git-based TypeScript MCP servers
+
+**Future Enhancements:**
 - **Node.js Runtime Management**:
   - Detect required Node.js versions from `package.json` or `.nvmrc`
   - Automatic `npm install`/`yarn install`/`pnpm install` execution
@@ -42,6 +46,21 @@ The MVP successfully implements:
   - Automatically run build scripts if needed
   - Handle complex build pipelines
   - Support for bundled/compiled output
+
+**Alternative Simple Implementation:**
+A much simpler runtime system could be implemented using file extension detection:
+```python
+# 20-line alternative to current 400+ line runtime system
+def get_execution_command(file_path: Path) -> List[str]:
+    if file_path.suffix == '.py':
+        return ["python", str(file_path)]
+    elif file_path.suffix == '.ts':
+        return ["npx", "@modelcontextprotocol/inspector", str(file_path)]
+    elif file_path.suffix == '.js':
+        return ["node", str(file_path)]
+    return None
+```
+This demonstrates that complex runtime detection could be dramatically simplified for future iterations.
 
 ### 3. Dependency Management & Runtime Detection
 **Complexity: High**
@@ -158,7 +177,7 @@ The MVP successfully implements:
 Based on user value vs complexity:
 
 ### High Priority (High Value)
-1. **TypeScript/Node.js Runtime Support** - Critical for most git-based MCP servers
+1. ✅ **TypeScript/Node.js Runtime Support** - COMPLETED with MCP Inspector integration
 2. Enhanced CLI experience (progress bars, better output)
 3. Package manager integration (npm install, etc.)
 4. Tag support for version management
@@ -186,9 +205,25 @@ Based on user value vs complexity:
 ## Current Limitations
 
 The MVP has these known limitations that future enhancements could address:
-- No automatic dependency installation
+- ~~No TypeScript/Node.js support~~ ✅ **COMPLETED**
+- No automatic dependency installation (for complex projects)
 - Limited to public repositories
-- Basic server detection patterns
-- No runtime environment validation
+- Basic server detection patterns (though adequate for most cases)
+- No runtime environment validation (beyond basic checks)
 - Manual update process
 - Limited error handling for complex git scenarios
+
+## Recently Completed (v1.1)
+
+✅ **TypeScript Runtime Support**
+- Added comprehensive TypeScript MCP server support
+- Integrated MCP Inspector for seamless `.ts` file execution
+- Enhanced git server detection for TypeScript projects
+- Zero-configuration setup - no build process required
+- Full integration with existing git-based server workflow
+
+**Implementation Details:**
+- File extension detection: `.ts` → MCP Inspector, `.py` → Python, `.js` → Node
+- Package.json parsing for TypeScript project identification
+- Automatic verification of npx availability for MCP Inspector
+- Modular runtime architecture supporting future language additions

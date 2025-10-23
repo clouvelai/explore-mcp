@@ -39,6 +39,7 @@ class ServerSource(BaseModel):
     git_subpath: Optional[str] = None  # Path within git repo to server
     clone_path: Optional[str] = None   # Local path where repo is cloned
     
+    
     @model_validator(mode='after')
     def validate_source(self):
         """Ensure proper fields are provided based on type."""
