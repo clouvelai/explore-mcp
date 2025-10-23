@@ -6,7 +6,10 @@ with consistent discovery, generation, and tracking capabilities.
 """
 
 from .manager import ServerManager
-from .models import ServerConfig, ServerSource, ServerRegistry, DiscoveryConfig, GenerationConfig
+from .models import (
+    ServerConfig, ServerSource, ServerRegistry, DiscoveryConfig, GenerationConfig,
+    set_server_base_path, get_server_base_path
+)
 from .local_scanner import LocalServerScanner, LocalServerInfo
 from .exceptions import (
     MCPRegistryError, ServerNotFoundError, ServerConfigurationError, 
@@ -16,7 +19,8 @@ from .exceptions import (
 
 __all__ = [
     'ServerManager', 'ServerConfig', 'ServerSource', 'ServerRegistry', 
-    'DiscoveryConfig', 'GenerationConfig', 'LocalServerScanner', 'LocalServerInfo',
+    'DiscoveryConfig', 'GenerationConfig', 'set_server_base_path', 'get_server_base_path',
+    'LocalServerScanner', 'LocalServerInfo',
     'MCPRegistryError', 'ServerNotFoundError', 'ServerConfigurationError',
     'RegistryLoadError', 'DiscoveryError', 'GenerationError', 'DirectoryNotFoundError',
     'FileOperationError', 'ValidationError', 'handle_error', 'handle_warning'
