@@ -33,6 +33,12 @@ Examples:
     # Add a remote server
     mcp add microsoft-docs https://learn.microsoft.com/api/mcp --category Documentation
     
+    # Add an npm package (auto-detected)
+    mcp add memory @modelcontextprotocol/server-memory --category Memory
+    
+    # Add an npm package (explicit)
+    mcp add memory @modelcontextprotocol/server-memory --source npm --category Memory
+    
     # Run full CI/CD sync
     mcp sync && mcp test --all
     
@@ -57,31 +63,33 @@ class MCPRegistryCLI:
         self.manager = ServerManager()
     
     def add_server(self, name: str, source: str, category: Optional[str] = None, 
-                   description: Optional[str] = None, transport: str = "stdio"):
-        """Add a server to the registry (like npm install)."""
+                   description: Optional[str] = None, transport: str = "stdio", source_type: str = "auto"):
+        """Add a server to the registry (supports local, remote, and npm sources)."""
         try:
-            # Determine if source is local or remote
-            if source.startswith(("http://", "https://")):
-                server_source = ServerSource(type="remote", url=source, transport=transport)
-                provider = "Remote"
-            else:
-                server_source = ServerSource(type="local", path=source, transport=transport)
-                provider = "Local"
-            
-            # Add to registry with proper parameters
+            # Let the manager handle source normalization automatically
+            # It will detect npm packages, remote URLs, and local paths
             success = self.manager.add_server(
                 server_id=name,
                 name=name,
-                source=server_source,
+                source=source,  # Pass raw string, manager will normalize
                 description=description or f"{name} MCP server",
-                category=category or "General",
-                provider=provider
+                category=category or "General"
             )
+            
             if success:
-                print(f"✅ Added server '{name}' to registry")
-                print(f"   Source: {source}")
-                print(f"   Category: {category or 'General'}")
-                print(f"   Provider: {provider}")
+                # Get the server config to show proper info
+                config = self.manager.get_server(name)
+                if config:
+                    print(f"✅ Added server '{name}' to registry")
+                    print(f"   Type: {config.source.type}")
+                    if config.source.type == "npm":
+                        print(f"   Package: {config.source.package_name}")
+                        print(f"   Binary: {config.source.binary_path}")
+                    elif config.source.type == "remote":
+                        print(f"   URL: {config.source.url}")
+                    else:
+                        print(f"   Path: {config.source.path}")
+                    print(f"   Category: {config.metadata.category}")
             else:
                 print(f"❌ Failed to add server '{name}'")
                 
@@ -424,10 +432,11 @@ def main():
     # Server Management Commands
     add_parser = subparsers.add_parser("add", help="Add a server to the registry")
     add_parser.add_argument("name", help="Server name")
-    add_parser.add_argument("source", help="Server path or URL")
+    add_parser.add_argument("source", help="Server path, URL, or npm package name")
     add_parser.add_argument("--category", help="Server category")
     add_parser.add_argument("--description", help="Server description")
     add_parser.add_argument("--transport", default="stdio", choices=["stdio", "http", "sse"], help="Transport protocol")
+    add_parser.add_argument("--source", dest="source_type", choices=["local", "remote", "npm", "auto"], default="auto", help="Source type (auto-detected if not specified)")
     
     remove_parser = subparsers.add_parser("remove", help="Remove a server from the registry")
     remove_parser.add_argument("name", help="Server name to remove")
@@ -476,7 +485,7 @@ def main():
     
     # Route commands
     if args.command == "add":
-        cli.add_server(args.name, args.source, args.category, args.description, args.transport)
+        cli.add_server(args.name, args.source, args.category, args.description, args.transport, args.source_type)
     elif args.command == "remove":
         cli.remove_server(args.name)
     elif args.command == "list":

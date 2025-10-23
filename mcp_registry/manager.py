@@ -7,6 +7,7 @@ with consistent discovery, generation, and tracking capabilities.
 
 import json
 import shutil
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -142,12 +143,147 @@ class ServerManager:
             ServerSource object
         """
         if isinstance(source, str):
-            if source.startswith(("http://", "https://")):
+            if source.startswith("@") or self._is_npm_package(source):
+                return self._create_npm_source(source)
+            elif source.startswith(("http://", "https://")):
                 return ServerSource(type="remote", url=source, transport="http")
             else:
                 return ServerSource(type="local", path=source, transport="stdio")
         else:
             return source
+    
+    def _is_npm_package(self, source: str) -> bool:
+        """
+        Check if a source string is likely an npm package name.
+        
+        Args:
+            source: Source string to check
+            
+        Returns:
+            True if this looks like an npm package name
+        """
+        # Simple heuristics for npm package names
+        if source.startswith("@"):
+            return True
+        # Could add more sophisticated checks like hitting npm registry API
+        # For now, assume anything that's not a path or URL might be an npm package
+        return not ("/" in source and not source.startswith("@"))
+    
+    def _create_npm_source(self, package_name: str) -> ServerSource:
+        """
+        Install npm package and create ServerSource.
+        
+        Args:
+            package_name: npm package name (e.g., "@modelcontextprotocol/server-memory")
+            
+        Returns:
+            ServerSource configured for the installed npm package
+        """
+        binary_name, binary_path = self._install_npm_package(package_name)
+        return ServerSource(
+            type="npm",
+            package_name=package_name,
+            binary_name=binary_name,
+            binary_path=binary_path,
+            transport="stdio"
+        )
+    
+    def _install_npm_package(self, package_name: str) -> tuple[str, str]:
+        """
+        Install npm package globally and return binary info.
+        
+        Args:
+            package_name: npm package name to install
+            
+        Returns:
+            Tuple of (binary_name, binary_path)
+            
+        Raises:
+            RuntimeError: If npm is not available or installation fails
+        """
+        # Check if npm is available
+        if not shutil.which("npm"):
+            raise RuntimeError("npm is not available. Please install Node.js and npm first.")
+        
+        print(f"📦 Installing npm package: {package_name}")
+        
+        try:
+            # Install package globally
+            result = subprocess.run(
+                ["npm", "install", "-g", package_name],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            print(f"✅ Package installed successfully")
+            
+            # Get package info to find binary
+            pkg_info_result = subprocess.run(
+                ["npm", "list", "-g", "--json", package_name],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            pkg_data = json.loads(pkg_info_result.stdout)
+            
+            # Extract binary name from package data
+            binary_name = self._extract_binary_name(package_name, pkg_data)
+            
+            # Find binary in PATH
+            binary_path = shutil.which(binary_name)
+            if not binary_path:
+                raise RuntimeError(f"Binary '{binary_name}' not found in PATH after installation")
+            
+            print(f"🔍 Found binary: {binary_name} at {binary_path}")
+            
+            return binary_name, binary_path
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"npm installation failed: {e.stderr or e.stdout}"
+            raise RuntimeError(error_msg)
+        except json.JSONDecodeError as e:
+            raise RuntimeError(f"Failed to parse npm package info: {e}")
+        except Exception as e:
+            raise RuntimeError(f"Unexpected error during npm installation: {e}")
+    
+    def _extract_binary_name(self, package_name: str, pkg_data: dict) -> str:
+        """
+        Extract binary name from npm package data.
+        
+        Args:
+            package_name: Name of the npm package
+            pkg_data: Package data from npm list command
+            
+        Returns:
+            Binary name
+        """
+        # Try to find binary in package data
+        dependencies = pkg_data.get("dependencies", {})
+        if package_name in dependencies:
+            # For scoped packages, try to infer binary name
+            if package_name.startswith("@"):
+                # Convert @modelcontextprotocol/server-memory -> mcp-server-memory
+                _, package_part = package_name.split("/", 1)
+                if package_part.startswith("server-"):
+                    return f"mcp-{package_part}"
+                else:
+                    return package_part
+            else:
+                # For non-scoped packages, assume binary name matches package name
+                return package_name
+        
+        # Fallback: try common patterns
+        if package_name.startswith("@modelcontextprotocol/server-"):
+            # @modelcontextprotocol/server-memory -> mcp-server-memory
+            server_name = package_name.split("/server-", 1)[1]
+            return f"mcp-server-{server_name}"
+        elif package_name.startswith("@"):
+            # @org/package -> package
+            return package_name.split("/", 1)[1]
+        else:
+            # Assume binary name matches package name
+            return package_name
     
     def _create_server_config(
         self, 
@@ -233,7 +369,11 @@ class ServerManager:
         """
         print(f"✅ Added server: {server_config.name} ({server_config.id})")
         print(f"   Type: {server_config.source.type}")
-        print(f"   Source: {server_config.source.url or server_config.source.path}")
+        if server_config.source.type == "npm":
+            print(f"   Package: {server_config.source.package_name}")
+            print(f"   Binary: {server_config.source.binary_path}")
+        else:
+            print(f"   Source: {server_config.source.url or server_config.source.path}")
         print(f"   Generated path: {server_config.generated_path}")
     
     def get_server(self, server_id: str) -> Optional[ServerConfig]:
@@ -328,6 +468,9 @@ class ServerManager:
             # Determine source path/URL
             if config.source.type == "local":
                 source_path = config.source.path
+            elif config.source.type == "npm":
+                # For npm packages, use the installed binary path (works like local servers)
+                source_path = config.source.binary_path
             else:
                 source_path = config.source.url
             

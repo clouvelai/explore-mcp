@@ -26,19 +26,24 @@ def get_server_base_path() -> str:
 
 
 class ServerSource(BaseModel):
-    """Source configuration for a server (local file or remote URL)."""
-    type: Literal["local", "remote"]
+    """Source configuration for a server (local file, remote URL, or npm package)."""
+    type: Literal["local", "remote", "npm"]
     path: Optional[str] = None  # For local servers
     url: Optional[str] = None   # For remote servers
+    package_name: Optional[str] = None  # For npm packages (e.g., "@modelcontextprotocol/server-memory")
+    binary_name: Optional[str] = None   # For npm packages (e.g., "mcp-server-memory")
+    binary_path: Optional[str] = None   # For npm packages (e.g., "/usr/local/bin/mcp-server-memory")
     transport: str = "stdio"    # stdio, http, sse
     
     @model_validator(mode='after')
     def validate_source(self):
-        """Ensure either path or url is provided based on type."""
+        """Ensure required fields are provided based on type."""
         if self.type == 'local' and not self.path:
             raise ValueError('path is required for local servers')
         elif self.type == 'remote' and not self.url:
             raise ValueError('url is required for remote servers')
+        elif self.type == 'npm' and not self.package_name:
+            raise ValueError('package_name is required for npm servers')
         return self
 
 
