@@ -18,10 +18,15 @@ from .exceptions import (
     handle_error,
     handle_warning,
 )
+from .doc_discovery import DocumentationDiscovery
+from .git_cli import GitCLI
+from .git_manager import GitManager
+from .git_server_manager import GitServerManager
 from .local_scanner import LocalServerInfo, LocalServerScanner
 from .manager import ServerManager
 from .models import (
     DiscoveryConfig,
+    DocumentationDiscoveryConfig,
     GenerationConfig,
     ServerConfig,
     ServerRegistry,
@@ -32,8 +37,8 @@ from .models import (
 
 __all__ = [
     'ServerManager', 'ServerConfig', 'ServerSource', 'ServerRegistry', 
-    'DiscoveryConfig', 'GenerationConfig', 'set_server_base_path', 'get_server_base_path',
-    'LocalServerScanner', 'LocalServerInfo',
+    'DiscoveryConfig', 'DocumentationDiscoveryConfig', 'GenerationConfig', 'set_server_base_path', 'get_server_base_path',
+    'DocumentationDiscovery', 'GitCLI', 'GitManager', 'GitServerManager', 'LocalServerScanner', 'LocalServerInfo',
     'MCPRegistryError', 'ServerNotFoundError', 'ServerConfigurationError',
     'RegistryLoadError', 'DiscoveryError', 'GenerationError', 'DirectoryNotFoundError',
     'FileOperationError', 'ValidationError', 'handle_error', 'handle_warning'

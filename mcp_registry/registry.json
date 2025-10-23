@@ -1,12 +1,13 @@
 {
   "version": "1.0.0",
-  "last_updated": "2025-10-23 12:52:21.445243",
+  "last_updated": "2025-10-23 14:50:51.371053",
   "servers": [
     "microsoft-learn",
     "calculator",
     "air_fryer",
     "gmail",
-    "google_drive"
+    "google_drive",
+    "gleanwork"
   ],
   "categories": {
     "Documentation": [
@@ -24,6 +25,9 @@
     "Storage": [
       "google_drive"
     ],
-    "Testing": []
+    "Testing": [],
+    "Development": [
+      "gleanwork"
+    ]
   }
 }
