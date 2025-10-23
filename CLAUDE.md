@@ -64,7 +64,7 @@ uv run python mcp_servers/calculator/server.py
 ```
 
 ### MCP Registry CLI (npm/docker-style)
-**NEW**: Unified CLI for managing MCP servers like npm/docker registry:
+**NEW**: Unified CLI for managing MCP servers like npm/docker registry with **seamless git integration**:
 
 ```bash
 # Server Management
@@ -86,6 +86,12 @@ uv run python mcp_servers/calculator/server.py
 ./mcp sync                    # Discover all + regenerate if changed
 ./mcp status                  # Registry health overview
 ./mcp publish ./my-server.py  # Easy server addition with auto-discovery
+
+# Git-based Servers (NEW!)
+./mcp git add gleanwork https://github.com/gleanwork/mcp-server.git --category Development
+./mcp git update gleanwork    # Pull latest changes
+./mcp git status gleanwork    # Show git status
+./mcp git discover https://github.com/modelcontextprotocol/servers.git  # Preview servers
 ```
 
 **Key Features**:

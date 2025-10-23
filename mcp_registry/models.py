@@ -26,19 +26,28 @@ def get_server_base_path() -> str:
 
 
 class ServerSource(BaseModel):
-    """Source configuration for a server (local file or remote URL)."""
-    type: Literal["local", "remote"]
-    path: Optional[str] = None  # For local servers
-    url: Optional[str] = None   # For remote servers
+    """Source configuration for a server (local file, remote URL, or git repo)."""
+    type: Literal["local", "remote", "git"]
+    path: Optional[str] = None  # For local servers or git clone path
+    url: Optional[str] = None   # For remote servers or git repo URL
     transport: str = "stdio"    # stdio, http, sse
+    
+    # Git-specific fields
+    git_url: Optional[str] = None      # Git repository URL
+    git_branch: Optional[str] = "main" # Git branch to use
+    git_commit: Optional[str] = None   # Specific commit hash (optional)
+    git_subpath: Optional[str] = None  # Path within git repo to server
+    clone_path: Optional[str] = None   # Local path where repo is cloned
     
     @model_validator(mode='after')
     def validate_source(self):
-        """Ensure either path or url is provided based on type."""
+        """Ensure proper fields are provided based on type."""
         if self.type == 'local' and not self.path:
             raise ValueError('path is required for local servers')
         elif self.type == 'remote' and not self.url:
             raise ValueError('url is required for remote servers')
+        elif self.type == 'git' and not self.git_url:
+            raise ValueError('git_url is required for git servers')
         return self
 
 
@@ -50,6 +59,15 @@ class DiscoveryConfig(BaseModel):
     retry_attempts: int = Field(default=3, ge=0, description="Number of retry attempts")
     auth_headers: Optional[Dict[str, str]] = None
     last_discovered: Optional[datetime] = None
+
+
+class DocumentationDiscoveryConfig(BaseModel):
+    """Configuration for documentation-based discovery from git repositories."""
+    enabled: bool = True
+    last_doc_discovered: Optional[datetime] = None
+    parse_readme: bool = True
+    parse_code_comments: bool = True
+    parse_config_files: bool = True
 
 
 class GenerationConfig(BaseModel):
@@ -80,6 +98,7 @@ class ServerConfig(BaseModel):
     name: str = Field(..., min_length=1, description="Human-readable server name")
     source: ServerSource
     discovery: DiscoveryConfig = Field(default_factory=DiscoveryConfig)
+    doc_discovery: DocumentationDiscoveryConfig = Field(default_factory=DocumentationDiscoveryConfig)
     generation: GenerationConfig = Field(default_factory=GenerationConfig)
     metadata: ServerMetadata = Field(default_factory=ServerMetadata)
     
@@ -104,6 +123,11 @@ class ServerConfig(BaseModel):
     def discovery_path(self) -> Path:
         """Get the path to discovery results."""
         return Path(get_server_base_path()) / self.id / "discovery.json"
+    
+    @property
+    def doc_discovery_path(self) -> Path:
+        """Get the path to documentation discovery results."""
+        return Path(get_server_base_path()) / self.id / "doc_discovery.json"
     
     @classmethod
     def generate_template(cls) -> str:
