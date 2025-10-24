@@ -9,7 +9,6 @@ import json
 import re
 import shutil
 import subprocess
-import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -176,177 +175,88 @@ class ServerManager:
         Returns:
             ServerSource configured for the installed npm package
         """
-        npx_command, package_version = self._install_npm_package(package_name)
+        binary_path, package_version = self._install_npm_package(package_name)
         return ServerSource(
             type="npm",
             package_name=package_name,
             package_version=package_version,
-            binary_path=npx_command,  # Store npx command as binary_path
+            binary_path=binary_path,
             transport="stdio"
         )
     
     def _validate_package_name(self, package_name: str) -> str:
-        """
-        Validate npm package name for security.
-        
-        Args:
-            package_name: Package name to validate
-            
-        Returns:
-            Validated package name
-            
-        Raises:
-            ValueError: If package name is invalid or unsafe
-        """
-        # Basic safety checks
+        """Basic validation of npm package name."""
         if not package_name or not isinstance(package_name, str):
             raise ValueError("Package name must be a non-empty string")
         
         if len(package_name) > 214:  # npm limit
             raise ValueError("Package name too long (max 214 characters)")
         
-        # Check for dangerous characters that could enable injection
-        dangerous_chars = [';', '&', '|', '`', '$', '(', ')', '<', '>', '"', "'", '\\', '\n', '\r', '\t']
-        if any(char in package_name for char in dangerous_chars):
+        # Just check for obvious injection attempts
+        if any(char in package_name for char in [';', '&', '|', '`', '$']):
             raise ValueError(f"Package name contains unsafe characters: {package_name}")
-        
-        # Basic npm package name format validation
-        # Allows: alphanumeric, hyphens, dots, underscores, tildes, and scoped packages
-        if not re.match(r'^(@[a-z0-9-~][a-z0-9-._~]*/)?[a-z0-9-~][a-z0-9-._~]*$', package_name.lower()):
-            raise ValueError(f"Invalid npm package name format: {package_name}")
         
         return package_name
 
     def _install_npm_package(self, package_name: str) -> tuple[str, str]:
         """
-        Install npm package locally and return npx execution info.
+        Install npm package and return execution command.
         
         Args:
             package_name: npm package name to install
             
         Returns:
-            Tuple of (npx_command, package_version)
-            
-        Raises:
-            RuntimeError: If npm/npx is not available or installation fails
+            Tuple of (execution_command, package_version)
         """
-        # Validate package name for security
+        # Basic validation 
         validated_name = self._validate_package_name(package_name)
         
-        # Check if npm and npx are available
+        # Check if npm is available
         if not shutil.which("npm"):
             raise RuntimeError("npm is not available. Please install Node.js and npm first.")
-        if not shutil.which("npx"):
-            raise RuntimeError("npx is not available. Please install Node.js and npm first.")
         
-        print(f"📦 Installing npm package locally: {validated_name}")
-        
-        # Create a dedicated directory for npm packages
-        npm_packages_dir = self.base_dir / "npm_packages"
-        npm_packages_dir.mkdir(exist_ok=True)
+        print(f"📦 Installing npm package: {validated_name}")
         
         try:
-            # Install package locally in dedicated directory
-            result = subprocess.run(
-                ["npm", "install", validated_name],
-                cwd=npm_packages_dir,
+            # Just install globally - simple and standard
+            subprocess.run(
+                ["npm", "install", "-g", validated_name],
                 capture_output=True,
                 text=True,
                 check=True
             )
-            print(f"✅ Package installed locally")
+            print(f"✅ Package installed globally")
             
-            # Get version and derive binary name
+            # Get version and binary name
             package_version = self._get_package_version(validated_name)
-            
-            # Create temporary ServerSource to get binary name
             temp_source = ServerSource(type="npm", package_name=validated_name)
             binary_name = temp_source.binary_name
             
-            # Create a wrapper script for secure execution
-            wrapper_script = self._create_npm_wrapper_script(binary_name, npm_packages_dir)
+            # Find binary in PATH
+            binary_path = shutil.which(binary_name)
+            if not binary_path:
+                raise RuntimeError(f"Binary '{binary_name}' not found in PATH after installation")
             
-            print(f"🔍 Package will be executed via wrapper: {wrapper_script}")
+            print(f"🔍 Found binary: {binary_name} at {binary_path}")
             print(f"📋 Package version: {package_version}")
             
-            return wrapper_script, package_version
+            return binary_path, package_version
             
         except subprocess.CalledProcessError as e:
             error_msg = f"npm installation failed: {e.stderr or e.stdout}"
             raise RuntimeError(error_msg)
-        except Exception as e:
-            raise RuntimeError(f"Unexpected error during npm installation: {e}")
-    
-    def _create_npm_wrapper_script(self, binary_name: str, npm_packages_dir: Path) -> str:
-        """
-        Create a secure wrapper script for npm package execution.
-        
-        Args:
-            binary_name: Name of the binary to execute
-            npm_packages_dir: Path to npm packages directory
-            
-        Returns:
-            Path to the wrapper script
-        """
-        # Create wrapper scripts directory
-        wrappers_dir = self.base_dir / "npm_wrappers"
-        wrappers_dir.mkdir(exist_ok=True)
-        
-        # Create a unique wrapper script for this binary
-        script_name = f"{binary_name.replace('/', '_').replace('@', '')}_wrapper.py"
-        wrapper_path = wrappers_dir / script_name
-        
-        # Generate secure wrapper script content
-        wrapper_content = f'''#!/usr/bin/env python3
-"""Secure wrapper for npm MCP package: {binary_name}"""
-import os
-import subprocess
-import sys
-
-# Security: Set fixed npm prefix and binary name
-NPM_PREFIX = "{npm_packages_dir}"
-BINARY_NAME = "{binary_name}"
-
-def main():
-    """Execute npm package via npx with fixed parameters."""
-    try:
-        # Build secure npx command
-        cmd = ["npx", "--prefix", NPM_PREFIX, BINARY_NAME] + sys.argv[1:]
-        
-        # Execute with clean environment
-        result = subprocess.run(cmd, check=False)
-        sys.exit(result.returncode)
-        
-    except Exception as e:
-        print(f"Error executing npm package: {{e}}", file=sys.stderr)
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
-'''
-        
-        # Write wrapper script
-        with open(wrapper_path, 'w') as f:
-            f.write(wrapper_content)
-        
-        # Make executable
-        wrapper_path.chmod(0o755)
-        
-        return str(wrapper_path)
     
     def _get_package_version(self, package_name: str) -> str:
         """Get package version using npm show command."""
         try:
-            # Validate package name before using in command
-            validated_name = self._validate_package_name(package_name)
             result = subprocess.run(
-                ["npm", "show", validated_name, "version"],
+                ["npm", "show", package_name, "version"],
                 capture_output=True,
                 text=True,
                 check=True
             )
             return result.stdout.strip()
-        except (subprocess.CalledProcessError, ValueError):
+        except subprocess.CalledProcessError:
             return "unknown"
     
     def _create_server_config(
