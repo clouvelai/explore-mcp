@@ -6,7 +6,9 @@ with consistent discovery, generation, and tracking capabilities.
 """
 
 import json
+import re
 import shutil
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -95,6 +97,7 @@ class ServerManager:
         provider: Optional[str] = None,
         auth_required: bool = False,
         auth_type: Optional[str] = None,
+        source_type: Optional[str] = None,
         **kwargs
     ) -> str:
         """
@@ -114,8 +117,21 @@ class ServerManager:
         Returns:
             Server ID
         """
-        # Normalize and create server configuration
-        server_source = self._normalize_server_source(source)
+        # Handle explicit npm source type
+        if source_type == "npm":
+            if isinstance(source, str):
+                server_source = self._create_npm_source(source)
+            elif isinstance(source, ServerSource) and source.type != "npm":
+                raise ValueError("source_type 'npm' requires npm package name string or npm ServerSource")
+            else:
+                server_source = source
+        else:
+            # Use existing normalization for local/remote
+            server_source = self._normalize_server_source(source)
+        # Set provider based on source type if not provided
+        if provider is None and server_source.type == "npm":
+            provider = "npm"
+        
         server_config = self._create_server_config(
             server_id, name, server_source, description, category, 
             provider, auth_required, auth_type, **kwargs
@@ -148,6 +164,100 @@ class ServerManager:
                 return ServerSource(type="local", path=source, transport="stdio")
         else:
             return source
+    
+    def _create_npm_source(self, package_name: str) -> ServerSource:
+        """
+        Install npm package and create ServerSource.
+        
+        Args:
+            package_name: npm package name (e.g., "@modelcontextprotocol/server-memory")
+            
+        Returns:
+            ServerSource configured for the installed npm package
+        """
+        binary_path, package_version = self._install_npm_package(package_name)
+        return ServerSource(
+            type="npm",
+            package_name=package_name,
+            package_version=package_version,
+            binary_path=binary_path,
+            transport="stdio"
+        )
+    
+    def _validate_package_name(self, package_name: str) -> str:
+        """Basic validation of npm package name."""
+        if not package_name or not isinstance(package_name, str):
+            raise ValueError("Package name must be a non-empty string")
+        
+        if len(package_name) > 214:  # npm limit
+            raise ValueError("Package name too long (max 214 characters)")
+        
+        # Just check for obvious injection attempts
+        if any(char in package_name for char in [';', '&', '|', '`', '$']):
+            raise ValueError(f"Package name contains unsafe characters: {package_name}")
+        
+        return package_name
+
+    def _install_npm_package(self, package_name: str) -> tuple[str, str]:
+        """
+        Install npm package and return execution command.
+        
+        Args:
+            package_name: npm package name to install
+            
+        Returns:
+            Tuple of (execution_command, package_version)
+        """
+        # Basic validation 
+        validated_name = self._validate_package_name(package_name)
+        
+        # Check if npm is available
+        if not shutil.which("npm"):
+            raise RuntimeError("npm is not available. Please install Node.js and npm first.")
+        
+        print(f"📦 Installing npm package: {validated_name}")
+        
+        try:
+            # Just install globally - simple and standard
+            subprocess.run(
+                ["npm", "install", "-g", validated_name],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            print(f"✅ Package installed globally")
+            
+            # Get version and binary name
+            package_version = self._get_package_version(validated_name)
+            temp_source = ServerSource(type="npm", package_name=validated_name)
+            binary_name = temp_source.binary_name
+            
+            # Find binary in PATH
+            binary_path = shutil.which(binary_name)
+            if not binary_path:
+                raise RuntimeError(f"Binary '{binary_name}' not found in PATH after installation")
+            
+            print(f"🔍 Found binary: {binary_name} at {binary_path}")
+            print(f"📋 Package version: {package_version}")
+            
+            return binary_path, package_version
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"npm installation failed: {e.stderr or e.stdout}"
+            raise RuntimeError(error_msg)
+    
+    def _get_package_version(self, package_name: str) -> str:
+        """Get package version using npm show command."""
+        try:
+            result = subprocess.run(
+                ["npm", "show", package_name, "version"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return result.stdout.strip()
+        except subprocess.CalledProcessError:
+            return "unknown"
     
     def _create_server_config(
         self, 
@@ -233,7 +343,11 @@ class ServerManager:
         """
         print(f"✅ Added server: {server_config.name} ({server_config.id})")
         print(f"   Type: {server_config.source.type}")
-        print(f"   Source: {server_config.source.url or server_config.source.path}")
+        if server_config.source.type == "npm":
+            print(f"   Package: {server_config.source.package_name}")
+            print(f"   Binary: {server_config.source.binary_path}")
+        else:
+            print(f"   Source: {server_config.source.url or server_config.source.path}")
         print(f"   Generated path: {server_config.generated_path}")
     
     def get_server(self, server_id: str) -> Optional[ServerConfig]:
@@ -328,6 +442,9 @@ class ServerManager:
             # Determine source path/URL
             if config.source.type == "local":
                 source_path = config.source.path
+            elif config.source.type == "npm":
+                # For npm packages, use the installed binary path (works like local servers)
+                source_path = config.source.binary_path
             else:
                 source_path = config.source.url
             

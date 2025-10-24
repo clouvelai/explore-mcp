@@ -1,12 +1,16 @@
 {
   "version": "1.0.0",
-  "last_updated": "2025-10-23 12:52:21.445243",
+  "last_updated": "2025-10-23 21:41:15.049074",
   "servers": [
     "microsoft-learn",
     "calculator",
     "air_fryer",
     "gmail",
-    "google_drive"
+    "google_drive",
+    "everything",
+    "filesystem",
+    "sequential",
+    "memory"
   ],
   "categories": {
     "Documentation": [
@@ -22,8 +26,17 @@
       "gmail"
     ],
     "Storage": [
-      "google_drive"
+      "google_drive",
+      "filesystem"
     ],
-    "Testing": []
+    "Testing": [
+      "everything"
+    ],
+    "Memory": [
+      "memory"
+    ],
+    "AI": [
+      "sequential"
+    ]
   }
 }

@@ -240,7 +240,10 @@ Microsoft provides a public MCP server with documentation tools:
 The platform automatically detects the correct transport protocol:
 - **HTTP URLs** → Tries HTTP transport first, falls back to SSE if needed
 - **Local files** → Uses stdio transport
+- **npm packages** → Uses stdio transport after global installation
 - **Manual override** → Use `--transport [http|sse|stdio]` flag
+
+*For more MCP servers, see https://github.com/modelcontextprotocol/servers*
 
 ## Quick Reference
 
