@@ -407,6 +407,127 @@ class MCPRegistryCLI:
             
         except Exception as e:
             handle_error(f"Failed to publish server: {e}")
+    
+    def run_interactive_session(self, server_id: str, capture_session: bool = False, session_name: Optional[str] = None):
+        """Run an interactive session with a server, optionally capturing for better generation."""
+        try:
+            server = self.manager.get_server(server_id)
+            if not server:
+                print(f"❌ Server '{server_id}' not found in registry")
+                return
+            
+            print(f"🚀 Starting interactive session with '{server_id}'")
+            
+            if capture_session:
+                from datetime import datetime
+                if not session_name:
+                    session_name = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                
+                # Create sessions directory in registry
+                sessions_dir = Path(f"mcp_registry/servers/{server_id}/sessions")
+                sessions_dir.mkdir(parents=True, exist_ok=True)
+                
+                log_file = sessions_dir / f"{session_name}.jsonl"
+                print(f"📝 Capturing session to: {log_file}")
+                
+                # Enable MITM interceptor
+                try:
+                    from mcp_interceptor.mcp_interceptor import install_interceptor
+                    install_interceptor(log_file=str(log_file), verbose=True)
+                    print(f"🔍 MITM interceptor enabled")
+                except ImportError:
+                    print(f"⚠️ MITM interceptor not available - session will not be captured")
+                    capture_session = False
+            
+            # Start interactive client
+            import asyncio
+            asyncio.run(self._run_client_session(server_id, server))
+            
+            if capture_session:
+                print(f"\n✅ Session captured successfully!")
+                print(f"📊 Use captured data: ./mcp generate {server_id} --use-real-sessions")
+            
+        except Exception as e:
+            handle_error(f"Failed to run interactive session: {e}")
+    
+    async def _run_client_session(self, server_id: str, server: dict):
+        """Run the actual client session with the server."""
+        from mcp import ClientSession, StdioServerParameters
+        from mcp.client.stdio import stdio_client
+        
+        print(f"🔌 Connecting to {server.source.type} server...")
+        
+        if server.source.type == 'npm':
+            # Use npm binary
+            binary_path = server.source.binary_path
+            if not binary_path or not Path(binary_path).exists():
+                print(f"❌ Binary not found: {binary_path}")
+                return
+            
+            # Set up allowed directories for filesystem server
+            current_dir = Path.cwd()
+            server_params = StdioServerParameters(
+                command=binary_path,
+                args=[str(current_dir), "/private/tmp"]  # Allow current dir and tmp
+            )
+            
+            async with stdio_client(server_params) as (reader, writer):
+                async with ClientSession(reader, writer) as session:
+                    await session.initialize()
+                    
+                    # List available tools
+                    tools = await session.list_tools()
+                    print(f"\n📋 Available tools ({len(tools.tools)}):")
+                    for i, tool in enumerate(tools.tools, 1):
+                        print(f"  {i}. {tool.name} - {tool.description}")
+                    
+                    # Interactive prompt
+                    print(f"\n💬 Interactive session started. Type 'help' for commands, 'quit' to exit.")
+                    
+                    while True:
+                        try:
+                            user_input = input(f"\n{server_id}> ").strip()
+                            
+                            if user_input.lower() in ['quit', 'exit', 'q']:
+                                break
+                            elif user_input.lower() == 'help':
+                                print("Commands:")
+                                print("  tools - List available tools")
+                                print("  call <tool_name> <args> - Call a tool")
+                                print("  quit - Exit session")
+                                continue
+                            elif user_input.lower() == 'tools':
+                                for i, tool in enumerate(tools.tools, 1):
+                                    print(f"  {i}. {tool.name}")
+                                continue
+                            elif user_input.startswith('call '):
+                                # Parse call command
+                                parts = user_input[5:].split(' ', 1)
+                                tool_name = parts[0]
+                                args = {}
+                                if len(parts) > 1:
+                                    try:
+                                        args = json.loads(parts[1]) if parts[1].startswith('{') else {"path": parts[1]}
+                                    except json.JSONDecodeError:
+                                        args = {"path": parts[1]}
+                                
+                                # Call the tool
+                                try:
+                                    result = await session.call_tool(tool_name, args)
+                                    print(f"✅ Result: {result}")
+                                except Exception as e:
+                                    print(f"❌ Error: {e}")
+                            else:
+                                print("Unknown command. Type 'help' for available commands.")
+                                
+                        except KeyboardInterrupt:
+                            print("\n👋 Session interrupted")
+                            break
+                        except EOFError:
+                            print("\n👋 Session ended")
+                            break
+        else:
+            print(f"❌ Interactive sessions not yet supported for {server.source.type} servers")
 
 
 def main():
@@ -458,6 +579,12 @@ def main():
     test_group.add_argument("name", nargs="?", help="Server name to test")
     test_group.add_argument("--all", action="store_true", help="Test all servers")
     
+    # Interactive Commands
+    run_parser = subparsers.add_parser("run", help="Run an interactive session with a server")
+    run_parser.add_argument("server_id", help="Server identifier")
+    run_parser.add_argument("--capture-session", action="store_true", help="Capture real session interactions for better generation")
+    run_parser.add_argument("--session-name", help="Name for the captured session (default: timestamp)")
+    
     # CI/CD Commands
     subparsers.add_parser("sync", help="Sync all servers (discover + regenerate if changed)")
     subparsers.add_parser("status", help="Show registry health overview")
@@ -490,6 +617,8 @@ def main():
         cli.generate_mocks(args.name, args.all, args.force)
     elif args.command == "test":
         cli.test_servers(args.name, args.all)
+    elif args.command == "run":
+        cli.run_interactive_session(args.server_id, args.capture_session, args.session_name)
     elif args.command == "sync":
         cli.sync_registry()
     elif args.command == "status":

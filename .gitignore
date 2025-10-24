@@ -72,3 +72,6 @@ test_*_generation/
 mcp_registry/git_repos/
 # claude settings
 *.claude
+
+# Session logs (contain user data)
+mcp_registry/servers/*/sessions/
