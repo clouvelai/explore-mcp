@@ -27,11 +27,9 @@ from .exceptions import (
     validate_file_path,
     validate_server_id,
 )
-from .git_server_manager import GitServerManager
 from .local_scanner import LocalServerScanner
 from .models import (
     DiscoveryConfig,
-    DocumentationDiscoveryConfig,
     GenerationConfig,
     ServerConfig,
     ServerMetadata,
@@ -57,10 +55,9 @@ class ServerManager:
         self.servers_dir = self.base_dir / "servers"
         self.servers_dir.mkdir(exist_ok=True)
         
-        # Initialize discovery engine, scanner, and git server manager
+        # Initialize discovery engine and scanner
         self.discovery_engine = DiscoveryEngine()
         self.local_scanner = LocalServerScanner()
-        self.git_server_manager = GitServerManager(self)
         
         # Load registry
         self.registry_file = self.base_dir / "registry.json"
@@ -145,10 +142,7 @@ class ServerManager:
             ServerSource object
         """
         if isinstance(source, str):
-            if source.startswith(("http://", "https://")) and ".git" in source:
-                # This is a git repository URL
-                return ServerSource(type="git", git_url=source, transport="stdio")
-            elif source.startswith(("http://", "https://")):
+            if source.startswith(("http://", "https://")):
                 return ServerSource(type="remote", url=source, transport="http")
             else:
                 return ServerSource(type="local", path=source, transport="stdio")
@@ -334,8 +328,6 @@ class ServerManager:
             # Determine source path/URL
             if config.source.type == "local":
                 source_path = config.source.path
-            elif config.source.type == "git":
-                source_path = config.source.path  # Use the local clone path for discovery
             else:
                 source_path = config.source.url
             
@@ -751,24 +743,3 @@ class ServerManager:
         except Exception as e:
             print(f"❌ Test execution failed: {e}")
             return False
-    
-    # Git server operations - delegated to GitServerManager
-    def add_git_server(self, *args, **kwargs) -> List[str]:
-        """Add a git-based MCP server to the registry."""
-        return self.git_server_manager.add_git_server(*args, **kwargs)
-    
-    def update_git_server(self, server_id: str) -> bool:
-        """Update a git-based server by pulling latest changes."""
-        return self.git_server_manager.update_git_server(server_id)
-    
-    def get_git_status(self, server_id: str) -> Dict[str, Any]:
-        """Get git status for a git-based server."""
-        return self.git_server_manager.get_git_status(server_id)
-    
-    def discover_git_servers(self, git_url: str, branch: str = "main") -> List[Dict[str, Any]]:
-        """Discover MCP servers in a git repository without adding them."""
-        return self.git_server_manager.discover_git_servers(git_url, branch)
-    
-    def discover_documentation(self, server_id: str) -> bool:
-        """Perform documentation-based discovery on a git server."""
-        return self.git_server_manager.discover_documentation(server_id)

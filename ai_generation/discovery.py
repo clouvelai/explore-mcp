@@ -51,6 +51,7 @@ Output Format:
 
 import hashlib
 import json
+import shutil
 import subprocess
 import time
 from datetime import datetime
@@ -390,8 +391,8 @@ class DiscoveryEngine:
         
         For stdio transport:
         - Python files (.py): Uses 'uv run python' if uv project detected, else 'python'
-        - JavaScript files (.js, .mjs): Uses 'node'
-        - TypeScript files (.ts): Uses 'tsx' (assumes tsx is installed)
+        - JavaScript files (.js, .mjs): Uses MCP Inspector if npx available, else 'node'
+        - TypeScript files (.ts): Uses MCP Inspector (requires npx)
         - Other files: Attempts direct execution
         
         For HTTP/SSE transport:
@@ -429,10 +430,15 @@ class DiscoveryEngine:
             else:
                 return ["python", str(server_path)]
         elif server_file.suffix in [".js", ".mjs"]:
+            # Use MCP Inspector for JavaScript files when available, fallback to node
+            if shutil.which("npx"):
+                return ["npx", "@modelcontextprotocol/inspector", str(server_path)]
             return ["node", str(server_path)]
         elif server_file.suffix == ".ts":
-            # Assume tsx is available for TypeScript
-            return ["tsx", str(server_path)]
+            # Use MCP Inspector for TypeScript files - no fallback
+            if shutil.which("npx"):
+                return ["npx", "@modelcontextprotocol/inspector", str(server_path)]
+            raise DiscoveryError(f"npx not available - required for TypeScript servers")
         else:
             # Default to trying to execute directly
             return [str(server_path)]

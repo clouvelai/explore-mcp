@@ -24,11 +24,15 @@ The MVP successfully implements:
 - **Multiple Remotes**: Support for repositories with multiple remote origins
 
 ### 2. TypeScript/Node.js & Non-Python Runtime Support
-**Complexity: High - Priority Feature**
-- **TypeScript Support**:
-  - Automatic TypeScript compilation for MCP servers
-  - Support for `tsx`, `ts-node`, and compiled JavaScript execution
-  - Handle TypeScript configuration files (`tsconfig.json`)
+**Status: ✅ PARTIALLY COMPLETED - TypeScript support added**
+
+**Completed Features:**
+- ✅ **TypeScript Support**: Uses MCP Inspector for direct `.ts` file execution
+- ✅ **Automatic Detection**: Detects TypeScript servers via file patterns and package.json
+- ✅ **Zero-Build Setup**: MCP Inspector handles compilation on-the-fly
+- ✅ **Git Integration**: Seamlessly works with git-based TypeScript MCP servers
+
+**Future Enhancements:**
 - **Node.js Runtime Management**:
   - Detect required Node.js versions from `package.json` or `.nvmrc`
   - Automatic `npm install`/`yarn install`/`pnpm install` execution
@@ -42,6 +46,21 @@ The MVP successfully implements:
   - Automatically run build scripts if needed
   - Handle complex build pipelines
   - Support for bundled/compiled output
+
+**Alternative Simple Implementation:**
+A much simpler runtime system could be implemented using file extension detection:
+```python
+# 20-line alternative to current 400+ line runtime system
+def get_execution_command(file_path: Path) -> List[str]:
+    if file_path.suffix == '.py':
+        return ["python", str(file_path)]
+    elif file_path.suffix == '.ts':
+        return ["npx", "@modelcontextprotocol/inspector", str(file_path)]
+    elif file_path.suffix == '.js':
+        return ["node", str(file_path)]
+    return None
+```
+This demonstrates that complex runtime detection could be dramatically simplified for future iterations.
 
 ### 3. Dependency Management & Runtime Detection
 **Complexity: High**
@@ -155,40 +174,81 @@ The MVP successfully implements:
 
 ## Implementation Priority
 
-Based on user value vs complexity:
+**UPDATED** after runtime simplification breakthrough - priorities reshuffled based on new insights:
 
-### High Priority (High Value)
-1. **TypeScript/Node.js Runtime Support** - Critical for most git-based MCP servers
-2. Enhanced CLI experience (progress bars, better output)
-3. Package manager integration (npm install, etc.)
-4. Tag support for version management
+### High Priority (High Value, Low-Medium Complexity)
+1. ✅ **TypeScript/Node.js Runtime Support** - COMPLETED with elegant MCP Inspector integration
+2. ✅ **Universal Build Pipeline** - COMPLETED with automatic npm install
+3. **Published MCP Package Support** - Handle MCPs designed as npm packages vs source code:
+   - Detect when MCPs are intended as published packages (via `bin` field in package.json)
+   - Support installation via `npm install package-name` instead of git clone
+   - Handle configuration for published MCPs that need API keys or setup
+   - Examples: Magic-MCP (`@21st-dev/magic`) designed as publishable package
+4. **Multi-language runtime support** - Now trivial with file extension approach:
+   - Go: `.go` → `go run file.go` 
+   - Rust: `.rs` → `cargo run --bin file` (if Cargo.toml exists)
+   - Python: `.py` → `python file.py` (already done)
+3. **Enhanced CLI experience** - Progress bars, better output formatting
+4. **Tag support** - Git tag-based version management
+5. **Shallow clones** - `--depth 1` for faster cloning
 
-### Medium Priority (Medium Complexity, High Value)
-1. Multi-language runtime support (Go, Rust, Java, C#)
-2. Smart configuration file parsing
-3. Private repository support
-4. Development mode with file watching
-5. Shallow clones for performance
+### Medium Priority (Good Value, Medium Complexity)  
+1. **Private repository support** - SSH keys, token authentication
+2. **Development mode** - File watching, live reload
+3. **Smart configuration parsing** - Better entry point detection from package.json, etc.
+4. **Parallel operations** - Concurrent cloning, faster bulk operations
 
-### Lower Priority (High Complexity or Specialized Use Cases)
-1. Container support
-2. IDE integration
-3. Security sandboxing
-4. Cloud service integration
+### Lower Priority (Specialized or Complex)
+1. **Package manager integration** - Less critical now that MCP Inspector handles dependencies
+2. **Container support** - Advanced isolation (Docker, etc.)
+3. **IDE integration** - VS Code extensions, etc.
+4. **Security sandboxing** - Advanced security features
+5. **Cloud service integration** - GitHub/GitLab API integration
 
-## Notes
+### Now Deprioritized (Solved by Simplification)
+- ~~Complex build system integration~~ - MCP Inspector handles this
+- ~~Dependency management~~ - Not needed for most MCP servers
+- ~~Runtime environment validation~~ - Simple file extension approach works
+- ~~TypeScript compilation pipelines~~ - MCP Inspector handles this
 
-- The current MVP provides a solid foundation that can be incrementally enhanced
-- Each enhancement should be implemented as optional features that don't break existing functionality
-- User feedback should guide which enhancements to prioritize
-- Consider creating a plugin system to allow community contributions for specialized features
+## Key Insights from Runtime Simplification
+
+**The Power of Simplicity**: Our breakthrough shows that 20 lines can replace 400+ lines while maintaining full functionality. This reshapes our entire approach:
+
+1. **File Extension > Complex Detection** - Simple patterns work better than elaborate detection
+2. **MCP Inspector is a Game Changer** - Handles TypeScript, Node.js, and dependencies automatically  
+3. **Zero Config > Heavy Setup** - Users prefer things that "just work"
+4. **Question Everything** - Always ask "what do we ACTUALLY need?" before building
+
+## Implementation Philosophy
+
+- **Simplicity First**: Always look for the 20-line solution before building the 400-line one
+- **Incremental Enhancement**: Each feature should be optional and non-breaking
+- **User Value Focus**: Prioritize based on real user needs, not technical complexity
+- **Community Input**: Use feedback to guide priorities and validate assumptions
 
 ## Current Limitations
 
 The MVP has these known limitations that future enhancements could address:
-- No automatic dependency installation
+- ~~No TypeScript/Node.js support~~ ✅ **COMPLETED**
+- No automatic dependency installation (for complex projects)
 - Limited to public repositories
-- Basic server detection patterns
-- No runtime environment validation
+- Basic server detection patterns (though adequate for most cases)
+- No runtime environment validation (beyond basic checks)
 - Manual update process
 - Limited error handling for complex git scenarios
+
+## Recently Completed (v1.1)
+
+✅ **TypeScript Runtime Support**
+- Added comprehensive TypeScript MCP server support
+- Integrated MCP Inspector for seamless `.ts` file execution
+- Enhanced git server detection for TypeScript projects
+- Zero-configuration setup - no build process required
+- Full integration with existing git-based server workflow
+
+**Implementation Details:**
+- File extension detection: `.ts` → MCP Inspector, `.py` → Python, `.js` → Node
+- Package.json parsing for TypeScript project identification
+- Automatic verification of npx availability for MCP Inspector
+- Modular runtime architecture supporting future language additions
