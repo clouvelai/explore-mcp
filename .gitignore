@@ -69,3 +69,6 @@ generated/
 # Test generation directories
 test_*_generation/
 
+mcp_registry/git_repos/
+# claude settings
+*.claude
