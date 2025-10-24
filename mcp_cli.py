@@ -95,10 +95,8 @@ class MCPRegistryCLI:
     def list_servers(self, category: Optional[str] = None, format_type: str = "table"):
         """List all servers in the registry (like docker ps)."""
         try:
-            servers = self.manager.list_servers()
-            
-            if category:
-                servers = [s for s in servers if s["category"] == category]
+            # Get servers with metadata
+            servers = self.manager.list_servers(category=category, with_metadata=True)
             
             if not servers:
                 category_msg = f" in category '{category}'" if category else ""
@@ -114,22 +112,26 @@ class MCPRegistryCLI:
                 
                 for server in servers:
                     # Determine status based on discovery/generation state
-                    if server["last_discovered"] and server["last_generated"]:
+                    metadata = server.get("metadata", {})
+                    if metadata.get("discovered") and metadata.get("generated"):
                         status = "✅ Ready"
-                    elif server["last_discovered"]:
+                    elif metadata.get("discovered"):
                         status = "🔍 Discovered"
                     else:
                         status = "⭕ New"
                     
-                    last_discovered = server["last_discovered"]
-                    if last_discovered:
-                        last_discovered = str(last_discovered)
-                        if len(last_discovered) > 19:
-                            last_discovered = last_discovered[:16] + "..."
-                    else:
-                        last_discovered = "Never"
-                    provider = server['provider'] or "Unknown"
-                    print(f"{server['id']:<20} {server['category']:<15} {provider:<10} {status:<10} {last_discovered}")
+                    # Get last discovered date
+                    last_discovered = "Never"
+                    if server.get("discovery"):
+                        last_discovered_val = server["discovery"].get("last_discovered")
+                        if last_discovered_val:
+                            last_discovered = str(last_discovered_val)
+                            if len(last_discovered) > 19:
+                                last_discovered = last_discovered[:16] + "..."
+                    
+                    provider = server.get('metadata', {}).get('provider') or 'Unknown'
+                    category = server.get('metadata', {}).get('category') or 'Unknown'
+                    print(f"{server['id']:<20} {category:<15} {provider:<10} {status:<10} {last_discovered}")
                 
                 print(f"\nTotal: {len(servers)} servers")
                 
@@ -139,14 +141,14 @@ class MCPRegistryCLI:
     def search_servers(self, query: str):
         """Search servers by name or description."""
         try:
-            servers = self.manager.list_servers()
+            servers = self.manager.list_servers(with_metadata=True)
             query_lower = query.lower()
             
             matches = [
                 s for s in servers 
                 if query_lower in s["id"].lower() or 
                    query_lower in s["name"].lower() or
-                   query_lower in s["category"].lower()
+                   query_lower in s.get("metadata", {}).get("category", "").lower()
             ]
             
             if not matches:
@@ -158,7 +160,9 @@ class MCPRegistryCLI:
             print("─" * 50)
             
             for server in matches:
-                print(f"{server['id']:<20} {server['category']:<15} {server['provider']:<10}")
+                provider = server.get('metadata', {}).get('provider', 'Unknown')
+                category = server.get('metadata', {}).get('category', 'Unknown')
+                print(f"{server['id']:<20} {category:<15} {provider:<10}")
                 
         except Exception as e:
             handle_error(f"Failed to search servers: {e}")
@@ -336,7 +340,9 @@ class MCPRegistryCLI:
     def show_status(self):
         """Show registry health overview (like docker stats)."""
         try:
-            servers = self.manager.list_servers()
+            # Use the built-in status method
+            self.manager.status()
+            return
             
             print("📊 MCP Registry Status")
             print("=" * 50)

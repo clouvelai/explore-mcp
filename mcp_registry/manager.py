@@ -1,91 +1,47 @@
 """
-Unified Server Manager
+Server Manager - Clean facade for MCP server management.
 
-Clean, unified management of both local and remote MCP servers
-with consistent discovery, generation, and tracking capabilities.
+Provides a unified interface to all server operations while delegating
+to specialized components. Uses dependency injection for testability
+and maintains backward compatibility.
 """
 
-import json
-import re
-import shutil
-import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from ai_generation.discovery import DiscoveryEngine, DiscoveryResult
+from ai_generation.discovery import DiscoveryResult
 
-from .exceptions import (
-    DirectoryNotFoundError,
-    DiscoveryError,
-    FileOperationError,
-    GenerationError,
-    RegistryLoadError,
-    ServerConfigurationError,
-    ServerNotFoundError,
-    ValidationError,
-    handle_error,
-    handle_warning,
-    validate_file_path,
-    validate_server_id,
-)
-from .local_scanner import LocalServerScanner
-from .models import (
-    DiscoveryConfig,
-    GenerationConfig,
-    ServerConfig,
-    ServerMetadata,
-    ServerRegistry,
-    ServerSource,
-)
+from .discovery import ServerDiscoveryManager
+from .exceptions import validate_server_id
+from .generator import ServerGeneratorManager
+from .models import DiscoveryConfig, GenerationConfig, ServerConfig, ServerMetadata, ServerSource
+from .registry import ServerRegistryManager
+from .tester import ServerTesterManager
 
 
 class ServerManager:
-    """Unified manager for all MCP servers (local and remote)."""
+    """
+    Unified manager for all MCP servers.
+    
+    Clean facade that delegates to specialized components while maintaining
+    the original API for backward compatibility.
+    """
     
     def __init__(self, base_dir: str = "mcp_registry"):
-        """
-        Initialize the server manager.
-        
-        Args:
-            base_dir: Base directory for server registry
-        """
+        """Initialize with dependency injection."""
         self.base_dir = Path(base_dir)
-        self.base_dir.mkdir(exist_ok=True)
         
-        # Ensure servers directory exists
-        self.servers_dir = self.base_dir / "servers"
-        self.servers_dir.mkdir(exist_ok=True)
+        # Initialize core components with dependency injection
+        self.registry = ServerRegistryManager(self.base_dir)
+        self.discovery = ServerDiscoveryManager(self.registry)
+        self.generator = ServerGeneratorManager(self.registry)
+        self.tester = ServerTesterManager(self.registry)
         
-        # Initialize discovery engine and scanner
-        self.discovery_engine = DiscoveryEngine()
-        self.local_scanner = LocalServerScanner()
-        
-        # Load registry
-        self.registry_file = self.base_dir / "registry.json"
-        self.registry = self._load_registry()
+        # Expose convenient references
+        self.servers_dir = self.registry.servers_dir
     
-    def _load_registry(self) -> ServerRegistry:
-        """Load the server registry."""
-        if self.registry_file.exists():
-            try:
-                with open(self.registry_file, 'r') as f:
-                    data = json.load(f)
-                return ServerRegistry(**data)
-            except json.JSONDecodeError as e:
-                handle_warning(f"Registry file contains invalid JSON: {e}", str(self.registry_file))
-            except (IOError, OSError) as e:
-                handle_warning(f"Cannot read registry file: {e}", str(self.registry_file))
-            except Exception as e:
-                handle_warning(f"Failed to load registry: {e}", str(self.registry_file))
-        
-        # Create new registry
-        return ServerRegistry()
-    
-    def _save_registry(self):
-        """Save the server registry."""
-        with open(self.registry_file, 'w') as f:
-            json.dump(self.registry.model_dump(), f, indent=2, default=str)
+    # ========== Registry Operations ==========
     
     def add_server(
         self,
@@ -97,766 +53,252 @@ class ServerManager:
         provider: Optional[str] = None,
         auth_required: bool = False,
         auth_type: Optional[str] = None,
-        source_type: Optional[str] = None,
-        **kwargs
+        source_type: Optional[str] = None
     ) -> str:
-        """
-        Add a new server to the registry.
+        """Add a new server to the registry."""
+        validate_server_id(server_id)
         
-        Args:
-            server_id: Unique server identifier
-            name: Human-readable server name
-            source: Server source (path/url string or ServerSource object)
-            description: Server description
-            category: Server category
-            provider: Server provider
-            auth_required: Whether server requires authentication
-            auth_type: Type of authentication required
-            **kwargs: Additional configuration options
-            
-        Returns:
-            Server ID
-        """
-        # Handle explicit npm source type
-        if source_type == "npm":
-            if isinstance(source, str):
-                server_source = self._create_npm_source(source)
-            elif isinstance(source, ServerSource) and source.type != "npm":
-                raise ValueError("source_type 'npm' requires npm package name string or npm ServerSource")
-            else:
-                server_source = source
-        else:
-            # Use existing normalization for local/remote
-            server_source = self._normalize_server_source(source)
-        # Set provider based on source type if not provided
-        if provider is None and server_source.type == "npm":
-            provider = "npm"
-        
-        server_config = self._create_server_config(
-            server_id, name, server_source, description, category, 
-            provider, auth_required, auth_type, **kwargs
-        )
-        
-        # Set up filesystem and persistence
-        self._setup_server_directories(server_config)
-        self._persist_server_config(server_config)
-        self._update_registry(server_id, category)
-        
-        # Provide user feedback
-        self._log_server_addition(server_config)
-        
-        return server_id
-    
-    def _normalize_server_source(self, source: Union[str, ServerSource]) -> ServerSource:
-        """
-        Normalize source input to a ServerSource object.
-        
-        Args:
-            source: String path/URL or ServerSource object
-            
-        Returns:
-            ServerSource object
-        """
+        # Normalize source
         if isinstance(source, str):
-            if source.startswith(("http://", "https://")):
-                return ServerSource(type="remote", url=source, transport="http")
+            if source_type == "npm" or source.startswith("@"):
+                server_source = ServerSource(type="npm", package=source)
+            elif source.startswith("http"):
+                server_source = ServerSource(type="remote", url=source)
             else:
-                return ServerSource(type="local", path=source, transport="stdio")
+                server_source = ServerSource(type="local", path=source)
         else:
-            return source
-    
-    def _create_npm_source(self, package_name: str) -> ServerSource:
-        """
-        Install npm package and create ServerSource.
+            server_source = source
         
-        Args:
-            package_name: npm package name (e.g., "@modelcontextprotocol/server-memory")
-            
-        Returns:
-            ServerSource configured for the installed npm package
-        """
-        binary_path, package_version = self._install_npm_package(package_name)
-        return ServerSource(
-            type="npm",
-            package_name=package_name,
-            package_version=package_version,
-            binary_path=binary_path,
-            transport="stdio"
-        )
-    
-    def _validate_package_name(self, package_name: str) -> str:
-        """Basic validation of npm package name."""
-        if not package_name or not isinstance(package_name, str):
-            raise ValueError("Package name must be a non-empty string")
-        
-        if len(package_name) > 214:  # npm limit
-            raise ValueError("Package name too long (max 214 characters)")
-        
-        # Just check for obvious injection attempts
-        if any(char in package_name for char in [';', '&', '|', '`', '$']):
-            raise ValueError(f"Package name contains unsafe characters: {package_name}")
-        
-        return package_name
-
-    def _install_npm_package(self, package_name: str) -> tuple[str, str]:
-        """
-        Install npm package and return execution command.
-        
-        Args:
-            package_name: npm package name to install
-            
-        Returns:
-            Tuple of (execution_command, package_version)
-        """
-        # Basic validation 
-        validated_name = self._validate_package_name(package_name)
-        
-        # Check if npm is available
-        if not shutil.which("npm"):
-            raise RuntimeError("npm is not available. Please install Node.js and npm first.")
-        
-        print(f"📦 Installing npm package: {validated_name}")
-        
-        try:
-            # Just install globally - simple and standard
-            subprocess.run(
-                ["npm", "install", "-g", validated_name],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            print(f"✅ Package installed globally")
-            
-            # Get version and binary name
-            package_version = self._get_package_version(validated_name)
-            temp_source = ServerSource(type="npm", package_name=validated_name)
-            binary_name = temp_source.binary_name
-            
-            # Find binary in PATH
-            binary_path = shutil.which(binary_name)
-            if not binary_path:
-                raise RuntimeError(f"Binary '{binary_name}' not found in PATH after installation")
-            
-            print(f"🔍 Found binary: {binary_name} at {binary_path}")
-            print(f"📋 Package version: {package_version}")
-            
-            return binary_path, package_version
-            
-        except subprocess.CalledProcessError as e:
-            error_msg = f"npm installation failed: {e.stderr or e.stdout}"
-            raise RuntimeError(error_msg)
-    
-    def _get_package_version(self, package_name: str) -> str:
-        """Get package version using npm show command."""
-        try:
-            result = subprocess.run(
-                ["npm", "show", package_name, "version"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            return result.stdout.strip()
-        except subprocess.CalledProcessError:
-            return "unknown"
-    
-    def _create_server_config(
-        self, 
-        server_id: str,
-        name: str,
-        server_source: ServerSource,
-        description: Optional[str],
-        category: str,
-        provider: Optional[str],
-        auth_required: bool,
-        auth_type: Optional[str],
-        **kwargs
-    ) -> ServerConfig:
-        """
-        Create a complete server configuration object.
-        
-        Args:
-            server_id: Unique server identifier
-            name: Human-readable server name
-            server_source: Normalized server source
-            description: Server description
-            category: Server category
-            provider: Server provider
-            auth_required: Whether authentication is required
-            auth_type: Type of authentication
-            **kwargs: Additional configuration options
-            
-        Returns:
-            ServerConfig object
-        """
-        return ServerConfig(
+        # Create config using existing models
+        config = ServerConfig(
             id=server_id,
             name=name,
             source=server_source,
+            discovery=DiscoveryConfig(),
+            generation=GenerationConfig(),
             metadata=ServerMetadata(
-                description=description,
+                description=description or f"{name} MCP server",
                 category=category,
                 provider=provider,
                 auth_required=auth_required,
                 auth_type=auth_type
-            ),
-            **kwargs
+            )
         )
-    
-    def _setup_server_directories(self, server_config: ServerConfig) -> None:
-        """
-        Create necessary directories for the server.
         
-        Args:
-            server_config: Server configuration object
-        """
-        server_dir = self.servers_dir / server_config.id
-        server_dir.mkdir(exist_ok=True)
-        (server_dir / server_config.generation.output_dir).mkdir(exist_ok=True)
-    
-    def _persist_server_config(self, server_config: ServerConfig) -> None:
-        """
-        Save server configuration to disk.
+        # Delegate to registry
+        self.registry.add_server(server_id, config)
         
-        Args:
-            server_config: Server configuration to save
-        """
-        with open(server_config.config_path, 'w') as f:
-            json.dump(server_config.model_dump(), f, indent=2, default=str)
-    
-    def _update_registry(self, server_id: str, category: str) -> None:
-        """
-        Update the main registry with the new server.
+        print(f"✅ Server '{server_id}' added successfully")
+        print(f"   Type: {server_source.type}")
+        print(f"   Category: {category}")
         
-        Args:
-            server_id: Server identifier
-            category: Server category
-        """
-        self.registry.add_server(server_id, category)
-        self._save_registry()
+        return server_id
     
-    def _log_server_addition(self, server_config: ServerConfig) -> None:
-        """
-        Log successful server addition to user.
-        
-        Args:
-            server_config: Added server configuration
-        """
-        print(f"✅ Added server: {server_config.name} ({server_config.id})")
-        print(f"   Type: {server_config.source.type}")
-        if server_config.source.type == "npm":
-            print(f"   Package: {server_config.source.package_name}")
-            print(f"   Binary: {server_config.source.binary_path}")
-        else:
-            print(f"   Source: {server_config.source.url or server_config.source.path}")
-        print(f"   Generated path: {server_config.generated_path}")
+    def remove_server(self, server_id: str) -> bool:
+        """Remove a server from the registry."""
+        success = self.registry.remove_server(server_id)
+        if success:
+            print(f"✅ Removed server '{server_id}' from registry")
+        return success
     
     def get_server(self, server_id: str) -> Optional[ServerConfig]:
-        """Get server configuration by ID."""
-        config_file = self.servers_dir / server_id / "config.json"
-        if not config_file.exists():
-            return None
-        
-        try:
-            with open(config_file, 'r') as f:
-                data = json.load(f)
-            return ServerConfig(**data)
-        except json.JSONDecodeError as e:
-            raise ServerConfigurationError(server_id, f"Invalid JSON in config file: {e}")
-        except (IOError, OSError) as e:
-            raise FileOperationError(str(config_file), "read", str(e))
-        except ValueError as e:
-            raise ServerConfigurationError(server_id, f"Invalid configuration data: {e}")
+        """Get a server configuration."""
+        return self.registry.get_server(server_id)
     
     def list_servers(
         self,
         category: Optional[str] = None,
-        server_type: Optional[str] = None,
-        auth_required: Optional[bool] = None
-    ) -> List[Dict[str, Any]]:
-        """
-        List all servers with optional filtering.
+        source_type: Optional[str] = None,
+        with_metadata: bool = False
+    ) -> List[Union[ServerConfig, Dict[str, Any]]]:
+        """List all servers in the registry."""
+        servers = self.registry.list_servers(category)
         
-        Args:
-            category: Filter by category
-            server_type: Filter by type (local/remote)
-            auth_required: Filter by authentication requirement
-            
-        Returns:
-            List of server information
-        """
-        servers = []
+        # Filter by source type if specified
+        if source_type:
+            servers = [s for s in servers if s.source.type == source_type]
         
-        for server_id in self.registry.servers:
-            config = self.get_server(server_id)
-            if not config:
-                continue
-            
-            # Apply filters
-            if category and config.metadata.category != category:
-                continue
-            if server_type and config.source.type != server_type:
-                continue
-            if auth_required is not None and config.metadata.auth_required != auth_required:
-                continue
-            
-            servers.append({
-                "id": server_id,
-                "name": config.name,
-                "type": config.source.type,
-                "status": "active",
-                "auth_required": config.metadata.auth_required,
-                "category": config.metadata.category,
-                "provider": config.metadata.provider,
-                "last_discovered": config.discovery.last_discovered,
-                "last_generated": config.generation.last_generated,
-                "generated_path": str(config.generated_path)
-            })
+        # Add metadata if requested (for CLI compatibility)
+        if with_metadata:
+            result = []
+            for server in servers:
+                server_dict = server.model_dump()
+                server_dict["status"] = {
+                    "discovered": server.discovery.last_discovered is not None,
+                    "generated": server.generation.last_generated is not None
+                }
+                result.append(server_dict)
+            return result
         
         return servers
     
-    def discover_server(self, server_id: str) -> Optional[DiscoveryResult]:
-        """
-        Discover tools/resources for a specific server.
-        
-        Args:
-            server_id: Server ID to discover
-            
-        Returns:
-            Discovery result or None if failed
-            
-        Raises:
-            ServerNotFoundError: If server doesn't exist
-            DiscoveryError: If discovery process fails
-        """
-        try:
-            config = self.get_server(server_id)
-            if not config:
-                raise ServerNotFoundError(server_id)
-            
-            if not config.discovery.enabled:
-                handle_warning(f"Discovery disabled for server: {server_id}")
-                return None
-            
-            print(f"🔍 Discovering server: {config.name}")
-            
-            # Determine source path/URL
-            if config.source.type == "local":
-                source_path = config.source.path
-            elif config.source.type == "npm":
-                # For npm packages, use the installed binary path (works like local servers)
-                source_path = config.source.binary_path
-            else:
-                source_path = config.source.url
-            
-            # Perform discovery
-            result = self.discovery_engine.discover(
-                source_path,
-                transport=config.source.transport,
-                use_cache=True
-            )
-            
-            # Save discovery results
-            try:
-                with open(config.discovery_path, 'w') as f:
-                    json.dump(result.model_dump(), f, indent=2, default=str)
-            except (IOError, OSError) as e:
-                raise FileOperationError(str(config.discovery_path), "write", str(e))
-            
-            # Update server configuration
-            config.discovery.last_discovered = datetime.now()
-            config.metadata.updated_at = datetime.now()
-            
-            try:
-                with open(config.config_path, 'w') as f:
-                    json.dump(config.model_dump(), f, indent=2, default=str)
-            except (IOError, OSError) as e:
-                raise FileOperationError(str(config.config_path), "write", str(e))
-            
-            print(f"✅ Discovery completed: {len(result.tools)} tools, {len(result.resources)} resources")
-            print(f"   Discovery saved to: {config.discovery_path}")
-            
-            return result
-            
-        except (ServerNotFoundError, DiscoveryError, FileOperationError):
-            # Re-raise our custom exceptions
-            raise
-        except Exception as e:
-            # Wrap unexpected errors in DiscoveryError
-            raise DiscoveryError(server_id, str(e))
+    # ========== Discovery Operations ==========
     
-    def discover_all(
+    def discover_server(self, server_id: str) -> Optional[DiscoveryResult]:
+        """Discover tools and resources for a specific server."""
+        return self.discovery.discover_server(server_id)
+    
+    def discover_all(self, force: bool = False) -> Dict[str, DiscoveryResult]:
+        """Discover all registered servers."""
+        return self.discovery.discover_all(force=force, use_cache=not force)
+    
+    def discover_local_servers(self, mcp_servers_dir: str = "mcp_servers") -> List[Dict[str, Any]]:
+        """Discover MCP servers in a local directory."""
+        return self.discovery.discover_local_servers(mcp_servers_dir)
+    
+    def auto_discover_and_add_local_servers(
         self,
-        server_type: Optional[str] = None,
-        auth_required: Optional[bool] = None
-    ) -> List[DiscoveryResult]:
-        """
-        Discover all servers matching criteria.
-        
-        Args:
-            server_type: Only discover servers of this type
-            auth_required: Only discover servers with this auth requirement
-            
-        Returns:
-            List of discovery results
-        """
-        servers = self.list_servers(server_type=server_type, auth_required=auth_required)
-        results = []
-        
-        print(f"🔍 Discovering {len(servers)} servers")
-        
-        for server_info in servers:
-            server_id = server_info["id"]
-            result = self.discover_server(server_id)
-            if result:
-                results.append(result)
-        
-        print(f"✅ Discovery completed: {len(results)}/{len(servers)} servers successful")
-        return results
+        mcp_servers_dir: str = "mcp_servers",
+        dry_run: bool = False
+    ) -> List[str]:
+        """Auto-discover and add local servers."""
+        return self.discovery.auto_discover_and_add(mcp_servers_dir, dry_run)
+    
+    # ========== Generation Operations ==========
     
     def generate_mock(self, server_id: str) -> Optional[str]:
-        """
-        Generate mock server for a specific server.
+        """Generate a mock server implementation."""
+        return self.generator.generate_mock(server_id)
+    
+    def generate_all(self, force: bool = False) -> Dict[str, str]:
+        """Generate mocks for all discovered servers."""
+        # First discover all
+        discoveries = self.discovery.discover_all(force=force)
         
-        Args:
-            server_id: Server ID to generate mock for
-            
-        Returns:
-            Path to generated mock server or None if failed
-        """
-        config = self.get_server(server_id)
-        if not config:
-            print(f"❌ Server not found: {server_id}")
-            return None
-        
-        if not config.generation.enabled:
-            print(f"⚠️  Generation disabled for server: {server_id}")
-            return None
-        
-        # Check if discovery results exist
-        if not config.discovery_path.exists():
-            print(f"❌ No discovery results found for {server_id}. Run discovery first.")
-            return None
-        
-        print(f"🏗️  Generating mock server: {config.name}")
-        
-        try:
-            # Load discovery results
-            with open(config.discovery_path, 'r') as f:
-                discovery_data = json.load(f)
-            
-            # Import generation modules
-            from ai_generation.server_generator import generate_ai_mock_server
-
-            # Generate mock server
-            generate_ai_mock_server(discovery_data, config.generated_path)
-            
-            # Update server configuration
-            config.generation.last_generated = datetime.now()
-            config.metadata.updated_at = datetime.now()
-            
-            with open(config.config_path, 'w') as f:
-                json.dump(config.model_dump(), f, indent=2, default=str)
-            
-            print(f"✅ Mock server generated")
-            print(f"   Generated path: {config.generated_path}")
-            print(f"   Files: server.py, tools.py")
-            
-            return str(config.generated_path)
-            
-        except Exception as e:
-            print(f"❌ Generation failed for {server_id}: {e}")
-            return None
+        # Then generate
+        return self.generator.generate_all(discoveries, force=force)
     
     def generate_template(self, template_type: str = "config") -> str:
-        """
-        Generate template content for server configuration.
-        
-        Args:
-            template_type: Type of template ("config" or "discovery")
-            
-        Returns:
-            Template content as JSON string
-        """
-        if template_type == "config":
-            return ServerConfig.generate_template()
-        elif template_type == "discovery":
-            # For discovery template, we can use the existing discovery result structure
-            from ai_generation.discovery_models import DiscoveryResult
-            return DiscoveryResult.generate_template()
-        else:
-            raise ValueError(f"Unknown template type: {template_type}")
+        """Generate a template file."""
+        return self.generator.generate_template(template_type)
     
     def save_template(self, template_type: str = "config", output_path: Optional[Path] = None):
-        """
-        Save template to file.
-        
-        Args:
-            template_type: Type of template to save
-            output_path: Where to save the template (defaults to templates directory)
-        """
-        if output_path is None:
-            output_path = self.base_dir / "servers" / "templates" / f"{template_type}.json.template"
-        
-        template_content = self.generate_template(template_type)
-        
-        with open(output_path, 'w') as f:
-            f.write(template_content)
-        
-        print(f"✅ Template saved: {output_path}")
+        """Save a template to file."""
+        return self.generator.save_template(template_type, output_path)
     
     def update_templates(self):
-        """Update all templates from current data models."""
-        print("🔄 Updating templates from data models...")
-        
-        # Update config template
-        self.save_template("config")
-        
-        # Update discovery template (if we implement it)
-        # self.save_template("discovery")
-        
-        print("✅ All templates updated")
+        """Update template files."""
+        for template_type in ["config", "server"]:
+            self.generator.save_template(template_type)
+        print(f"✅ Updated template files")
     
-    def generate_all(
-        self,
-        server_type: Optional[str] = None,
-        auth_required: Optional[bool] = None
-    ) -> List[str]:
-        """
-        Generate mocks for all discovered servers.
-        
-        Args:
-            server_type: Only generate for servers of this type
-            auth_required: Only generate for servers with this auth requirement
-            
-        Returns:
-            List of generated mock server paths
-        """
-        servers = self.list_servers(server_type=server_type, auth_required=auth_required)
-        results = []
-        
-        print(f"🏗️  Generating mocks for {len(servers)} servers")
-        
-        for server_info in servers:
-            server_id = server_info["id"]
-            result = self.generate_mock(server_id)
-            if result:
-                results.append(result)
-        
-        print(f"✅ Generation completed: {len(results)}/{len(servers)} servers successful")
-        return results
+    # ========== Testing Operations ==========
     
-    def remove_server(self, server_id: str) -> bool:
-        """
-        Remove a server from the registry.
+    def test_server(self, server_id: str) -> bool:
+        """Run evaluation tests for a specific server."""
+        return self.tester.test_server(server_id)
+    
+    def test_all(self, category: Optional[str] = None) -> Dict[str, bool]:
+        """Test multiple servers."""
+        if category:
+            return self.tester.batch_test_by_category(category)
+        else:
+            return self.tester.test_all()
+    
+    # ========== Status and Utility Operations ==========
+    
+    def status(self) -> None:
+        """Print comprehensive status of the registry."""
+        servers = self.list_servers(with_metadata=True)
         
-        Args:
-            server_id: Server ID to remove
-            
-        Returns:
-            True if successful
-        """
-        server_dir = self.servers_dir / server_id
-        if not server_dir.exists():
-            print(f"❌ Server not found: {server_id}")
-            return False
+        discovered_count = sum(1 for s in servers if s.get("status", {}).get("discovered"))
+        generated_count = sum(1 for s in servers if s.get("status", {}).get("generated"))
         
-        # Remove directory
-        shutil.rmtree(server_dir)
+        print("📊 MCP Registry Status")
+        print("=" * 50)
+        print(f"Total Servers: {len(servers)}")
+        print(f"Discovered: {discovered_count}")
+        print(f"Generated: {generated_count}")
         
-        # Update registry
-        self.registry.remove_server(server_id)
-        self._save_registry()
+        # Group by category
+        categories = {}
+        for server in servers:
+            category = server.get("metadata", {}).get("category", "Unknown")
+            categories[category] = categories.get(category, 0) + 1
         
-        print(f"✅ Removed server: {server_id}")
-        return True
+        print(f"\n📁 Categories:")
+        for category, count in categories.items():
+            print(f"   {category}: {count}")
     
     def get_server_status(self, server_id: str) -> Dict[str, Any]:
-        """
-        Get comprehensive status for a server.
-        
-        Args:
-            server_id: Server ID
-            
-        Returns:
-            Status information
-        """
+        """Get comprehensive status for a server."""
         config = self.get_server(server_id)
         if not config:
-            return {"error": "Server not found"}
+            return {"error": f"Server {server_id} not found"}
         
         return {
             "id": server_id,
             "name": config.name,
-            "type": config.source.type,
-            "source": config.source.url or config.source.path,
-            "transport": config.source.transport,
-            "auth_required": config.metadata.auth_required,
-            "auth_type": config.metadata.auth_type,
+            "source": config.source.model_dump(),
             "category": config.metadata.category,
-            "provider": config.metadata.provider,
-            "discovery": {
-                "enabled": config.discovery.enabled,
+            "discovered": config.discovery.last_discovered is not None,
+            "generated": config.generation.last_generated is not None,
+            "discovery_info": {
                 "last_discovered": config.discovery.last_discovered,
-                "has_results": config.discovery_path.exists()
+                "tools_count": config.discovery.tools_count,
+                "resources_count": config.discovery.resources_count
             },
-            "generation": {
-                "enabled": config.generation.enabled,
-                "last_generated": config.generation.last_generated,
-                "output_dir": str(config.generated_path),
-                "has_files": config.generated_path.exists()
-            },
-            "metadata": {
-                "created_at": config.metadata.created_at,
-                "updated_at": config.metadata.updated_at,
-                "version": config.metadata.version
-            }
+            "test_status": self.tester.get_test_status(server_id),
+            "health": self.tester.validate_server_health(server_id)
         }
     
-    def discover_local_servers(self, mcp_servers_dir: str = "mcp_servers") -> List[Dict[str, Any]]:
-        """
-        Auto-discover all local MCP servers in the mcp_servers directory.
+    def sync(self, force: bool = False) -> Dict[str, Any]:
+        """Sync all servers: discover, generate, and test."""
+        print("🔄 Starting full sync...")
+        print("=" * 50)
         
-        Args:
-            mcp_servers_dir: Path to the mcp_servers directory
+        summary = {
+            "started_at": datetime.now(),
+            "discovered": 0,
+            "generated": 0,
+            "tested": 0,
+            "failed": 0,
+            "servers": {}
+        }
+        
+        # Discover all servers
+        print("📡 Phase 1: Discovery")
+        discoveries = self.discovery.discover_all(force=force, use_cache=not force)
+        summary["discovered"] = len(discoveries)
+        
+        # Generate mocks for discovered servers
+        print("\n🤖 Phase 2: Generation")
+        generated = self.generator.generate_all(discoveries, force=force)
+        summary["generated"] = len(generated)
+        
+        # Test generated servers (optional)
+        print("\n🧪 Phase 3: Testing")
+        test_results = self.tester.test_all(list(generated.keys()))
+        summary["tested"] = sum(1 for r in test_results.values() if r)
+        
+        # Track individual server status
+        for server_id in self.registry.get_all_server_ids():
+            status = {
+                "discovered": server_id in discoveries,
+                "generated": server_id in generated,
+                "tested": test_results.get(server_id, False),
+                "error": None
+            }
             
-        Returns:
-            List of discovered server information
-        """
-        try:
-            discovered_servers = self.local_scanner.discover_servers(mcp_servers_dir)
+            if not status["discovered"]:
+                status["error"] = "Discovery failed"
+                summary["failed"] += 1
+            elif not status["generated"] and server_id in discoveries:
+                status["error"] = "Generation failed"
+                summary["failed"] += 1
             
-            # Convert LocalServerInfo objects to dictionaries for backward compatibility
-            return [
-                {
-                    "id": server.id,
-                    "name": server.name,
-                    "path": server.path,
-                    "transport": server.transport,
-                    "auth_required": server.auth_required,
-                    "category": server.category,
-                    "description": server.description,
-                    "provider": server.provider
-                }
-                for server in discovered_servers
-            ]
-        except DirectoryNotFoundError as e:
-            handle_error(e, "local server discovery", exit_on_error=False)
-            return []
-    
-    
-    def auto_discover_and_add_local_servers(self, mcp_servers_dir: str = "mcp_servers", dry_run: bool = False) -> List[str]:
-        """
-        Auto-discover and add all local servers to the registry.
+            summary["servers"][server_id] = status
         
-        Args:
-            mcp_servers_dir: Path to the mcp_servers directory
-            dry_run: If True, only show what would be added without actually adding
-            
-        Returns:
-            List of added server IDs
-        """
-        discovered_servers = self.discover_local_servers(mcp_servers_dir)
+        summary["completed_at"] = datetime.now()
+        summary["duration"] = (summary["completed_at"] - summary["started_at"]).total_seconds()
         
-        if not discovered_servers:
-            print("📋 No local servers found to add")
-            return []
+        # Print summary
+        print("\n" + "=" * 50)
+        print("📊 Sync Summary:")
+        print(f"   ✅ Discovered: {summary['discovered']}")
+        print(f"   🤖 Generated: {summary['generated']}")
+        print(f"   🧪 Tested: {summary['tested']}")
+        print(f"   ❌ Failed: {summary['failed']}")
+        print(f"   ⏱️  Duration: {summary['duration']:.1f}s")
         
-        added_servers = []
-        
-        print(f"\n{'🔍 DRY RUN - ' if dry_run else ''}Adding discovered servers to registry:")
-        
-        for server_info in discovered_servers:
-            server_id = server_info["id"]
-            
-            # Check if server already exists
-            existing_server = self.get_server(server_id)
-            if existing_server:
-                print(f"   ⚠️  Skipping {server_info['name']} ({server_id}) - already exists")
-                continue
-            
-            if dry_run:
-                print(f"   📝 Would add: {server_info['name']} ({server_id})")
-                print(f"      Path: {server_info['path']}")
-                print(f"      Transport: {server_info['transport']}")
-                print(f"      Auth Required: {server_info['auth_required']}")
-                print(f"      Category: {server_info['category']}")
-                added_servers.append(server_id)
-            else:
-                # Create server source
-                source = ServerSource(
-                    type="local",
-                    path=server_info["path"],
-                    transport=server_info["transport"]
-                )
-                
-                # Add server to registry
-                self.add_server(
-                    server_id=server_id,
-                    name=server_info["name"],
-                    source=source,
-                    description=server_info.get("description"),
-                    category=server_info["category"],
-                    provider=server_info.get("provider"),
-                    auth_required=server_info["auth_required"]
-                )
-                
-                added_servers.append(server_id)
-        
-        if not dry_run and added_servers:
-            print(f"\n✅ Successfully added {len(added_servers)} local servers to registry")
-        
-        return added_servers
-    
-    def test_server(self, server_id: str) -> bool:
-        """
-        Run evaluation tests for a specific server.
-        
-        Args:
-            server_id: Server ID to test
-            
-        Returns:
-            True if tests passed, False otherwise
-        """
-        config = self.get_server(server_id)
-        if not config:
-            print(f"❌ Server not found: {server_id}")
-            return False
-        
-        # Check if generated server and evaluations exist
-        generated_dir = self.servers_dir / server_id / "generated"
-        mock_server_path = generated_dir / "server.py"
-        evaluations_path = generated_dir / "evaluations.json"
-        
-        if not mock_server_path.exists():
-            print(f"❌ No generated mock server found for {server_id}. Run generation first.")
-            return False
-            
-        if not evaluations_path.exists():
-            print(f"❌ No evaluations found for {server_id}. Run generation first.")
-            return False
-        
-        print(f"🧪 Running tests for server: {config.name}")
-        
-        try:
-            # Import and run the evaluation runner
-            from ai_generation.evaluation_runner import run_evaluations
-            
-            # Run evaluations
-            result = run_evaluations(
-                evaluations_file=str(evaluations_path),
-                mock_server_file=str(mock_server_path)
-            )
-            
-            if result:
-                print(f"✅ All tests passed for {server_id}")
-                return True
-            else:
-                print(f"❌ Some tests failed for {server_id}")
-                return False
-                
-        except ImportError:
-            print(f"❌ Evaluation runner not available. Install required dependencies.")
-            return False
-        except Exception as e:
-            print(f"❌ Test execution failed: {e}")
-            return False
+        return summary
