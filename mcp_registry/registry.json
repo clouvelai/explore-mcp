@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_updated": "2025-10-23 19:45:02.955815",
+  "last_updated": "2025-10-23 20:05:50.140132",
   "servers": [
     "microsoft-learn",
     "calculator",
@@ -11,7 +11,9 @@
     "memory-mvp",
     "filesystem",
     "sequential",
-    "test-clean"
+    "test-clean",
+    "filesystem-example",
+    "filesystem-python"
   ],
   "categories": {
     "Documentation": [
@@ -28,7 +30,9 @@
     ],
     "Storage": [
       "google_drive",
-      "filesystem"
+      "filesystem",
+      "filesystem-example",
+      "filesystem-python"
     ],
     "Testing": [
       "everything",
