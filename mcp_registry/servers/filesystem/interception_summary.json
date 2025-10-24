@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-10-23T22:20:26.215325",
+  "log_file": "intercepted_logs.jsonl",
+  "server_binary": "/Users/samuelclark/.npm-global/bin/mcp-server-filesystem",
+  "operations_tested": [
+    "initialize",
+    "list_tools",
+    "list_resources",
+    "read_file",
+    "list_directory",
+    "search_files",
+    "write_file"
+  ],
+  "log_entries_count": 14
+}
