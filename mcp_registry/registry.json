@@ -1,17 +1,17 @@
 {
   "version": "1.0.0",
   "last_updated": "2025-10-23 21:41:15.049074",
-  "servers": [
-    "microsoft-learn",
-    "calculator",
-    "air_fryer",
-    "gmail",
-    "google_drive",
-    "everything",
-    "filesystem",
-    "sequential",
-    "memory"
-  ],
+  "servers": {
+    "microsoft-learn": "Documentation",
+    "calculator": "Utilities",
+    "air_fryer": "Lifestyle",
+    "gmail": "Communication",
+    "google_drive": "Storage",
+    "everything": "Testing",
+    "filesystem": "Storage",
+    "sequential": "AI",
+    "memory": "Memory"
+  },
   "categories": {
     "Documentation": [
       "microsoft-learn"

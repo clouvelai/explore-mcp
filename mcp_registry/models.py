@@ -176,13 +176,12 @@ class ServerRegistry(BaseModel):
     """Master registry of all MCP servers."""
     version: str = "1.0.0"
     last_updated: datetime = Field(default_factory=datetime.now)
-    servers: List[str] = Field(default_factory=list, description="List of server IDs")
+    servers: Dict[str, str] = Field(default_factory=dict, description="Map of server IDs to categories")
     categories: Dict[str, List[str]] = Field(default_factory=dict, description="Servers grouped by category")
     
     def add_server(self, server_id: str, category: str = "General"):
         """Add a server to the registry."""
-        if server_id not in self.servers:
-            self.servers.append(server_id)
+        self.servers[server_id] = category
         
         if category not in self.categories:
             self.categories[category] = []
@@ -194,7 +193,8 @@ class ServerRegistry(BaseModel):
     def remove_server(self, server_id: str):
         """Remove a server from the registry."""
         if server_id in self.servers:
-            self.servers.remove(server_id)
+            category = self.servers[server_id]
+            del self.servers[server_id]
         
         # Remove from all categories
         for category, servers in self.categories.items():
