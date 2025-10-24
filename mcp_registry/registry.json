@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_updated": "2025-10-23 20:05:50.140132",
+  "last_updated": "2025-10-23 20:16:22.487032",
   "servers": [
     "microsoft-learn",
     "calculator",
@@ -8,12 +8,8 @@
     "gmail",
     "google_drive",
     "everything",
-    "memory-mvp",
     "filesystem",
-    "sequential",
-    "test-clean",
-    "filesystem-example",
-    "filesystem-python"
+    "sequential"
   ],
   "categories": {
     "Documentation": [
@@ -30,17 +26,12 @@
     ],
     "Storage": [
       "google_drive",
-      "filesystem",
-      "filesystem-example",
-      "filesystem-python"
+      "filesystem"
     ],
     "Testing": [
-      "everything",
-      "test-clean"
+      "everything"
     ],
-    "Memory": [
-      "memory-mvp"
-    ],
+    "Memory": [],
     "AI": [
       "sequential"
     ]

@@ -52,8 +52,11 @@ Real MCP Server → AI Discovery → Mock Server + Evaluations → CI/CD Testing
 
 ### 🌐 **Multi-Transport Support**
 - **Local servers**: stdio transport
-- **Remote servers**: HTTP/SSE auto-detection
+- **Remote servers**: HTTP/SSE auto-detection  
+- **npm packages**: Global installation with binary detection
 - **Public APIs**: Microsoft Learn, custom endpoints
+
+*Find more servers at https://github.com/modelcontextprotocol/servers*
 
 ## Examples
 
@@ -67,6 +70,12 @@ Real MCP Server → AI Discovery → Mock Server + Evaluations → CI/CD Testing
 ```bash
 ./mcp add microsoft-docs https://learn.microsoft.com/api/mcp --category Documentation
 ./mcp sync && ./mcp test microsoft-docs
+```
+
+### npm Package Server
+```bash
+./mcp add fs @modelcontextprotocol/server-filesystem --source npm --category Storage
+./mcp sync && ./mcp test fs
 ```
 
 ### Batch Operations
