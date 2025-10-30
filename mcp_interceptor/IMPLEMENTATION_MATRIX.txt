@@ -1,0 +1,159 @@
+MCP INTERCEPTOR - IMPLEMENTATION MATRIX
+========================================
+
+FEATURE COMPARISON MATRIX
+=========================
+
+Feature                     | Status    | Location                              | Notes
+-----------------------------|-----------|---------------------------------------|------
+Monkeypatching               | Active    | mcp_interceptor.py:184-219           | Global class replacement
+Request logging              | Active    | mcp_interceptor.py:24-38             | Captures all args/kwargs
+Response logging             | Active    | mcp_interceptor.py:40-54             | Captures result or error
+JSON serialization           | Active    | mcp_interceptor.py:56-70             | Recursive, type-aware
+File output (NDJSON)         | Active    | mcp_interceptor.py:90-92             | Append mode, one entry/line
+Console output               | Active    | mcp_interceptor.py:74-88             | Formatted with separators
+Custom request hooks         | Active    | mcp_interceptor.py:110-112           | Async or sync
+Custom response hooks        | Active    | mcp_interceptor.py:114-117           | Async or sync
+Request/Response counting    | Active    | mcp_interceptor.py:21-22,42          | Incremental counters
+Error handling               | Active    | mcp_interceptor.py:131-138           | Transparent re-raising
+Method interception          | Active    | mcp_interceptor.py:151-182           | 8 key methods
+Transport agnostic           | Active    | example.py:19-22                     | Works with http, stdio, sse
+Uninstall capability         | Active    | mcp_interceptor.py:211-219           | Can restore original
+Integration with Discovery   | Pending   | N/A                                   | Could use interceptor data
+Integration with Generation  | Pending   | N/A                                   | Could enhance mock quality
+
+
+DATA CAPTURE MATRIX
+====================
+
+Captured Element             | Captured | Format              | Location
+-----------------------------|----------|---------------------|----------
+Method name                  | Yes      | String              | request.method, response.method
+Request timestamp            | Yes      | ISO-8601            | request.timestamp
+Response timestamp           | Yes      | ISO-8601            | response.timestamp
+Request count               | Yes      | Integer             | request.count, response.count
+Positional arguments        | Yes      | Serialized array    | request.args
+Keyword arguments           | Yes      | Serialized object   | request.kwargs
+Response result             | Yes      | Serialized object   | response.result
+Response error              | Yes      | String              | response.error
+Exception traceback         | No       | N/A                 | Only error message captured
+Request duration            | No       | N/A                 | Could compute from timestamps
+Transport layer details     | No       | N/A                 | Only application-level
+Server identification       | No       | N/A                 | Inferred from method responses
+Client identification       | No       | N/A                 | Not captured
+
+
+METHOD INTERCEPTION MATRIX
+============================
+
+Method Name                | Async | Args              | Returns                | Intercepted
+--------------------------|-------|-------------------|------------------------|------------
+initialize()              | Yes   | None              | InitializeResult       | Yes
+list_tools()             | Yes   | None              | ListToolsResult        | Yes
+call_tool()              | Yes   | name, arguments   | CallToolResult         | Yes
+list_resources()         | Yes   | None              | ListResourcesResult    | Yes
+read_resource()          | Yes   | uri               | ReadResourceResult     | Yes
+list_prompts()           | Yes   | None              | ListPromptsResult      | Yes
+get_prompt()             | Yes   | name, arguments   | GetPromptResult        | Yes
+send_roots_list_changed()| Yes   | None              | None                   | Yes
+
+
+CLASS COMPONENT MATRIX
+======================
+
+Component              | Type      | Responsibility                              | Location
+-----------------------|-----------|---------------------------------------------|--------------------
+InterceptionLogger     | Class     | Logging, serialization, file I/O            | mcp_interceptor.py:15-92
+log_request()          | Method    | Capture request details                     | mcp_interceptor.py:24-38
+log_response()         | Method    | Capture response details                    | mcp_interceptor.py:40-54
+_serialize()           | Method    | Convert objects to JSON-safe format         | mcp_interceptor.py:56-70
+_write_log()           | Method    | Write to file/console                       | mcp_interceptor.py:72-92
+InterceptedClientSession| Class     | MCP client replacement                      | mcp_interceptor.py:95-182
+_intercept_call()      | Method    | Core interception wrapper                   | mcp_interceptor.py:119-148
+[8 override methods]   | Methods   | Specific method interception                | mcp_interceptor.py:151-182
+install_interceptor()  | Function  | Install monkeypatch globally                | mcp_interceptor.py:184-208
+uninstall_interceptor()| Function  | Restore original ClientSession              | mcp_interceptor.py:211-219
+
+
+CONFIGURATION MATRIX
+====================
+
+Option           | Type    | Default     | Effects                               | Location
+-----------------|---------|-------------|---------------------------------------|----------
+log_file         | str     | None        | Enables NDJSON file output            | __init__:18
+verbose          | bool    | True        | Enables console output                | __init__:18
+request_count    | int     | 0           | Tracking counter (read-only)         | __init__:21
+response_count   | int     | 0           | Tracking counter (read-only)         | __init__:22
+_logger          | obj     | None        | Class variable for logger instance    | class var:100
+_request_hooks   | list    | []          | Custom request handlers               | class var:101
+_response_hooks  | list    | []          | Custom response handlers              | class var:102
+
+
+FILE OUTPUT FORMAT MATRIX
+==========================
+
+Entry Type        | Key Fields                                | Example Value
+------------------|-------------------------------------------|---------------
+Request           | type, timestamp, count, method, args      | request
+Request           | kwargs                                    | {"arguments": {...}}
+Response          | type, timestamp, count, method, result   | response
+Response          | error                                     | null or error message
+Object fields     | _type (class name)                        | {"_type": "CallToolResult"}
+Array             | Recursive serialization of items          | [item1, item2, ...]
+Dict              | Recursive serialization of values         | {"key": serialized_value}
+Primitive         | Original value                            | "string", 42, true, null
+
+
+INTEGRATION POINTS WITH OTHER SYSTEMS
+======================================
+
+System              | Component          | Potential Use              | Status
+--------------------|-------------------|----------------------------|----------
+ai_generation       | discovery.py       | Enhance discovery output   | Not yet
+ai_generation       | discovery_models   | Align data models          | Not yet
+ai_generation       | server_generator   | Seed mock responses        | Not yet
+ai_generation       | evals_generator    | Validate against patterns  | Not yet
+backend             | MCPService         | Log service interactions   | Not yet
+backend             | openai_service     | Track tool calls           | Not yet
+mcp_cli.py          | generate cmd       | Capture during generation  | Not yet
+
+
+PERFORMANCE MATRIX
+===================
+
+Operation                | Overhead    | Factors                  | Recommendation
+--------------------------|------------|--------------------------|----------------
+Request logging          | ~1ms        | Serialization size       | Always acceptable
+Response logging         | 1-5ms      | Result object size       | Acceptable for most uses
+Hook execution           | Variable   | Hook implementation      | Optimize hook code
+File I/O (async)         | 1-10ms     | File system speed        | Use sequential writes
+Serialization depth      | O(n)       | Nested objects           | Watch deep nesting
+Total overhead per call  | 5-20ms     | All above combined       | <100ms typical
+
+
+PROTOCOL SUPPORT MATRIX
+=======================
+
+Transport Type  | Supported | Tested | Notes
+----------------|-----------|--------|------
+stdio           | Yes       | No     | Default for local servers
+http            | Yes       | Yes    | Via streamablehttp_client (example.py)
+sse             | Yes       | No     | Server-sent events
+ws              | No        | N/A    | WebSocket not intercepted
+custom          | Depends   | No     | Depends on ClientSession wrapper
+
+
+LIMITATION MATRIX
+=================
+
+Limitation                          | Impact              | Workaround / Notes
+------------------------------------|---------------------|-------------------
+Must install before imports         | Critical            | Import order enforcement via docs
+Doesn't capture transport layer     | Minor               | Can add custom hooks for low-level logging
+Object serialization loses types    | Minor               | _type field provides class info
+Can't modify requests in-flight     | Design limitation   | Hooks can only observe, not modify
+No async context capture           | Minor               | Could add context manager enhancements
+Limited to method level             | Minor               | Sufficient for MCP use cases
+Single global logger                | Minor               | Could support per-session loggers (future)
+
+

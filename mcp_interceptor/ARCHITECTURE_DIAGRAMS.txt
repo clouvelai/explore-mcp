@@ -1,0 +1,264 @@
+MCP INTERCEPTOR - ARCHITECTURAL DIAGRAMS
+=========================================
+
+1. MONKEYPATCHING FLOW
+======================
+
+    User Code (Before)                     User Code (After)
+    ==================                     =================
+    
+    from mcp import ClientSession          from mcp_interceptor import install_interceptor
+    # ClientSession = original             install_interceptor()  # Replace globally
+                                          from mcp import ClientSession
+    async with ClientSession(...):        # ClientSession = InterceptedClientSession
+      await session.initialize()
+      ...
+
+
+2. INTERCEPTION LAYER ARCHITECTURE
+===================================
+
+    Client Code
+         |
+         v
+    ClientSession (now InterceptedClientSession)
+         |
+         +---> _intercept_call()
+         |         |
+         |         +---> log_request()
+         |         |      (write to file/console)
+         |         |
+         |         +---> run_request_hooks()
+         |         |
+         |         +---> super().original_method()
+         |         |      (call real ClientSession method)
+         |         |
+         |         +---> log_response()
+         |         |      (write to file/console)
+         |         |
+         |         +---> run_response_hooks()
+         |         |
+         |         v
+         +---> Return result / Propagate exception
+
+
+3. DATA FLOW - COMPLETE REQUEST/RESPONSE CYCLE
+================================================
+
+    MCP Client                              Log File (NDJSON)
+        |                                   (mcp_trace.log)
+        |
+        v
+    install_interceptor()
+        |
+        +---> Creates InterceptionLogger
+        |     (handles serialization & persistence)
+        |
+        +---> Replaces mcp.ClientSession
+        |     with InterceptedClientSession
+        |
+        v
+    async with ClientSession() as session:
+        |
+        +---> await session.call_tool("name", {...})
+        |       |
+        |       v
+        |   _intercept_call('call_tool', ...)
+        |       |
+        |       +---> log_request()
+        |       |       |
+        |       |       v
+        |       |   _serialize() recursively
+        |       |   (objects -> {"_type": "...", ...})
+        |       |       |
+        |       |       v
+        |       |   _write_log(entry)
+        |       |       |
+        |       |       +---> console (if verbose)
+        |       |       |       print formatted output
+        |       |       |
+        |       |       +---> file (if log_file)
+        |       |              {"type": "request", ...}\n
+        |       |
+        |       +---> await super().call_tool(...)
+        |       |       |
+        |       |       v
+        |       |   MCP Server (actual call)
+        |       |       |
+        |       |       v
+        |       |   Returns CallToolResult
+        |       |
+        |       +---> log_response()
+        |       |       |
+        |       |       v
+        |       |   _serialize(result)
+        |       |       |
+        |       |       v
+        |       |   _write_log(entry)
+        |       |       |
+        |       |       +---> console
+        |       |       +---> file
+        |       |
+        |       v
+        |   Return result to caller
+        |
+        v
+    Result + Logs captured
+
+
+4. CLASS HIERARCHY
+===================
+
+    mcp.ClientSession (original)
+           ^
+           |
+           | (subclassed by)
+           |
+    InterceptedClientSession
+           |
+           +---> _intercept_call() [wrapper method]
+           |
+           +---> initialize() [overridden]
+           +---> list_tools() [overridden]
+           +---> call_tool() [overridden]
+           +---> list_resources() [overridden]
+           +---> read_resource() [overridden]
+           +---> list_prompts() [overridden]
+           +---> get_prompt() [overridden]
+           +---> send_roots_list_changed() [overridden]
+           |
+           +---> _logger (class variable)
+           +---> _request_hooks[] (class variable)
+           +---> _response_hooks[] (class variable)
+
+    InterceptionLogger
+           |
+           +---> log_request(method, args, kwargs)
+           +---> log_response(method, result, error)
+           +---> _serialize(obj) [recursive]
+           +---> _write_log(entry)
+           |
+           +---> request_count
+           +---> response_count
+           +---> log_file
+           +---> verbose
+
+
+5. JSON OUTPUT STRUCTURE (NDJSON)
+==================================
+
+    File: mcp_trace.log
+    
+    Line 1: {"type": "request", "timestamp": "2025-10-23T10:30:45.123456", "count": 1, "method": "initialize", "args": [], "kwargs": {}}
+    Line 2: {"type": "response", "timestamp": "2025-10-23T10:30:45.234567", "count": 1, "method": "initialize", "result": {...}, "error": null}
+    Line 3: {"type": "request", "timestamp": "2025-10-23T10:30:45.345678", "count": 2, "method": "list_tools", "args": [], "kwargs": {}}
+    Line 4: {"type": "response", "timestamp": "2025-10-23T10:30:45.456789", "count": 2, "method": "list_tools", "result": {"_type": "ListToolsResult", ...}, "error": null}
+    Line 5: {"type": "request", "timestamp": "2025-10-23T10:30:45.567890", "count": 3, "method": "call_tool", "args": ["my_tool"], "kwargs": {"arguments": {...}}}
+    Line 6: {"type": "response", "timestamp": "2025-10-23T10:30:45.678901", "count": 3, "method": "call_tool", "result": {"_type": "CallToolResult", "content": [...]}, "error": null}
+
+
+6. HOOK EXECUTION FLOW
+=======================
+
+    Request Hooks                   Response Hooks
+    ==============                 ===============
+    
+    _intercept_call()
+         |
+         +---> for hook in _request_hooks:
+         |        |
+         |        +---> if async: await hook(method, args, kwargs)
+         |        +---> else: hook(method, args, kwargs)
+         |
+         +---> await super().method()  <- actual method call
+         |
+         +---> for hook in _response_hooks:
+                  |
+                  +---> if async: await hook(method, result)
+                  +---> else: hook(method, result)
+
+
+7. SERIALIZATION PROCESS (_serialize)
+========================================
+
+    Input Object
+         |
+         v
+    Is it an object with __dict__?
+         | YES                    | NO
+         v                        v
+    Create dict with          Is it a list or tuple?
+    "_type" field                | YES         | NO
+    + all non-private          |             v
+    fields (recursive)          v          Is it a dict?
+                            Recursively      | YES         | NO
+                            serialize      |             v
+                            items          v          Is it a primitive
+                                        Recursively   (str, int, float, bool, None)?
+                                        serialize      | YES         | NO
+                                        values         |             v
+                                                      v          Convert to string
+                                                   Return as-is
+                                                      
+    Result: JSON-serializable object
+
+
+8. INTEGRATION WITH DISCOVERY/GENERATION SYSTEMS
+==================================================
+
+    Real MCP Server
+         |
+         v
+    [Discovery Engine]      <-- Uses MCP Inspector CLI
+         |                      to discover tools, resources, prompts
+         v
+    DiscoveryResult
+    (tools, resources, prompts schema)
+         |
+         +---> [Interceptor] <-- Optional: capture actual request/response patterns
+         |      (captures runtime behavior)
+         |
+         v
+    [Server Generator]
+    + AI-powered mock responses
+         |
+         v
+    Mock MCP Server
+    (with realistic behavior)
+         |
+         v
+    [Evaluation Runner]
+    Test suite against mock
+
+    NOTE: Currently these are separate pipelines
+          Could be integrated to enhance mock quality
+
+
+9. CRITICAL TIMING REQUIREMENT
+================================
+
+    CORRECT:
+    --------
+    1. from mcp_interceptor import install_interceptor
+    2. install_interceptor()                  <- Install FIRST
+    3. from mcp import ClientSession          <- Import SECOND
+    4. Use ClientSession                      <- Interceptor active
+
+    WRONG:
+    ------
+    1. from mcp import ClientSession
+    2. from mcp_interceptor import install_interceptor
+    3. install_interceptor()                  <- Too late! Reference already cached
+
+
+10. ERROR HANDLING FLOW
+========================
+
+    try:
+        result = await original_method(...)
+    except Exception as e:
+        error = e
+        log_response(method, None, error)     <- Log error
+        raise                                 <- Re-raise exception
+                                             (transparent error handling)
+
